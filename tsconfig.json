@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "shared/*": ["shared/*"]
+    }
+  },
+  "include": [
+    "shared/**/*",
+    "framework/**/*",
+    "concepts/**/*",
+    "mechanics/**/*",
+    "generation/**/*",
+    "tests/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "runtime"
+  ]
+}
