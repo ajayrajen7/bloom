@@ -1,0 +1,9 @@
+{
+  "id": "concept_003",
+  "targetDivisionId": "cognitive.visual_discrimination",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "low",
+  "themeHint": "find the animal",
+  "targetDurationSeconds": 35,
+  "notes": "Tap-to-select. 1 correct animal, 3 distractors. Prompt names the animal: 'Tap the dog!' Use common animals (dog, cat, duck, cow). Grid 2x2."
+}

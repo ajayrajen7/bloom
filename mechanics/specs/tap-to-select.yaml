@@ -1,0 +1,150 @@
+id: "tap-to-select"
+name: "Tap to Select"
+description: >
+  Items are presented in a layout. The child taps the item(s) that match the
+  audio prompt. Correct taps are celebrated; incorrect taps give gentle
+  feedback without penalising. Activity ends when all correct items have
+  been tapped.
+deviceCompatibility:
+  - ipad
+
+slotSchema:
+  correctItems:
+    type: array
+    minLength: 1
+    maxLength: 3
+    itemShape:
+      id: string
+      label: string           # must match exactly what the audio prompt says
+      assetRef: string
+  distractors:
+    type: array
+    minLength: 1
+    maxLength: 5
+    itemShape:
+      id: string
+      label: string
+      assetRef: string
+  # Total items displayed = correctItems.length + distractors.length
+  # Must match the selected layout's item_zone elementCount constraint.
+
+parameterSchema:
+  layoutId:
+    type: string
+    description: "Which layout variant to use. Must match an id in layouts[]."
+  correctCount:
+    type: number
+    range: [1, 3]
+    description: "Number of correct items to find."
+  distractorCount:
+    type: number
+    range: [1, 5]
+    description: >
+      Number of distractor items shown alongside correct items.
+      correctCount + distractorCount must satisfy the selected layout's
+      item_zone elementCount constraint.
+  visualSimilarity:
+    type: enum
+    values: [low, medium, high]
+    description: "How similar distractors look to the correct item(s)."
+
+# ── Layout variants ───────────────────────────────────────────────────────────
+#
+# tap-to-select has a single zone (item_zone) — all items live together.
+# There is no separate target zone; the audio prompt is the target.
+#
+# centerFraction is relative to the play area (between prompt and progress bars).
+# radiusFraction (circular) is relative to the play area width.
+# gapFraction (grid) is the gap between cells as a fraction of play area width.
+# elementSize values are in Phaser game units (canvas is 1024x768).
+
+layouts:
+  - id: "grid-2x2"
+    description: >
+      2 columns, 2 rows — 4 items total. Fewest choices; best for 24-28 months
+      or low-difficulty activities. Large items, generous spacing.
+    zones:
+      item_zone:
+        arrangement:
+          type: grid
+          columns: 2
+          rows: 2
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 4, max: 4 }
+        elementSize: { min: 140, max: 180 }
+        gapFraction: 0.08
+
+  - id: "grid-2x3"
+    description: >
+      2 columns, 3 rows — 6 items total. More choices, taller layout.
+      Good for receptive language activities with many distractors.
+    zones:
+      item_zone:
+        arrangement:
+          type: grid
+          columns: 2
+          rows: 3
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 6, max: 6 }
+        elementSize: { min: 110, max: 145 }
+        gapFraction: 0.06
+
+  - id: "grid-3x2"
+    description: >
+      3 columns, 2 rows — 6 items total. Wider layout than 2x3.
+      Good when items are visually distinct and spread is desirable.
+    zones:
+      item_zone:
+        arrangement:
+          type: grid
+          columns: 3
+          rows: 2
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 6, max: 6 }
+        elementSize: { min: 100, max: 135 }
+        gapFraction: 0.05
+
+  - id: "horizontal-line"
+    description: >
+      All items in a single horizontal row. Best for 2-4 items.
+      Visually simple — works well for very young children or easy concepts.
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: left-to-right
+        yFraction: 0.50
+        xPadFraction: 0.10
+        elementCount: { min: 2, max: 4 }
+        elementSize: { min: 130, max: 170 }
+
+  - id: "circle"
+    description: >
+      Items arranged in a circle around the centre of the play area.
+      Visually engaging. Good for 3-6 items. No left-to-right reading bias.
+    zones:
+      item_zone:
+        arrangement:
+          type: circular
+          radiusFraction: 0.30
+          startAngle: 0         # degrees; 0 = rightmost item, goes clockwise
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 3, max: 6 }
+        elementSize: { min: 110, max: 150 }
+
+  - id: "random"
+    description: >
+      Items placed at random non-overlapping positions within the play area.
+      Re-randomised each play session — adds replay variety.
+      Use with caution for very young children who may rely on position memory.
+    zones:
+      item_zone:
+        arrangement:
+          type: random
+          minSpacing: 140       # minimum distance between element centres (game units)
+        bounds:
+          xPadFraction: 0.10
+          yPadFraction: 0.08
+        elementCount: { min: 3, max: 5 }
+        elementSize: { min: 110, max: 140 }

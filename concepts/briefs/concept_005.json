@@ -1,0 +1,9 @@
+{
+  "id": "concept_005",
+  "targetDivisionId": "language.receptive_language",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "low",
+  "themeHint": "shapes and outlines",
+  "targetDurationSeconds": 40,
+  "notes": "Drag-to-target. 3 bold shapes (circle, square, triangle), each dragged to its matching outline. Prompt: 'Match the shapes!' Low difficulty — shapes are visually very distinct. No distractors."
+}

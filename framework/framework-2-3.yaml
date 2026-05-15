@@ -1,0 +1,64 @@
+ageband: "24-36"
+description: "Developmental framework for children aged 24-36 months."
+
+divisions:
+
+  - id: "fine_motor.pincer_grip"
+    name: "Pincer Grip / Finger Isolation"
+    domain: "fine_motor"
+    ageRangeMonths: [18, 48]
+    description: >
+      The ability to use thumb and forefinger together to pick up, move, and
+      place small objects with precision. Foundation for writing, self-feeding,
+      and tool use.
+    relatedMilestones:
+      - "stacks_4_6_blocks"
+      - "turns_pages_one_at_a_time"
+      - "uses_spoon_with_accuracy"
+      - "strings_large_beads"
+    designPrinciples:
+      - "Drag targets must be large (min 80pt on iPad) to accommodate imprecise grip"
+      - "Drag distances should be short for the younger end of the range (under 200pt)"
+      - "Snap zone should be generous — the goal is skill development, not precision testing"
+      - "High-contrast items help the child visually track what they are holding"
+      - "One item in hand at a time — no multi-touch sorting"
+
+  - id: "cognitive.visual_discrimination"
+    name: "Visual Discrimination"
+    domain: "cognitive"
+    ageRangeMonths: [18, 48]
+    description: >
+      The ability to notice similarities and differences between objects by
+      shape, colour, or size. Foundation for reading readiness, pattern
+      recognition, and categorisation.
+    relatedMilestones:
+      - "matches_objects_by_colour"
+      - "matches_objects_by_shape"
+      - "completes_simple_inset_puzzles"
+      - "sorts_objects_into_two_categories"
+    designPrinciples:
+      - "Use bold, saturated colours — avoid pastels and low-contrast schemes"
+      - "At low difficulty, make correct answer clearly distinct from distractors"
+      - "At high difficulty, use items that are similar in one dimension but different in another"
+      - "Limit distractors to 1-2 at this age — more causes confusion not challenge"
+      - "Icons should be immediately recognisable — no ambiguous silhouettes"
+
+  - id: "language.receptive_language"
+    name: "Receptive Language / Following Simple Directions"
+    domain: "language"
+    ageRangeMonths: [18, 42]
+    description: >
+      The ability to understand spoken words and follow simple one-step
+      directions without gestural cues. Foundation for vocabulary growth,
+      social participation, and later reading comprehension.
+    relatedMilestones:
+      - "points_to_named_body_parts"
+      - "follows_two_step_directions"
+      - "identifies_objects_by_name"
+      - "understands_action_words"
+    designPrinciples:
+      - "Audio prompt must play automatically at activity start — child should not need to tap to hear"
+      - "Prompt language must be a single simple sentence (under 10 words)"
+      - "Use action verbs the child knows: find, put, give, touch, show"
+      - "Item labels in the prompt must exactly match the visual — no synonyms"
+      - "Avoid negatives in prompts ('don't pick the...')"

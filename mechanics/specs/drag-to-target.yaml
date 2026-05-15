@@ -1,0 +1,162 @@
+id: "drag-to-target"
+name: "Drag to Target"
+description: >
+  Child drags items from their starting positions to the correct target zones.
+  Items that land on the wrong target bounce back. Items that land near the
+  correct target snap in with positive feedback.
+deviceCompatibility:
+  - ipad
+
+slotSchema:
+  items:
+    type: array
+    minLength: 3
+    maxLength: 7
+    itemShape:
+      id: string
+      targetId: string        # must match an id in targets[]
+      label: string           # short name for display (e.g. "apple")
+      assetRef: string        # path relative to library/assets/sprites/
+  targets:
+    type: array
+    minLength: 2
+    maxLength: 4
+    itemShape:
+      id: string
+      label: string           # short name (e.g. "apple basket")
+      assetRef: string
+  distractors:
+    type: array
+    minLength: 0
+    maxLength: 2
+    itemShape:
+      id: string
+      label: string
+      assetRef: string
+      # distractors have no targetId — they cannot be correctly placed anywhere
+
+parameterSchema:
+  layoutId:
+    type: string
+    description: "Which layout variant to use. Must match an id in layouts[]."
+  itemCount:
+    type: number
+    range: [3, 7]
+    description: >
+      Total number of items the child must place (excluding distractors).
+      Must satisfy the selected layout's item_zone elementCount constraint.
+  distractorCount:
+    type: number
+    range: [0, 2]
+    description: "Number of items that have no correct target — tests inhibition."
+  visualSimilarity:
+    type: enum
+    values: [low, medium, high]
+    description: "How visually similar distractors are to correct items. low = obviously different."
+
+# ── Layout variants ───────────────────────────────────────────────────────────
+#
+# yFraction and xFraction are relative to the play area (the region between
+# the prompt bar and the progress bar), not the full canvas height.
+# The runtime maps play-area fractions to canvas coordinates.
+#
+# elementSize values are in Phaser game units (canvas is 1024x768).
+# elementCount constraints must be satisfied by itemCount + distractorCount.
+
+layouts:
+  - id: "horizontal-standard"
+    description: >
+      Items in a horizontal row at the bottom of the play area, targets in a
+      horizontal row above. Left-to-right order. Default orientation — best for
+      24-30 months.
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: left-to-right
+        yFraction: 0.80
+        xPadFraction: 0.10
+        elementCount: { min: 3, max: 5 }
+        elementSize: { min: 80, max: 115 }
+      target_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: left-to-right
+        yFraction: 0.28
+        xPadFraction: 0.10
+        elementCount: { min: 2, max: 4 }
+        elementSize: { min: 100, max: 140 }
+
+  - id: "horizontal-reversed"
+    description: >
+      Same as horizontal-standard but both zones run right-to-left.
+      Use for replay variety — same spatial logic, mirrored.
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: right-to-left
+        yFraction: 0.80
+        xPadFraction: 0.10
+        elementCount: { min: 3, max: 5 }
+        elementSize: { min: 80, max: 115 }
+      target_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: right-to-left
+        yFraction: 0.28
+        xPadFraction: 0.10
+        elementCount: { min: 2, max: 4 }
+        elementSize: { min: 100, max: 140 }
+
+  - id: "vertical-standard"
+    description: >
+      Items in a vertical column on the right side of the play area, targets
+      in a vertical column on the left. Top-to-bottom order.
+      Useful for activities where left=category and right=items feels natural.
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: vertical
+          direction: top-to-bottom
+        xFraction: 0.72
+        yPadFraction: 0.10
+        elementCount: { min: 3, max: 5 }
+        elementSize: { min: 80, max: 115 }
+      target_zone:
+        arrangement:
+          type: linear
+          axis: vertical
+          direction: top-to-bottom
+        xFraction: 0.28
+        yPadFraction: 0.10
+        elementCount: { min: 2, max: 4 }
+        elementSize: { min: 100, max: 140 }
+
+  - id: "vertical-reversed"
+    description: >
+      Items on the left, targets on the right. Mirror of vertical-standard.
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: vertical
+          direction: top-to-bottom
+        xFraction: 0.28
+        yPadFraction: 0.10
+        elementCount: { min: 3, max: 5 }
+        elementSize: { min: 80, max: 115 }
+      target_zone:
+        arrangement:
+          type: linear
+          axis: vertical
+          direction: top-to-bottom
+        xFraction: 0.72
+        yPadFraction: 0.10
+        elementCount: { min: 2, max: 4 }
+        elementSize: { min: 100, max: 140 }

@@ -1,0 +1,9 @@
+{
+  "id": "concept_002",
+  "targetDivisionId": "fine_motor.pincer_grip",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "medium",
+  "themeHint": "farm animals and their homes",
+  "targetDurationSeconds": 55,
+  "notes": "5 animals, 3 homes (barn, pond, coop). One distractor animal. Prompt: 'Help the animals find their homes!'"
+}

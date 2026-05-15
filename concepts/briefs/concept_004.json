@@ -1,0 +1,10 @@
+{
+  "id": "concept_004",
+  "targetDivisionId": "cognitive.visual_discrimination",
+  "secondaryDivisionId": "language.receptive_language",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "medium",
+  "themeHint": "find the colour",
+  "targetDurationSeconds": 45,
+  "notes": "Tap-to-select. Prompt names a colour: 'Tap the red one!' Show 2x3 grid of familiar objects in different colours. 2 correct items (both red), 4 distractors. Tests colour vocabulary."
+}

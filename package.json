@@ -9,10 +9,10 @@
     "typecheck": "tsc --noEmit",
     "dev": "vite runtime",
     "build": "vite build runtime",
-    "generate": "tsx generation/generate-cli.ts",
-    "new-concept": "tsx concepts/new-concept.ts",
-    "review": "tsx generation/review-ui/serve.ts",
-    "eval": "tsx generation/evals/runner.ts"
+    "generate": "node --env-file=.env.local --import tsx/esm generation/generate-cli.ts",
+    "new-concept": "node --env-file=.env.local --import tsx/esm concepts/new-concept.ts",
+    "review": "node --env-file=.env.local --import tsx/esm generation/review-ui/serve.ts",
+    "eval": "node --env-file=.env.local --import tsx/esm generation/evals/runner.ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

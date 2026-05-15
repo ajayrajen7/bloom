@@ -1,0 +1,9 @@
+{
+  "id": "concept_001",
+  "targetDivisionId": "fine_motor.pincer_grip",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "low",
+  "themeHint": "fruits and baskets",
+  "targetDurationSeconds": 40,
+  "notes": "3 fruits, 2 baskets, generous spacing. Prompt: 'Put the fruits in the baskets!' Classic, familiar objects."
+}
