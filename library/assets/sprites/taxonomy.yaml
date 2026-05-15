@@ -1,0 +1,73 @@
+# Sprite taxonomy: category > type > [attributes]
+#
+# Each leaf is a sprite filename (without path prefix).
+# Sprites under the same type are VARIANTS of the same object.
+# Activities must pick items from different types to offer real discrimination.
+#
+# Level definitions:
+#   category  — broadest grouping (fruits, animals, clothing …)
+#   type      — the specific object a child would name (apple, dog, shoe …)
+#   attribute — a variant of that object (colour, size, style)
+#               If a type has only one sprite, the attribute equals the type.
+
+fruits:
+  apple:
+    - apple.png
+    - red-apple.png
+    - green-apple.png
+  banana:
+    - banana.png
+  orange:
+    - orange.png
+
+animals:
+  cat:
+    - cat.png
+  dog:
+    - dog.png
+  chicken:
+    - chicken.png
+  cow:
+    - cow.png
+  duck:
+    - duck.png
+  horse:
+    - horse.png
+  pig:
+    - pig.png
+  sheep:
+    - sheep.png
+
+containers:
+  basket:
+    - apple-basket.png
+    - banana-basket.png
+    - fruit-basket.png
+    - wicker-basket.png
+  barn:
+    - barn.png
+  coop:
+    - coop.png
+  pond:
+    - pond.png
+
+clothing:
+  shoe:
+    - boot.png
+    - shoe.png
+  sock:
+    - sock.png
+
+balls:
+  ball:
+    - blue-ball.png
+    - red-ball.png
+    - yellow-ball.png
+
+shapes:
+  circle:
+    - circle.png
+  square:
+    - square.png
+  triangle:
+    - triangle.png

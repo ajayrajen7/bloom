@@ -1,0 +1,38 @@
+{
+  "id": "eval_010_valid_high",
+  "description": "Valid high difficulty activity with 6 items passes all validation",
+  "conceptId": "concept_002",
+  "mechanicId": "drag-to-target",
+  "input": {
+    "id": "act_eval_010",
+    "conceptId": "concept_002",
+    "mechanicId": "drag-to-target",
+    "generatedAt": "2026-05-08T00:00:00.000Z",
+    "filledSlots": {
+      "items": [
+        { "id": "cow_1",     "targetId": "barn", "label": "Cow",     "assetRef": "sprites/cow.png" },
+        { "id": "horse_1",   "targetId": "barn", "label": "Horse",   "assetRef": "sprites/horse.png" },
+        { "id": "pig_1",     "targetId": "barn", "label": "Pig",     "assetRef": "sprites/pig.png" },
+        { "id": "duck_1",    "targetId": "pond", "label": "Duck",    "assetRef": "sprites/duck.png" },
+        { "id": "chicken_1", "targetId": "coop", "label": "Chicken", "assetRef": "sprites/chicken.png" },
+        { "id": "sheep_1",   "targetId": "barn", "label": "Sheep",   "assetRef": "sprites/sheep.png" }
+      ],
+      "targets": [
+        { "id": "barn", "label": "Barn", "assetRef": "sprites/barn.png" },
+        { "id": "pond", "label": "Pond", "assetRef": "sprites/pond.png" },
+        { "id": "coop", "label": "Coop", "assetRef": "sprites/coop.png" }
+      ],
+      "distractors": []
+    },
+    "parameters": { "itemCount": 6, "distractorCount": 0, "visualSimilarity": "medium", "spacing": "normal" },
+    "prompt": { "text": "Put the animals where they live!", "audioRef": "audio/prompts/PLACEHOLDER.mp3" },
+    "audioRefs": { "successSfx": "audio/sfx/success_bright.mp3", "errorSfx": "audio/sfx/try_again.mp3", "completionSfx": "audio/sfx/celebration.mp3" },
+    "metadata": { "targetDivisionId": "fine_motor.pincer_grip", "ageMonths": { "min": 24, "max": 36 }, "difficulty": "high", "targetDurationSeconds": 75, "reviewScore": 0.91, "reviewerNotes": "Good challenge level for older end of range." }
+  },
+  "assertions": [
+    { "type": "schema_valid", "expected": true },
+    { "type": "slots_valid", "expected": true },
+    { "type": "item_count_matches_difficulty", "expected": true },
+    { "type": "prompt_word_count_under_12", "expected": true }
+  ]
+}

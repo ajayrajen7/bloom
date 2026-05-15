@@ -1,0 +1,33 @@
+{
+  "id": "eval_002_wrong_target_id",
+  "description": "Item references a targetId that does not exist — must fail slot validation",
+  "conceptId": "concept_001",
+  "mechanicId": "drag-to-target",
+  "input": {
+    "id": "act_eval_002",
+    "conceptId": "concept_001",
+    "mechanicId": "drag-to-target",
+    "generatedAt": "2026-05-08T00:00:00.000Z",
+    "filledSlots": {
+      "items": [
+        { "id": "apple_1", "targetId": "nonexistent_basket", "label": "Apple", "assetRef": "sprites/apple.png" },
+        { "id": "apple_2", "targetId": "apple_basket", "label": "Apple", "assetRef": "sprites/apple.png" },
+        { "id": "banana_1", "targetId": "banana_basket", "label": "Banana", "assetRef": "sprites/banana.png" }
+      ],
+      "targets": [
+        { "id": "apple_basket", "label": "Apple Basket", "assetRef": "sprites/apple-basket.png" },
+        { "id": "banana_basket", "label": "Banana Basket", "assetRef": "sprites/banana-basket.png" }
+      ],
+      "distractors": []
+    },
+    "parameters": { "itemCount": 3, "distractorCount": 0, "visualSimilarity": "low", "spacing": "generous" },
+    "prompt": { "text": "Put the fruits in the baskets!", "audioRef": "audio/prompts/PLACEHOLDER.mp3" },
+    "audioRefs": { "successSfx": "audio/sfx/success_bright.mp3", "errorSfx": "audio/sfx/try_again.mp3", "completionSfx": "audio/sfx/celebration.mp3" },
+    "metadata": { "targetDivisionId": "fine_motor.pincer_grip", "ageMonths": { "min": 24, "max": 36 }, "difficulty": "low", "targetDurationSeconds": 40, "reviewScore": 0, "reviewerNotes": "" }
+  },
+  "assertions": [
+    { "type": "schema_valid", "expected": true },
+    { "type": "slots_valid", "expected": false },
+    { "type": "validation_error_contains", "expected": "nonexistent_basket" }
+  ]
+}

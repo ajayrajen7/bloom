@@ -1,0 +1,34 @@
+{
+  "id": "eval_003_item_count_too_low",
+  "description": "Medium difficulty activity with only 3 items — must fail item count validation",
+  "conceptId": "concept_002",
+  "mechanicId": "drag-to-target",
+  "input": {
+    "id": "act_eval_003",
+    "conceptId": "concept_002",
+    "mechanicId": "drag-to-target",
+    "generatedAt": "2026-05-08T00:00:00.000Z",
+    "filledSlots": {
+      "items": [
+        { "id": "cow_1", "targetId": "barn", "label": "Cow", "assetRef": "sprites/cow.png" },
+        { "id": "duck_1", "targetId": "pond", "label": "Duck", "assetRef": "sprites/duck.png" },
+        { "id": "chicken_1", "targetId": "coop", "label": "Chicken", "assetRef": "sprites/chicken.png" }
+      ],
+      "targets": [
+        { "id": "barn", "label": "Barn", "assetRef": "sprites/barn.png" },
+        { "id": "pond", "label": "Pond", "assetRef": "sprites/pond.png" },
+        { "id": "coop", "label": "Coop", "assetRef": "sprites/coop.png" }
+      ],
+      "distractors": []
+    },
+    "parameters": { "itemCount": 3, "distractorCount": 0, "visualSimilarity": "low", "spacing": "normal" },
+    "prompt": { "text": "Help the animals find their homes!", "audioRef": "audio/prompts/PLACEHOLDER.mp3" },
+    "audioRefs": { "successSfx": "audio/sfx/success_bright.mp3", "errorSfx": "audio/sfx/try_again.mp3", "completionSfx": "audio/sfx/celebration.mp3" },
+    "metadata": { "targetDivisionId": "fine_motor.pincer_grip", "ageMonths": { "min": 24, "max": 36 }, "difficulty": "medium", "targetDurationSeconds": 55, "reviewScore": 0, "reviewerNotes": "" }
+  },
+  "assertions": [
+    { "type": "schema_valid", "expected": true },
+    { "type": "item_count_matches_difficulty", "expected": false },
+    { "type": "validation_error_contains", "expected": "medium difficulty" }
+  ]
+}
