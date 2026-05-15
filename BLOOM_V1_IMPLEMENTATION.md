@@ -77,21 +77,68 @@ export const ConceptBriefSchema = z.object({
 export type ConceptBrief = z.infer<typeof ConceptBriefSchema>;
 ```
 
+### Layout system (shared — used by Mechanics Layer and Runtime)
+
+```typescript
+// Arrangement types — discriminated union on "type"
+export const LayoutArrangementSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("linear"),
+              axis: z.enum(["horizontal", "vertical"]),
+              direction: z.enum(["left-to-right","right-to-left","top-to-bottom","bottom-to-top"]) }),
+  z.object({ type: z.literal("grid"),
+              columns: z.number().int().positive(),
+              rows: z.number().int().positive() }),
+  z.object({ type: z.literal("circular"),
+              radiusFraction: z.number(), startAngle: z.number() }),
+  z.object({ type: z.literal("random"),
+              minSpacing: z.number() }),
+]);
+
+export const ZoneSpecSchema = z.object({
+  arrangement: LayoutArrangementSchema,
+  elementCount: z.object({ min: z.number(), max: z.number() }),
+  elementSize:  z.object({ min: z.number(), max: z.number() }),
+  // Position fields — which are used depends on arrangement type:
+  yFraction: z.number().optional(),      // linear horizontal: zone Y in play area
+  xFraction: z.number().optional(),      // linear vertical: zone X in play area
+  xPadFraction: z.number().optional(),   // linear horizontal: left/right padding
+  yPadFraction: z.number().optional(),   // linear vertical: top/bottom padding
+  centerFraction: z.object({ x: z.number(), y: z.number() }).optional(), // grid, circular
+  gapFraction: z.number().optional(),    // grid: gap between cells as fraction of width
+  bounds: z.object({ xPadFraction: z.number(), yPadFraction: z.number() }).optional(), // random
+});
+
+export const LayoutVariantSchema = z.object({
+  id: z.string(),
+  description: z.string(),
+  zones: z.record(ZoneSpecSchema),       // keyed by zone name, e.g. "item_zone", "target_zone"
+});
+```
+
+All fractions (`yFraction`, `xPadFraction`, etc.) are relative to the play area (the canvas region between the prompt bar and progress bar), not the full canvas. The runtime maps play-area fractions to canvas coordinates.
+
+`shared/layout-engine.ts` exposes `computeZonePositions(zone, count, playArea): Position[]` for all four arrangement types. It is pure TypeScript with no Phaser dependency and is fully unit-tested.
+
 ### MechanicSpec (Mechanics Layer)
 
 ```typescript
 export const MechanicSpecSchema = z.object({
-  id: z.string(),                    // e.g., "drag-to-target"
+  id: z.string(),
   name: z.string(),
   description: z.string(),
   deviceCompatibility: z.array(z.enum(["ipad", "phone", "desktop"])),
-  slotSchema: z.record(z.any()),     // freer at this level — each mechanic defines its own
-  parameterSchema: z.record(z.any()),
+  slotSchema: z.record(z.unknown()),
+  parameterSchema: z.record(z.unknown()),
+  layouts: z.array(LayoutVariantSchema),  // available layout variants for this mechanic
 });
 export type MechanicSpec = z.infer<typeof MechanicSpecSchema>;
 ```
 
-Each specific mechanic gets its own stricter schema for slot validation, defined alongside its renderer in `runtime/src/mechanics/`. The MechanicSpec type is the loose contract; the per-mechanic schemas are the strict contracts.
+**Layout variants per mechanic (V1):**
+- `drag-to-target`: `horizontal-standard`, `horizontal-reversed`, `vertical-standard`, `vertical-reversed`
+- `tap-to-select`: `grid-2x2`, `grid-2x3`, `grid-3x2`, `horizontal-line`, `circle`, `random`
+
+The generation layer selects a `layoutId` per activity. At store time, `store.ts` resolves it against the mechanic spec and inlines the full `LayoutVariant` into `parameters.layout`. The ActivityJSON in the library is self-describing — the runtime reads `parameters.layout` directly and never loads the mechanic spec.
 
 ### ActivityJSON (Generation output / Runtime input)
 
@@ -126,6 +173,35 @@ export const ActivityJSONSchema = z.object({
 });
 export type ActivityJSON = z.infer<typeof ActivityJSONSchema>;
 ```
+### LLMGenerationOutputSchema (Generation Layer — LLM response only)
+
+This is the slim schema for validating the LLM's raw response before assembly into a full ActivityJSON. It contains ONLY the fields the LLM is responsible for. The pipeline validates against this schema immediately after parsing the LLM response.
+
+```typescript
+export const LLMGenerationOutputSchema = z.object({
+  _reasoning: z.string().optional(),  // stripped after parsing, not stored
+  filledSlots: z.object({
+    items: z.array(z.object({
+      id: z.string(),
+      targetId: z.string(),
+      label: z.string(),
+      assetRef: z.string(),
+    })),
+    targets: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      assetRef: z.string(),
+    })),
+    distractors: z.array(z.any()),
+  }),
+  prompt: z.object({
+    text: z.string(),
+  }),
+});
+export type LLMGenerationOutput = z.infer<typeof LLMGenerationOutputSchema>;
+```
+
+The pipeline assembles the full ActivityJSON by combining this output with deterministic values (id, metadata, parameters, audioRefs) computed from the ConceptBrief, difficulty mapping, and pipeline constants. The assembled object must validate against ActivityJSONSchema.
 
 ### SessionRecord (Runtime → telemetry)
 
@@ -176,7 +252,8 @@ Three test categories. Each has clear responsibilities and explicit gating.
 **Coverage expectations:**
 - All loader functions (Framework, Concept, Mechanics) — must have unit tests.
 - All validators (programmatic validation in Generation) — must have unit tests.
-- Pure helpers (asset reference resolution, ID generation, etc.) — must have unit tests.
+- Pure helpers (asset reference resolution, ID generation, layout computation, etc.) — must have unit tests.
+- `shared/layout-engine.ts` — unit tested at `shared/layout-engine.test.ts`. All four arrangement types (linear, grid, circular, random) have tests for count, position correctness, and direction.
 - Phaser scene logic — *not* unit-tested. Tested via integration.
 
 **Gate:** Unit tests must pass before any commit. CI runs them on every push.
@@ -340,6 +417,11 @@ The build is sequenced so that **Nitara has new content at the end of every mile
 - `generation/pipeline/stage.ts` — writes staged activity + generates static preview HTML
 - `generation/pipeline/store.ts` — moves approved activity from staged → library
 - `generation/generate-cli.ts` — CLI entry point: `pnpm generate <concept-id>`
+*Pipeline boundary (LLM vs deterministic):*
+- `prompt.ts` has three internal phases: (1) read data layers + compute deterministic params, (2) call Claude with slim prompt, (3) assemble full ActivityJSON from LLM output + deterministic values
+- The LLM prompt template receives only: themeHint, itemCount, targetCount, divisionName, designPrinciples, availableSprites. No raw ConceptBrief, Division, or MechanicSpec objects.
+- The LLM returns only: filledSlots (items, targets, distractors) and prompt.text. All other ActivityJSON fields are set by pipeline code.
+- `LLMGenerationOutputSchema` in shared/types.ts validates the LLM response before assembly.
 
 *Prompts (versioned files):*
 - `generation/prompts/generate-drag-to-target.v1.txt`
@@ -357,7 +439,8 @@ The build is sequenced so that **Nitara has new content at the end of every mile
 *Integration test:*
 - Full pipeline test (mocked LLM): ConceptBrief in → validated ActivityJSON in library out
 - Real-LLM smoke test: generate one activity end-to-end with a real Claude call (run manually, not in CI)
-
+- **LLM-pipeline boundary test.** The prompt template file must contain `{{ITEM_COUNT}}` and `{{TARGET_COUNT}}` (pipeline-injected) and must NOT contain `{{CONCEPT_BRIEF}}`, `{{DIVISION}}`, or `{{MECHANIC_SPEC}}` (raw object injection). This test prevents boundary drift.
+- **Assembly correctness test.** Given a mock LLM response matching LLMGenerationOutputSchema and a ConceptBrief, the assembly function produces an ActivityJSON that passes ActivityJSONSchema validation. All deterministic fields (id, metadata, audioRefs, parameters) are set by the pipeline, not copied from LLM output.
 **Done when:**
 - `pnpm generate <concept-id>` produces a staged activity with a viewable preview
 - `pnpm review` allows approving/rejecting staged activities

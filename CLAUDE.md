@@ -5,13 +5,14 @@ You are working on **Bloom** with Ajay. This file is your operating manual for t
 ## Read first
 
 **Always load at session start:**
-- `memory.md` — session memory. Current milestone, what's built, in-progress work, blockers, next steps. Read this first, every session, no exceptions.
+- `/Users/ajayrajendran/Documents/code/bloom/memory.md` — session memory. Current milestone, what's built, in-progress work, blockers, next steps. Read this first, every session, no exceptions. **Always use this absolute path.** Never read `memory.md` from the working directory — when running in a worktree, that copy is stale.
 
 Then load the following when relevant; do not reload on every task.
 
 - `BLOOM_VISION.md` — long-term product vision. Read once. Reload only when discussing strategy or scope expansion.
 - `BLOOM_V1_PRD.md` — V1 product requirements. Reload when scope, goals, or success criteria are in question.
 - `BLOOM_V1_ARCHITECTURE.md` — system architecture (HLD). Reload when designing or modifying any cross-layer interaction.
+- `bloom_v1_end_to_end_architecture.html` — visual architecture diagram. Open in browser for reference when working on cross-layer changes. Shows the full pipeline with gates, the LLM vs pipeline boundary, and how eval sits beside the pipeline.
 - `BLOOM_V1_IMPLEMENTATION.md` — the working build plan. **Reload at the start of every session.** It owns type contracts, test strategy, milestone status, and AI-native workflow rules.
 
 If anything in your suggestions contradicts these documents, the documents win. If you think a document is wrong, say so explicitly and propose a change rather than working around it.
@@ -44,7 +45,7 @@ Ajay's stated preference: "All responses to be truth seeking and objective. Does
 - For implementation questions: code, types, tests. Do not re-explain why the architecture is this way.
 - For strategy questions: business and product, not code.
 
-When uncertain, ask which level Nikhil wants.
+When uncertain, ask which level Ajay wants.
 
 ### Skill-building is an explicit goal
 
@@ -60,6 +61,43 @@ He is *not* trying to learn TypeScript syntax or Phaser API specifics. Skip thos
 
 For mechanical tasks (implementing a typed function from a clear spec, writing tests for an existing module): just do it.
 
+### Prompts are not code. Do not write them autonomously.
+
+Prompts (any text sent to an LLM as instructions) are design artifacts, not implementation. Before writing or modifying any prompt:
+
+1. Show Ajay what the prompt needs to accomplish — inputs, outputs, constraints.
+2. Propose a structure (sections, order, what examples to include). Do NOT write the actual prompt text.
+3. Wait for feedback on the structure.
+4. Only then write the prompt, and show it to Ajay before saving to a file.
+
+This applies to: generation prompts, review prompts, any system prompt, any LLM instruction text. No exceptions.
+
+The reason: prompts are the highest-leverage artifact in this system. A bad function gets caught by tests. A bad prompt produces plausible-looking wrong output that passes tests and reaches the child. Ajay reviews every prompt personally.
+
+### Design invariants
+
+These are architectural rules. Violating them is always a bug, even if the code works.
+
+1. **The LLM decides ONLY creative content.** For the generation pipeline, this means: items, targets, item-to-target mapping, prompt text. Every other field in ActivityJSON is computed by pipeline code. If you find yourself putting a deterministic value into an LLM prompt for the LLM to echo back, stop and restructure.
+
+2. **No raw domain objects in LLM prompts.** The pipeline extracts the specific values the LLM needs (themeHint, itemCount, division name, design principles, available sprites) and injects those as template variables. ConceptBrief, Division, and MechanicSpec objects are never injected raw into a prompt.
+
+3. **Eval runs on assembled ActivityJSON.** Never on raw LLM output. The eval harness tests the full pipeline end-to-end, not the LLM in isolation.
+
+4. **The LLM reviewer does not re-check programmatic constraints.** validate.ts handles schema, asset refs, parameter bounds, and referential integrity. The LLM review prompt must not duplicate these checks — it handles only semantic and qualitative review.
+
+5. **Rejections at any pipeline gate are logged to library/rejected/ with a structured reason.** This is non-negotiable — rejection data is what grows the eval set.
+
+### Before declaring a milestone complete
+
+Run through this checklist yourself. Do not ask Ajay to review until all pass.
+
+1. Does prompt.ts inject any raw domain object (ConceptBrief, Division, MechanicSpec) into an LLM prompt? If yes, fix it.
+2. Does the LLM output schema contain any field the pipeline could compute deterministically? If yes, move it to pipeline code.
+3. Are there any new cross-layer types not in shared/types.ts?
+4. Does the directory structure still match ARCHITECTURE.md?
+5. Run `pnpm test && pnpm typecheck`. Both green?
+6. Review each "done when" criterion for the current milestone in IMPLEMENTATION.md. All met?
 For tasks with real ambiguity (architectural decisions, prompt design, mechanic tuning): ask before doing. A bad implementation that has to be redone wastes more time than a clarifying question.
 
 The line: if you have to make a judgement call that would change behavior the user can observe, ask. If it's just code structure inside an established contract, decide.
@@ -126,6 +164,7 @@ If a request implies changing any of these, flag it explicitly: "this would chan
 - Trunk-based. Short-lived feature branches.
 - Conventional Commits with `prompt:` and `eval:` as first-class types.
 - One concern per commit. Never mix prompt changes with code changes.
+- **Commit discipline:** Commit at the end of every session, or when a milestone completes — whichever comes first. Never let more than one session's worth of work sit uncommitted. Uncommitted work is invisible to worktrees and lost on accidental reset.
 - See `BLOOM_V1_IMPLEMENTATION.md` § 6 for full git rules.
 
 ## Things you should never do without asking
@@ -141,6 +180,9 @@ If a request implies changing any of these, flag it explicitly: "this would chan
 - Add a new mechanic
 - Add a new layer
 - Generate code for V2+ features (Selection Layer, Personalisation, Story, etc.)
+- Write or modify an LLM prompt without following the prompt review process above
+- Let the LLM output a field that the pipeline can compute deterministically
+- Duplicate a programmatic check (from validate.ts) in an LLM review prompt
 
 ## Things you should do without being asked
 
@@ -149,15 +191,26 @@ If a request implies changing any of these, flag it explicitly: "this would chan
 - Add a regression test when fixing a bug
 - Flag when a change touches the manual-review surface (it may need re-review)
 - Notice when a request would benefit from also updating one of the docs, and offer to do it
+- **Commit at session end or milestone completion, whichever is first.** Stage all relevant files, write a conventional commit message, commit to the current branch on the main worktree (`/Users/ajayrajendran/Documents/code/bloom/`). Never commit from inside a worktree — always commit in the main repo.
+
+## Current milestone
+
+M5: Tap-to-select mechanic.
+See IMPLEMENTATION.md § Milestone 5 for deliverables and done criteria.
+Before starting work, re-read the milestone's deliverables and done-when list. After completing work, verify every done-when criterion yourself before presenting to Ajay.
+
+Update this section when moving to the next milestone.
 
 ## memory.md — update rules
 
-`memory.md` is the session continuity layer. Keep it current.
+`memory.md` is the session continuity layer. Keep it current. Always read and write it using the absolute path `/Users/ajayrajendran/Documents/code/bloom/memory.md`.
 
 **Update it:**
 - Proactively when context feels ~80% full (don't wait to be asked)
 - At the end of every session
 - Any time a milestone status changes, a blocker is hit, or a significant decision is made
+
+**After updating memory.md, commit.** Commit trigger: session end OR milestone completion, whichever is earlier. This ensures worktrees branched off main always get a recent `memory.md`.
 
 **What to update:**
 - `Current milestone` — active milestone and status (not started / in progress / done)

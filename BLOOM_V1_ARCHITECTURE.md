@@ -180,13 +180,16 @@ The library is the boundary. Studio writes to it; runtime reads from it. They sh
 
 ### Mechanics Layer
 
-**What it is:** The script library. Each mechanic spec defines what content slots it needs, what parameters tune its difficulty, and what the runtime expects to render.
+**What it is:** The script library. Each mechanic spec defines what content slots it needs, what parameters tune its difficulty, and how the runtime should lay out the play area.
 
-**What it owns:** Mechanic specs (data) and the lookup interface.
+**What it owns:** Mechanic specs (data) and the lookup interface. Each spec includes:
+- `slotSchema` — the content slots the LLM must fill (items, targets, distractors, etc.)
+- `parameterSchema` — tuning knobs (itemCount, difficulty, visualSimilarity, etc.)
+- `layouts[]` — named layout variants. Each variant defines zones (e.g. `item_zone`, `target_zone`), the arrangement type within each zone (linear, grid, circular, random), and element size and count constraints. The generation layer selects a layout variant per activity; the runtime executes it.
 
 **What it does not own:** Mechanic *implementation* (rendering logic). That lives in the Runtime Layer. The spec is the contract; the runtime is the executor.
 
-**Handshake:** Read by both Generation (to know what to generate) and Runtime (to know how to render and validate). This is the only layer with two consumers.
+**Handshake:** Read by Generation (to know what to generate and what layouts are available). Layout data is resolved at store time and inlined into the ActivityJSON — the runtime reads the activity, not the spec directly.
 
 ### Generation Layer
 
@@ -204,57 +207,114 @@ The library is the boundary. Studio writes to it; runtime reads from it. They sh
 
 **What it owns:** The Phaser app, the screens (Selection, Activity, Completion), the asset loading, the input handling, the session telemetry capture.
 
-**What it does not own:** Any content production. The runtime is dumb — it renders whatever the library tells it to.
+**What it does not own:** Any content production or presentation decisions. The runtime is dumb — it renders exactly what the activity JSON tells it to. Layout, element counts, arrangement — all resolved before the activity reaches the runtime.
 
-**Handshake:** Reads ActivityJSONs from the library. Reads MechanicSpecs to know how to render. Writes session records to local storage.
+**Core principle: rendering is dumb.** The ActivityJSON is self-describing. The runtime makes no decisions about how to lay out content; those decisions are made at generate-time and encoded in the activity. This makes activities testable, portable, and reproducible.
+
+**Handshake:** Reads ActivityJSONs from the library. The activity JSON includes an inlined layout variant (placed there by the generation pipeline at store time). Writes session records to local storage.
 
 ## Generation pipeline
 
-The Generation Layer is the most complex. It has six sub-stages, with both automated and human gates.
+The Generation Layer is the most complex. It has internal stages grouped into three phases: deterministic preparation, LLM call, and quality gates.
+
+### Pipeline internals: LLM vs pipeline boundary
+
+The core design principle: **minimise the LLM's decision surface.** The pipeline computes everything it can deterministically. The LLM handles only creative decisions that require semantic judgment.
+
+**The LLM decides:** items, targets, item-to-target mapping, prompt text.
+
+**The pipeline owns:** id, conceptId, mechanicId, generatedAt, layoutId, itemCount, targetCount, distractorCount, visualSimilarity, audioRef paths, all audioRefs, all metadata fields.
 
 ```mermaid
-graph LR
-    CB[ConceptBrief] --> P[1. Prompt]
-    MS[MechanicSpec] --> P
-    DV[Division] --> P
-    P --> V[2. Validate<br/>programmatic]
-    V -- pass --> LR[3. LLM Review]
-    V -- fail --> R1[(rejected/)]
-    LR -- pass --> S[4. Stage + Preview]
-    LR -- fail --> R2[(rejected/)]
-    S --> MR[5. Manual Review]
-    MR -- approve --> ST[6. Store]
-    MR -- reject --> R3[(rejected/)]
-    MR -- regenerate --> P
-    ST --> LIB[(library/activities/)]
+graph TB
+    subgraph Prep["PHASE 1: DETERMINISTIC PREP (prompt.ts)"]
+        R[Read Framework, Mechanics, Sprites]
+        C[Compute: difficulty → itemCount, targetCount, layoutId]
+        B[Build prompt template with fixed values injected]
+        R --> C --> B
+    end
 
-    style P fill:#d6eaf8
-    style V fill:#fadbd8
-    style LR fill:#d6eaf8
-    style S fill:#fcf3cf
-    style MR fill:#fadbd8
-    style ST fill:#d4efdf
+    subgraph LLM["PHASE 2: LLM CALL (prompt.ts)"]
+        CALL[Claude API: returns items, targets, mapping, prompt text]
+        ASM[Assemble: LLM output + deterministic params = ActivityJSON]
+        CALL --> ASM
+    end
+
+    subgraph Gates["PHASE 3: QUALITY GATES"]
+        V[Gate 1: validate.ts — programmatic]
+        LR[Gate 2: llm-review.ts — separate Claude call]
+        S[Stage + Preview HTML]
+        MR[Gate 3: Manual review — human, in browser]
+        ST[store.ts — move to library]
+        V -- pass --> LR
+        V -- fail --> R1[(rejected/)]
+        LR -- pass --> S
+        LR -- fail --> R2[(rejected/)]
+        S --> MR
+        MR -- approve --> ST
+        MR -- reject --> R3[(rejected/)]
+        MR -- regenerate --> CALL
+        ST --> LIB[(library/activities/)]
+    end
+
+    B --> CALL
+    ASM --> V
+
+    style Prep fill:#d4efdf
+    style LLM fill:#fcf3cf
+    style Gates fill:#fadbd8
 ```
 
-**Key properties:**
+### Phase 1: Deterministic preparation (prompt.ts)
 
-- **Validate is programmatic and fast.** Schema check, asset reference resolution, parameter bounds. No LLM call. Catches structural failures cheaply.
-- **LLM Review is a separate Claude call.** Different prompt, different responsibility. Catches semantic failures. Returns a score and structured notes.
-- **Stage produces a manual-review surface.** A static HTML page combining: visual preview (rendered items + targets + audio playback), full Activity JSON inline, and the LLM reviewer's notes. Independent of the Phaser runtime. Three views, one page — visual issues caught by the preview, source-of-error caught by the JSON, reviewer disagreement traceable via the notes.
-- **Manual Review is a human step.** Approve, reject, or regenerate. Rejections feed the eval set as new test cases.
-- **Store moves staged → library/activities/.** Only after manual approval.
+Before calling the LLM, the pipeline:
 
-Rejections at any stage are persisted with their failure reason. This is the data that grows the eval set and improves the LLM reviewer over time.
+1. Reads the ConceptBrief, Division (via Framework loader), and MechanicSpec (via Mechanics loader).
+2. Computes deterministic parameters from difficulty:
+   - low: itemCount=3, targetCount=2, layoutId="horizontal-standard"
+   - medium: itemCount=5, targetCount=3, layoutId="horizontal-standard"
+   - high: itemCount=5, targetCount=3, layoutId="horizontal-standard"
+3. Reads the sprites directory to build an available-sprites list.
+4. Builds the prompt by injecting specific values into the template: themeHint, itemCount, targetCount, division name, design principles, available sprites. No raw domain objects are injected.
 
-### Eval strategy
+### Phase 2: LLM call and assembly (prompt.ts)
 
-Three eval levels, all run before any prompt change is committed:
+The LLM receives a prompt with fixed constraints and returns only:
 
-- **Schema-level:** does the output validate against the activity schema?
-- **Content-level:** does the LLM review pass?
-- **Mechanic-level:** does the activity actually render in the runtime without errors? (Integration test — requires runtime.)
+```typescript
+{
+  _reasoning?: string;   // design thinking — stripped after parsing
+  filledSlots: {
+    items: Array<{ id: string; targetId: string; label: string; assetRef: string }>;
+    targets: Array<{ id: string; label: string; assetRef: string }>;
+    distractors: [];
+  };
+  prompt: { text: string };
+}
+```
 
-V1 starts with ~10 hand-authored test cases. The set grows from production rejections.
+The pipeline strips `_reasoning`, validates the response against `LLMGenerationOutputSchema`, then assembles the full ActivityJSON by combining the LLM's creative output with pipeline-computed fields (id, metadata, audioRefs, parameters, etc.).
+
+### Phase 3: Quality gates
+
+Three sequential gates. Every rejection is logged to `library/rejected/` with a structured reason. Rejection reasons grow the eval set over time.
+
+**Gate 1 — validate.ts (programmatic, free, fast).** Schema validation, asset ref resolution (do sprites exist on disk?), parameter bounds, targetId referential integrity, item/target count checks. No LLM call. Catches structural failures before the expensive review step.
+
+**Gate 2 — llm-review.ts (separate Claude call).** Semantic and qualitative review only. Does NOT duplicate checks from validate.ts. Evaluates: age-appropriateness of labels and objects, logical consistency of item-to-target mapping, cultural safety, prompt quality, theme coherence. Returns binary pass/fail per dimension plus a quality score and structured issues list.
+
+**Gate 3 — Manual review (human).** `pnpm review` opens staged preview HTML pages. For each activity: approve (`pnpm approve <id>`), reject (`pnpm reject <id> --reason "<text>"`), or regenerate. Review in batches of 5–10.
+
+**store.ts** moves approved activities from `library/staged/` to `library/activities/`.
+
+### Eval harness
+
+Eval sits beside the pipeline, not in it. It is a separate test harness that runs the full pipeline (with real or mocked LLM calls) against fixed test cases and asserts properties on the **assembled ActivityJSON**.
+
+- Runs via `pnpm eval`. Manual, not in CI — each run costs money.
+- Runs before any prompt version bump. Pass rate must hold or improve.
+- Grows from rejections at any gate. New failure patterns become new eval cases.
+- V1 starts with ~10 hand-authored cases. Target ~25 by end of V1.
 
 ## Runtime architecture
 
@@ -267,7 +327,6 @@ graph TB
 
     LIB[(library/activities/)] --> SS
     LIB --> AS
-    MS[(mechanics/specs)] -.-> AS
 
     AS --> TEL[Session Telemetry<br/>local storage]
 
@@ -287,6 +346,7 @@ graph TB
 **Key technical properties:**
 
 - **Zero LLM calls in the hot path.** Activities are pre-generated. The runtime never waits on a model.
+- **ActivityJSON is self-describing.** Layout, arrangement, and element positioning are inlined at store time. The runtime executes; it does not decide.
 - **Phaser handles input through its own event system.** This bypasses the DOM event loop that caused drag-vs-scroll conflicts in the prior HTML prototype.
 - **Audio is bundled with the activity JSON as file references.** No real-time TTS. Audio files served as static assets.
 - **Session telemetry is captured but minimal.** What activity, when, completed/abandoned, time-to-complete, parent rating. Stored locally for V1; will sync to backend in later versions.
@@ -302,19 +362,20 @@ Framework         → exposes:  getDivisionsForAge, getDivisionById
 Concept Layer     → exposes:  getConceptBrief, listConceptBriefs
                     consumed by: Generation Layer
 
-Mechanics Layer   → exposes:  getMechanicSpec, listMechanicSpecs
-                    consumed by: Generation Layer (read for slot/param schemas),
-                                 Runtime Layer (read for render contracts)
+Mechanics Layer   → exposes:  getMechanicSpec, listMechanicSpecs, getLayoutVariant
+                    consumed by: Generation Layer only (slot/param schemas + layout variants)
+                    note: layout data is inlined into ActivityJSON at store time;
+                          the runtime reads the activity, not the spec directly
 
 Generation Layer  → exposes:  generateActivity (offline only)
-                    produces: ActivityJSON files in library/
+                    produces: ActivityJSON files in library/ (self-describing, layout inlined)
 
 Runtime Layer     → exposes:  N/A (terminal consumer)
-                    consumes: ActivityJSON, MechanicSpec
+                    consumes: ActivityJSON (self-describing)
                     produces: SessionRecord in local storage
 ```
 
-**One consumer rule:** every layer except Mechanics has exactly one consumer. Mechanics has two (Generation and Runtime), which is intentional — the spec is the shared contract that ensures Generation produces what Runtime can render.
+**One consumer rule:** every layer has exactly one consumer. Mechanics was originally designed with two (Generation and Runtime) but the layout-inlining decision collapsed it to one — Generation resolves layout at store time, so the runtime never needs to read the spec.
 
 ## Repository structure
 

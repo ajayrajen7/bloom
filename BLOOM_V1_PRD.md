@@ -210,45 +210,47 @@ parameterSchema:
 
 **Purpose:** Takes a concept brief + a mechanic spec, produces a complete, validated, reviewed activity ready for the runtime. This is where the AI craft lives.
 
-**V1 scope:** Full pipeline with six sub-stages.
+**V1 scope:** Full pipeline with three phases and three quality gates.
 
-**1. Prompt.** Claude is given:
-- The concept brief
-- The relevant Division(s) from the Framework
-- The MechanicSpec
-- The output JSON schema
+**Core principle: minimise the LLM's decision surface.** The pipeline computes everything deterministic (id, metadata, parameters, audio refs, layout). The LLM handles only creative decisions (items, targets, item-to-target mapping, prompt text).
 
-Output: a structured ActivityJSON conforming to the mechanic's slot schema.
+**Phase 1 — Deterministic preparation (prompt.ts, no LLM).**
+- Reads the ConceptBrief, Division, and MechanicSpec.
+- Computes itemCount, targetCount, layoutId from difficulty (deterministic mapping).
+- Reads sprites directory for available asset list.
+- Builds prompt template with specific values injected. No raw domain objects sent to LLM.
 
-**2. Validate (programmatic).**
-- JSON schema validation
-- Asset reference resolution (do referenced assets exist on disk?)
-- Parameter bounds checking
-- Slot count validation
+**Phase 2 — LLM call + assembly (prompt.ts).**
+- Claude receives a prompt with fixed constraints and returns only: items, targets, item-to-target mapping, prompt text.
+- Pipeline assembles full ActivityJSON by combining LLM creative output with deterministic fields.
 
-**3. Review (LLM).** A separate Claude call evaluates the activity against:
-- Age-appropriateness (is the language right for 2-3? are items recognisable?)
-- On-brief (does it actually target the division? does it respect difficulty?)
-- Safety (nothing scary, condescending, or culturally off)
-- Engagement (is the prompt clear? is the success state satisfying?)
+**Gate 1 — Validate (programmatic).** validate.ts.
+- Schema validation against ActivityJSONSchema.
+- Asset reference resolution (do referenced sprites exist on disk?).
+- Parameter bounds checking.
+- targetId referential integrity (every item's targetId matches a target).
+- Item/target count validation.
+- Fast, free, deterministic. Catches structural failures before the expensive LLM review.
 
-Returns a score + structured notes. Threshold (e.g., 0.85) determines pass/fail.
+**Gate 2 — Review (LLM).** llm-review.ts. A separate Claude call evaluates the activity on semantic and qualitative dimensions only. Does NOT re-check anything validate.ts already verified. Evaluates:
+- Age-appropriateness (are objects recognisable to a 2-year-old? is vocabulary in range?)
+- On-brief (does it target the stated division? does the theme match?)
+- Safety (culturally neutral, no negative associations, mapping logic consistent)
+- Engagement (prompt creates clear call to action, theme is motivating)
 
-**4. Stage + Preview.** Activities passing programmatic + LLM review are written to `library/staged/<id>.json`. A preview generator produces a manual-review surface for each staged activity — an HTML page with three components: (a) a static visual preview showing items and targets in their final positions with prompt audio playback, (b) the full Activity JSON inline for source-of-error inspection, (c) the LLM reviewer's score and notes. Independent of the Phaser runtime. Visual issues caught by (a); semantic/structural issues caught by (b); reviewer disagreement traceable via (c).
+Returns binary pass/fail per dimension, a quality score, and structured issues list.
 
-**5. Manual Review.** Builder reviews staged activities (in batches) using the static preview. For each: approve, reject (with reason), or send back for regeneration. Rejected activities feed back into the eval set as new test cases — every manual rejection makes the LLM reviewer better over time.
+**Gate 3 — Stage + Manual Review.**
+- stage.ts writes to `library/staged/<id>.json` and generates a static HTML preview (visual preview + JSON + reviewer notes).
+- `pnpm review` opens previews in browser. For each: `pnpm approve <id>` or `pnpm reject <id> --reason "<text>"`.
+- Rejections logged to `library/rejected/` and feed the eval set as new test cases.
 
-**6. Store.** Approved activities → `library/activities/<id>.json`. Rejected activities → `library/rejected/<id>.json` with failure reason and reviewer (LLM or human).
-
-Once the runtime exists, the static preview is upgraded to a "review mode" route in the runtime itself — same review flow, full fidelity. The preview-mode route is V1.5, not V1.
+**Store.** Approved activities → `library/activities/<id>.json`.
 
 **Eval set (V1):**
-- 10 test cases minimum, each is a `(concept_brief, mechanic_id)` pair with expected outcome properties.
-- 3 levels of eval, all run:
-  - **Schema-level:** does the output validate against the activity schema?
-  - **Content-level:** does the LLM review pass?
-  - **Mechanic-level:** does the activity actually render in the runtime without errors? (run as integration test)
-- Eval is run before any prompt change is committed. Pass rate must hold or improve.
+- 10 test cases minimum. Each is a fixed ConceptBrief run through the full pipeline with assertions on the assembled ActivityJSON.
+- Runs via `pnpm eval` before any prompt version bump. Manual, not in CI.
+- Grows from rejections at any gate. Every new failure pattern becomes a new eval case.
 
 **Handshake exposed:**
 ```
