@@ -14,7 +14,7 @@ import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const PROMPT_VERSION = "v8";
+const PROMPT_VERSION = "v9";
 const PROMPT_FILE = join(
   __dirname,
   "../prompts",
@@ -57,6 +57,7 @@ export async function runGenerationPrompt(
     .replace("{{TARGET_COUNT}}", String(targetCount))
     .replace("{{TARGET_DURATION_SECONDS}}", String(concept.targetDurationSeconds))
     .replace("{{DIVISION_DESIGN_PRINCIPLES}}", designPrinciples)
+    .replace("{{NOTES}}", concept.notes ?? "")
     .replace("{{SPRITE_TAXONOMY}}", formatFilteredTaxonomyForPrompt([
       ...concept.itemSprites,
       ...concept.targetSprites,

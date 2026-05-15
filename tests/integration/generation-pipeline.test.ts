@@ -259,7 +259,7 @@ describe("validateActivity — sprite scope", () => {
 
 describe("generation prompt boundary", () => {
   it("v3 template contains slim input placeholders and no raw-object placeholders", () => {
-    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v8.txt");
+    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v9.txt");
     const template = readFileSync(promptPath, "utf-8");
 
     // Required slim placeholders
@@ -268,6 +268,7 @@ describe("generation prompt boundary", () => {
     expect(template).toContain("{{THEME_HINT}}");
     expect(template).toContain("{{DIVISION_NAME}}");
     expect(template).toContain("{{SPRITE_TAXONOMY}}");
+    expect(template).toContain("{{NOTES}}");
 
     // Banned raw-object injection — these belong in the pipeline, not the prompt
     expect(template).not.toContain("{{CONCEPT_BRIEF}}");
