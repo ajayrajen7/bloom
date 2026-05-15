@@ -7,7 +7,7 @@ Read this at the start of every session. Update it proactively when context appr
 ## Current milestone
 
 - **Active:** M5 — tap-to-select mechanic + 6-8 activities
-- **Status:** Not started
+- **Status:** In progress — runtime mechanic complete, 2 tap-to-select activities approved, 4-6 more needed
 
 ---
 
@@ -33,7 +33,7 @@ Read this at the start of every session. Update it proactively when context appr
 **M3 — complete**
 - `generation/pipeline/prompt.ts` — slim inputs, validates LLM output via LLMGenerationOutputSchema, assembles full ActivityJSON via `assembleLLMOutput()`
 - `generation/pipeline/validate.ts` — schema + slot + item count + prompt length + asset ref + taxonomy type-level + sprite-scope checks
-- `generation/pipeline/llm-review.ts` — Claude API review call, score threshold 0.85, review.v2.txt
+- `generation/pipeline/llm-review.ts` — Claude API review call, score threshold 0.85, review.v3.txt
 - `generation/pipeline/stage.ts` — staged JSON + HTML preview
 - `generation/pipeline/store.ts` — approve (→ library/activities/) or reject (→ library/rejected/); regenerates index.json on approve; now correctly excludes .approved.json from index scan
 - `generation/generate-cli.ts` — `pnpm generate <concept-id>`
@@ -69,18 +69,33 @@ Read this at the start of every session. Update it proactively when context appr
 - `generation/pipeline/validate.ts` — sprite-scope check (items, targets, distractors); distractor count check per difficulty (low=0, medium=1, high=2); taxonomy type-level check
 - `generation/pipeline/prompt.ts` — active version **v10**; DISTRACTOR_COUNTS map; `{{DISTRACTOR_COUNT}}` injection; distractorCount derived from LLM output length; visualSimilarity from concept.difficulty
 - `generation/prompts/generate-drag-to-target.v10.txt` — active: all v9 rules + Rule 7 (distractors), GOOD medium example (farm animals + cat distractor)
-- `generation/prompts/review.v2.txt` — active
+- `generation/prompts/review.v2.txt` — superseded by v3
 - `generation/pipeline/store.ts` — excludes `.approved.json` from index scan
 - `generation/review-ui/serve.ts` — excludes `.approved.json` and `.rejected.json` from review queue (was causing .approved.approved.json chains)
 - `.gitignore` — added `library/staged/` and `generation/review-ui/staged/`
 - `generation/taxonomy.test.ts` — 21 tests
 - `tests/integration/generation-pipeline.test.ts` — 39 tests (added distractor + medium concept fixtures, v10 boundary test)
 
-**Library (5 approved activities)**
+**M5 — tap-to-select mechanic (in progress, 2026-05-15)**
+- `runtime/src/mechanics/tap-to-select-logic.ts` — pure logic: TapItemConfig, isTapCorrect, isActivityComplete, getCorrectItems; 7 tests
+- `runtime/src/mechanics/tap-to-select.ts` — Phaser mechanic: tap → correct=green pulse, incorrect=shake, complete→CompletionScene
+- `runtime/src/scenes/activity.ts` — routes by mechanicId; both drag-to-target and tap-to-select fully wired
+- `shared/types.ts` — LLMTapToSelectOutputSchema; mechanicId added to ConceptBriefSchema
+- `concepts/briefs/concept_001–005.json` — all updated with mechanicId field
+- `generation/pipeline/prompt-tap-to-select.ts` — CORRECT_COUNTS/DISTRACTOR_COUNTS/LAYOUT_IDS maps; runTapToSelectPrompt(); assembleTapToSelectOutput() embeds full layout variant
+- `generation/pipeline/validate.ts` — branched on mechanicId; validateDragToTarget() + validateTapToSelect() helpers; collectAssetRefs handles both slot schemas
+- `generation/generate-cli.ts` — routes by concept.mechanicId
+- `generation/prompts/generate-tap-to-select.v1.txt` — active generation prompt
+- `generation/prompts/review.v3.txt` — active: mechanic-aware safety checks, tap-to-select item count guidance
+- `generation/pipeline/llm-review.ts` — bumped to v3
+
+**Library (7 approved activities)**
 - `act_1778805627916_7da554.json` — concept_001, v4 prompt, low, "Put the fruits in the right basket!"
 - `act_1778825695936_390bc0.json` — concept_001, v9 prompt, low, "Put each fruit in its basket!"
 - `act_1778826178606_088db7.json` — concept_005, v9 prompt, low, "Match the shapes!"
 - `act_1778828810983_a85e98.json` — concept_002, v10 prompt, medium, "Help the animals find their homes!" (92/100)
+- `act_1778833226026_c65726.json` — concept_003, tap-to-select v1 prompt, low, "Tap the dog!" (97/100)
+- `act_1778833454232_b8ed1d.json` — concept_004, tap-to-select v1 prompt, low, "Tap the red one!" (96/100)
 - `act_dev_001.json` — dev fixture
 
 **Test count: 139 tests, all passing**
@@ -89,7 +104,10 @@ Read this at the start of every session. Update it proactively when context appr
 
 ## In progress
 
-Nothing — session complete. All committed.
+M5 runtime complete. Generation pipeline complete. Need:
+- 4–6 more tap-to-select activities from concepts 003 and 004 (run pnpm generate again for variety)
+- 8 eval cases for tap-to-select
+- Integration tests for tap-to-select pipeline
 
 ---
 
@@ -116,6 +134,12 @@ Nothing — session complete. All committed.
 | Prompt versioning discipline: never modify in place — always bump version. v5→v9 one session, v9→v10 next. | 2026-05-15 |
 | Distractor support added: v10 prompt, DISTRACTOR_COUNTS, distractorCount from LLM output, validation per difficulty | 2026-05-15 |
 | library/staged/ and generation/review-ui/staged/ added to .gitignore (transient pipeline artifacts) | 2026-05-15 |
+| mechanicId added to ConceptBriefSchema — required enum field, all 5 concept briefs updated | 2026-05-15 |
+| LLMTapToSelectOutputSchema added to shared/types.ts (correctItems + distractors, no targetId mapping) | 2026-05-15 |
+| tap-to-select pipeline: CORRECT_COUNTS {low:1, medium:2, high:3}, DISTRACTOR_COUNTS {low:3, medium:4, high:3}, LAYOUT_IDS {low:grid-2x2, medium:grid-2x3, high:grid-3x2} | 2026-05-15 |
+| review.v3.txt: mechanic-aware review prompt replacing v2; handles both drag-to-target and tap-to-select | 2026-05-15 |
+| concept_004 redesigned: difficulty low→low, medium difficulty dropped (sprite set too limited for 2 correct + 4 distractors without ambiguity); single-word colour labels ("Red", "Blue") | 2026-05-15 |
+| .env.local symlinked into worktree to enable pnpm generate from worktree directory | 2026-05-15 |
 
 ---
 
@@ -139,13 +163,10 @@ Nothing — session complete. All committed.
 
 ## Next steps
 
-1. **Start M5 — tap-to-select mechanic:**
-   - `runtime/src/mechanics/tap-to-select-logic.ts` — pure logic (no Phaser), testable in Node
-   - `runtime/src/mechanics/tap-to-select.ts` — Phaser tap mechanic
-   - `generation/prompts/generate-tap-to-select.v1.txt` — generation prompt (same taxonomy system + {{NOTES}} pattern)
-   - Update `ActivityScene` to route by `activity.mechanicId`
-   - Generate 6-8 tap-to-select activities (concepts 003, 004 are ready)
-   - 8 eval cases + integration test
+1. **Complete M5 activity library:** generate 4–6 more tap-to-select activities (more variety from concept_003/004, possibly new concepts)
+2. **Eval cases for tap-to-select:** 8 cases in `generation/evals/cases/`, integration tests in `tests/integration/`
+3. **stage.ts preview:** update buildPreviewHTML to show correctItems/distractors for tap-to-select (currently shows drag-to-target item→target mapping)
+4. **M5 done-when checklist:** re-read IMPLEMENTATION.md §M5 and verify all criteria
 
 ---
 
@@ -164,3 +185,4 @@ Nothing — session complete. All committed.
 | 2026-05-15 | Major pipeline session: LLMGenerationOutputSchema, slim boundary, taxonomy system (30 sprites), sprite-scope validation, itemSprites/targetSprites on ConceptBrief, prompts v5→v9, 1:1 mapping at low, {{NOTES}} injection, concept_001 + concept_005 approved. ~135 tests. |
 | 2026-05-15 | Bug fixes: store.ts .approved.json duplicate index bug fixed; concept_003 division corrected to language.receptive_language; BLOOM_V1_IMPLEMENTATION.md ConceptBriefSchema updated. |
 | 2026-05-15 | Distractor support: v10 prompt, validate.ts distractor count + scope checks, concept_002 generated (92/100) and approved. serve.ts .approved.json re-queue bug fixed. 139 tests. 5 approved activities. |
+| 2026-05-15 | M5 tap-to-select: runtime mechanic (logic + Phaser), ActivityScene routing, full generation pipeline (prompt-tap-to-select.ts, validate branching, review.v3), concept_003 (97/100) + concept_004 (96/100) approved. 7 activities total. |
