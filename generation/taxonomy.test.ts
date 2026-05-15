@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getSpriteInfo, sameType, formatTaxonomyForPrompt, getAllSprites } from "./taxonomy.js";
+import { getSpriteInfo, sameType, formatTaxonomyForPrompt, formatFilteredTaxonomyForPrompt, getAllSprites } from "./taxonomy.js";
 
 describe("getSpriteInfo", () => {
   it("returns correct category and type for a known sprite", () => {
@@ -71,6 +71,54 @@ describe("formatTaxonomyForPrompt", () => {
   it("uses sprites/ prefix on filenames", () => {
     const output = formatTaxonomyForPrompt();
     expect(output).toContain("sprites/apple.png");
+  });
+});
+
+describe("formatFilteredTaxonomyForPrompt", () => {
+  it("includes only categories represented in the sprite list", () => {
+    const output = formatFilteredTaxonomyForPrompt(["apple.png", "banana.png", "apple-basket.png"]);
+    expect(output).toContain("FRUITS");
+    expect(output).toContain("CONTAINERS");
+    expect(output).not.toContain("ANIMALS");
+    expect(output).not.toContain("SHAPES");
+    expect(output).not.toContain("CLOTHING");
+  });
+
+  it("includes only types represented in the sprite list", () => {
+    const output = formatFilteredTaxonomyForPrompt(["apple.png", "banana.png"]);
+    expect(output).toContain("apple:");
+    expect(output).toContain("banana:");
+    expect(output).not.toContain("orange:");
+  });
+
+  it("includes attribute variants when one variant is listed", () => {
+    const output = formatFilteredTaxonomyForPrompt(["apple.png"]);
+    expect(output).toContain("apple.png");
+  });
+
+  it("accepts sprites with sprites/ prefix", () => {
+    const output = formatFilteredTaxonomyForPrompt(["sprites/apple.png", "sprites/banana.png"]);
+    expect(output).toContain("FRUITS");
+    expect(output).toContain("apple:");
+    expect(output).toContain("banana:");
+  });
+
+  it("works for cross-category themes", () => {
+    const output = formatFilteredTaxonomyForPrompt(["apple.png", "banana.png", "cat.png", "dog.png"]);
+    expect(output).toContain("FRUITS");
+    expect(output).toContain("ANIMALS");
+    expect(output).not.toContain("CONTAINERS");
+  });
+
+  it("returns empty string for an empty sprite list", () => {
+    const output = formatFilteredTaxonomyForPrompt([]);
+    expect(output.trim()).toBe("");
+  });
+
+  it("ignores unknown sprites without throwing", () => {
+    const output = formatFilteredTaxonomyForPrompt(["apple.png", "nonexistent.png"]);
+    expect(output).toContain("FRUITS");
+    expect(output).not.toContain("nonexistent");
   });
 });
 

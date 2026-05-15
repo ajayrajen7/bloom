@@ -5,5 +5,7 @@
   "difficulty": "low",
   "themeHint": "shapes and outlines",
   "targetDurationSeconds": 40,
-  "notes": "Drag-to-target. 3 bold shapes (circle, square, triangle), each dragged to its matching outline. Prompt: 'Match the shapes!' Low difficulty — shapes are visually very distinct. No distractors."
+  "notes": "Drag-to-target. 3 bold shapes (circle, square, triangle), each dragged to its matching outline. Prompt: 'Match the shapes!' Low difficulty — shapes are visually very distinct. No distractors.",
+  "itemSprites": ["circle.png", "square.png", "triangle.png"],
+  "targetSprites": ["circle.png", "square.png", "triangle.png"]
 }

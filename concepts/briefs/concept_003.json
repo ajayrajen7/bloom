@@ -5,5 +5,7 @@
   "difficulty": "low",
   "themeHint": "find the animal",
   "targetDurationSeconds": 35,
-  "notes": "Tap-to-select. 1 correct animal, 3 distractors. Prompt names the animal: 'Tap the dog!' Use common animals (dog, cat, duck, cow). Grid 2x2."
+  "notes": "Tap-to-select. 1 correct animal, 3 distractors. Prompt names the animal: 'Tap the dog!' Use common animals (dog, cat, duck, cow). Grid 2x2.",
+  "itemSprites": ["dog.png", "cat.png", "duck.png", "cow.png"],
+  "targetSprites": []
 }

@@ -5,5 +5,7 @@
   "difficulty": "medium",
   "themeHint": "farm animals and their homes",
   "targetDurationSeconds": 55,
-  "notes": "5 animals, 3 homes (barn, pond, coop). One distractor animal. Prompt: 'Help the animals find their homes!'"
+  "notes": "5 animals, 3 homes (barn, pond, coop). One distractor animal. Prompt: 'Help the animals find their homes!'",
+  "itemSprites": ["cat.png", "chicken.png", "cow.png", "dog.png", "duck.png", "horse.png", "pig.png", "sheep.png"],
+  "targetSprites": ["barn.png", "coop.png", "pond.png"]
 }

@@ -27,6 +27,8 @@ const validConceptBrief = {
   difficulty: "low" as const,
   themeHint: "fruits and baskets",
   targetDurationSeconds: 45,
+  itemSprites: ["apple.png", "banana.png", "orange.png"],
+  targetSprites: ["apple-basket.png", "banana-basket.png", "fruit-basket.png"],
 };
 
 const validMechanicSpec = {
@@ -143,6 +145,27 @@ describe("ConceptBriefSchema", () => {
     expect(() =>
       ConceptBriefSchema.parse({ ...validConceptBrief, difficulty: "extreme" })
     ).toThrow();
+  });
+
+  it("requires itemSprites", () => {
+    const { itemSprites: _, ...without } = validConceptBrief;
+    expect(() => ConceptBriefSchema.parse(without)).toThrow();
+  });
+
+  it("requires targetSprites", () => {
+    const { targetSprites: _, ...without } = validConceptBrief;
+    expect(() => ConceptBriefSchema.parse(without)).toThrow();
+  });
+
+  it("rejects empty itemSprites — must have at least one sprite", () => {
+    expect(() =>
+      ConceptBriefSchema.parse({ ...validConceptBrief, itemSprites: [] })
+    ).toThrow();
+  });
+
+  it("accepts empty targetSprites — valid for tap-to-select mechanics", () => {
+    const result = ConceptBriefSchema.parse({ ...validConceptBrief, targetSprites: [] });
+    expect(result.targetSprites).toEqual([]);
   });
 
   it("round-trips through JSON serialisation", () => {

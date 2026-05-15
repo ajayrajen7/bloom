@@ -10,7 +10,7 @@ import {
   type LLMGenerationOutput,
   type ActivityJSON,
 } from "shared/types.js";
-import { formatTaxonomyForPrompt } from "../taxonomy.js";
+import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -56,7 +56,10 @@ export async function runGenerationPrompt(
     .replace("{{TARGET_COUNT}}", String(targetCount))
     .replace("{{TARGET_DURATION_SECONDS}}", String(concept.targetDurationSeconds))
     .replace("{{DIVISION_DESIGN_PRINCIPLES}}", designPrinciples)
-    .replace("{{SPRITE_TAXONOMY}}", formatTaxonomyForPrompt());
+    .replace("{{SPRITE_TAXONOMY}}", formatFilteredTaxonomyForPrompt([
+      ...concept.itemSprites,
+      ...concept.targetSprites,
+    ]));
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",

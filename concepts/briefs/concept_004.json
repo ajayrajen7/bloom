@@ -6,5 +6,7 @@
   "difficulty": "medium",
   "themeHint": "find the colour",
   "targetDurationSeconds": 45,
-  "notes": "Tap-to-select. Prompt names a colour: 'Tap the red one!' Show 2x3 grid of familiar objects in different colours. 2 correct items (both red), 4 distractors. Tests colour vocabulary."
+  "notes": "Tap-to-select. Prompt names a colour: 'Tap the red one!' Show 2x3 grid of familiar objects in different colours. 2 correct items (both red), 4 distractors. Tests colour vocabulary.",
+  "itemSprites": ["blue-ball.png", "red-ball.png", "yellow-ball.png", "apple.png", "red-apple.png", "green-apple.png"],
+  "targetSprites": []
 }

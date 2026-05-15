@@ -5,5 +5,7 @@
   "difficulty": "low",
   "themeHint": "fruits and baskets",
   "targetDurationSeconds": 40,
-  "notes": "3 fruits, 2 baskets, generous spacing. Prompt: 'Put the fruits in the baskets!' Classic, familiar objects."
+  "notes": "3 fruits, 2 baskets, generous spacing. Prompt: 'Put the fruits in the baskets!' Classic, familiar objects.",
+  "itemSprites": ["apple.png", "banana.png", "orange.png"],
+  "targetSprites": ["apple-basket.png", "banana-basket.png", "fruit-basket.png"]
 }

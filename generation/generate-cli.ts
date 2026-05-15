@@ -77,7 +77,7 @@ async function main() {
 
   // ── Stage 2: Validate ────────────────────────────────────────────────────────
   console.log("2/4  Validating…");
-  const validation = validateActivity(promptResult.activity);
+  const validation = validateActivity(promptResult.activity, concept);
   if (!validation.passed) {
     console.error("     Validation failed:");
     validation.errors.forEach((e) => console.error(`     • ${e}`));

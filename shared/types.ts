@@ -27,6 +27,8 @@ export const ConceptBriefSchema = z.object({
   themeHint: z.string(),
   targetDurationSeconds: z.number(),
   notes: z.string().optional(),
+  itemSprites: z.array(z.string()).min(1),
+  targetSprites: z.array(z.string()),
 });
 export type ConceptBrief = z.infer<typeof ConceptBriefSchema>;
 

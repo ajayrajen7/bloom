@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { ActivityJSONSchema, type ActivityJSON } from "shared/types.js";
+import { ActivityJSONSchema, type ActivityJSON, type ConceptBrief } from "shared/types.js";
 import { getMechanicSpec } from "../../mechanics/loader.js";
 import { sameType } from "../taxonomy.js";
 
@@ -13,7 +13,7 @@ export interface ValidationResult {
   errors: string[];
 }
 
-export function validateActivity(raw: unknown): ValidationResult {
+export function validateActivity(raw: unknown, concept?: ConceptBrief): ValidationResult {
   const errors: string[] = [];
 
   // ── Schema validation ──────────────────────────────────────────────────────
@@ -54,6 +54,30 @@ export function validateActivity(raw: unknown): ValidationResult {
       errors.push(`slot: item "${item.id}" has targetId "${item.targetId}" which does not exist in targets`);
     }
   }
+
+  // ── Sprite scope (theme boundary) ─────────────────────────────────────────
+  // Every sprite used must be in the concept's declared itemSprites or targetSprites.
+  // Skipped when no concept is provided (e.g. standalone eval cases).
+  if (concept) {
+  const allowedItems    = new Set(concept.itemSprites.map((s) => `sprites/${s}`));
+  const allowedTargets  = new Set(concept.targetSprites.map((s) => `sprites/${s}`));
+  const allowedAll      = new Set([...allowedItems, ...allowedTargets]);
+
+  for (const item of items as Array<{ id: string; assetRef?: string }>) {
+    if (item.assetRef && !allowedAll.has(item.assetRef)) {
+      errors.push(
+        `theme: item "${item.id}" uses sprite "${item.assetRef}" which is outside the concept's itemSprites`
+      );
+    }
+  }
+  for (const target of rawTargets as Array<{ id: string; assetRef?: string }>) {
+    if (target.assetRef && !allowedAll.has(target.assetRef)) {
+      errors.push(
+        `theme: target "${target.id}" uses sprite "${target.assetRef}" which is outside the concept's targetSprites`
+      );
+    }
+  }
+  } // end sprite scope check
 
   // ── Type-level discrimination (hierarchy check) ────────────────────────────
   // At low/medium difficulty, items sharing a target must be different types.

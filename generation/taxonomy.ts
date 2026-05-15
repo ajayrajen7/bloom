@@ -86,6 +86,36 @@ export function formatTaxonomyForPrompt(): string {
   return lines.join("\n").trim();
 }
 
+// Returns a formatted taxonomy string scoped to only the given sprites.
+// Unknown sprites are silently ignored. Empty input returns empty string.
+// Used to inject a theme-scoped sprite list into generation prompts.
+export function formatFilteredTaxonomyForPrompt(sprites: string[]): string {
+  if (sprites.length === 0) return "";
+
+  const normalised = new Set(sprites.map((s) => s.replace("sprites/", "")));
+  const taxonomy = loadTaxonomy();
+  const byCategory = new Map<string, TaxonomyEntry[]>();
+
+  for (const entry of taxonomy) {
+    const matchingSprites = entry.sprites.filter((s) => normalised.has(s));
+    if (matchingSprites.length === 0) continue;
+    const list = byCategory.get(entry.category) ?? [];
+    list.push({ ...entry, sprites: matchingSprites });
+    byCategory.set(entry.category, list);
+  }
+
+  const lines: string[] = [];
+  for (const [category, entries] of byCategory) {
+    lines.push(`${category.toUpperCase()}`);
+    for (const { type, sprites: s } of entries) {
+      lines.push(`  ${type}: ${s.map((f) => `sprites/${f}`).join(", ")}`);
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n").trim();
+}
+
 // Returns all unique sprite filenames (prefixed with "sprites/") across the taxonomy.
 export function getAllSprites(): string[] {
   return loadTaxonomy().flatMap((e) => e.sprites.map((s) => `sprites/${s}`));
