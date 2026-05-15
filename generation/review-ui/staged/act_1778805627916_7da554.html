@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Review: act_1778805627916_7da554</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 24px; background: #0f0f1a; color: #e2e8f0; }
+    h1 { color: #a78bfa; font-size: 1.4rem; margin-bottom: 4px; }
+    h2 { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; margin: 32px 0 12px; }
+    .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 32px; }
+    .score-badge { display: inline-block; padding: 6px 16px; border-radius: 99px; background: #22c55e22; color: #22c55e; font-weight: 700; font-size: 1.6rem; border: 2px solid #22c55e; }
+    .verdict { font-size: 1.1rem; margin: 12px 0; }
+    .notes { background: #1e1e30; padding: 16px; border-radius: 8px; line-height: 1.6; }
+    .reject-reason { background: #3f1515; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0; color: #fca5a5; }
+    .item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #1e1e30; }
+    .label { background: #1e1e30; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+    .target { background: #162032; padding: 4px 10px; border-radius: 6px; color: #7dd3fc; }
+    .arrow { color: #475569; }
+    .prompt-text { font-size: 1.3rem; color: #f1f5f9; background: #1e1e30; padding: 16px; border-radius: 8px; border-left: 4px solid #a78bfa; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 8px 12px; border-bottom: 1px solid #1e1e30; }
+    td:last-child { text-align: right; font-weight: 600; }
+    .json-block { background: #0a0a14; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: monospace; font-size: 0.78rem; line-height: 1.5; white-space: pre; color: #94a3b8; max-height: 400px; overflow-y: auto; }
+    .actions { display: flex; gap: 12px; margin: 32px 0; }
+    .btn { padding: 12px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn-approve { background: #22c55e; color: #fff; }
+    .btn-reject  { background: #ef4444; color: #fff; }
+    .btn-regen   { background: #f59e0b; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <h1>Activity Review: act_1778805627916_7da554</h1>
+  <div class="meta">Concept: concept_001 · Mechanic: drag-to-target · Difficulty: low · Generated: 2026-05-15T00:40:27.916Z</div>
+
+  <h2>LLM Review Score</h2>
+  <div class="score-badge">88 / 100</div>
+  <div class="verdict">✅ Passed threshold (≥85)</div>
+  <div class="notes">Apple, orange, and banana are highly familiar to 2–3 year olds, and sorting by shape (round vs. long) is developmentally appropriate for this age range. All targetIds correctly reference existing targets, labels are single common words, and the prompt is clear and action-oriented. The activity is slightly borderline on engagement because only 3 items with no distractors makes completion very rapid and the sorting rule (shape) is implicit rather than named in the prompt — 'Put the fruits in the right basket!' does not tell the child what 'right' means, which could cause confusion without audio scaffolding. The concept brief prompt 'Put the fruits in the baskets!' is marginally clearer for this age; the generated version's word 'right' adds mild ambiguity.</div>
+  
+
+  <h2>Dimension Scores</h2>
+  <table><tr><td>Age Appropriateness</td><td>23/25</td></tr><tr><td>On Brief</td><td>22/25</td></tr><tr><td>Safety And Quality</td><td>22/25</td></tr><tr><td>Engagement</td><td>21/25</td></tr></table>
+
+  <h2>Prompt</h2>
+  <div class="prompt-text">"Put the fruits in the right basket!"</div>
+
+  <h2>Items → Targets</h2>
+  
+      <div class="item">
+        <span class="label">Apple</span>
+        <span class="arrow">→</span>
+        <span class="target">Round Basket</span>
+      </div>
+      <div class="item">
+        <span class="label">Orange</span>
+        <span class="arrow">→</span>
+        <span class="target">Round Basket</span>
+      </div>
+      <div class="item">
+        <span class="label">Banana</span>
+        <span class="arrow">→</span>
+        <span class="target">Long Basket</span>
+      </div>
+
+  <h2>Approve / Reject</h2>
+  <p style="color:#64748b;font-size:.85rem">Run <code>pnpm review</code> in the terminal to approve or reject interactively.</p>
+  <div class="actions">
+    <button class="btn btn-approve" onclick="alert('Run: pnpm review')">✓ Approve</button>
+    <button class="btn btn-reject"  onclick="alert('Run: pnpm review')">✗ Reject</button>
+    <button class="btn btn-regen"   onclick="alert('Run: pnpm review')">↺ Regenerate</button>
+  </div>
+
+  <h2>Full Activity JSON</h2>
+  <div class="json-block">{
+  "id": "act_1778805627916_7da554",
+  "conceptId": "concept_001",
+  "mechanicId": "drag-to-target",
+  "generatedAt": "2026-05-15T00:40:27.916Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple_1",
+        "targetId": "round_basket",
+        "label": "Apple",
+        "assetRef": "sprites/apple.png"
+      },
+      {
+        "id": "orange_1",
+        "targetId": "round_basket",
+        "label": "Orange",
+        "assetRef": "sprites/orange.png"
+      },
+      {
+        "id": "banana_1",
+        "targetId": "long_basket",
+        "label": "Banana",
+        "assetRef": "sprites/banana.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "round_basket",
+        "label": "Round Basket",
+        "assetRef": "sprites/wicker-basket.png"
+      },
+      {
+        "id": "long_basket",
+        "label": "Long Basket",
+        "assetRef": "sprites/banana-basket.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "itemCount": 3,
+    "distractorCount": 0,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Put the fruits in the right basket!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 0.88,
+    "reviewerNotes": "Apple, orange, and banana are highly familiar to 2–3 year olds, and sorting by shape (round vs. long) is developmentally appropriate for this age range. All targetIds correctly reference existing targets, labels are single common words, and the prompt is clear and action-oriented. The activity is slightly borderline on engagement because only 3 items with no distractors makes completion very rapid and the sorting rule (shape) is implicit rather than named in the prompt — 'Put the fruits in the right basket!' does not tell the child what 'right' means, which could cause confusion without audio scaffolding. The concept brief prompt 'Put the fruits in the baskets!' is marginally clearer for this age; the generated version's word 'right' adds mild ambiguity."
+  }
+}</div>
+
+</body>
+</html>
