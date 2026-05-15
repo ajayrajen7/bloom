@@ -17,6 +17,11 @@ export interface TapToSelectCallbacks {
   onComplete: () => void;
 }
 
+function assetKey(assetRef: string | undefined): string | null {
+  if (!assetRef) return null;
+  return (assetRef.split("/").pop() ?? "").replace(".png", "");
+}
+
 export class TapToSelectMechanic {
   private scene: Phaser.Scene;
   private items: TapItemConfig[];
@@ -41,11 +46,22 @@ export class TapToSelectMechanic {
     this.items.forEach((cfg) => {
       const container = this.scene.add.container(cfg.x, cfg.y);
 
-      const circle = this.scene.add.graphics();
-      circle.fillStyle(0x4a90d9, 1);
-      circle.fillCircle(0, 0, ITEM_RADIUS);
-      circle.fillStyle(0xffffff, 0.15);
-      circle.fillCircle(-12, -14, 18);
+      const key = assetKey(cfg.assetRef);
+      let img: Phaser.GameObjects.Image | null = null;
+
+      if (key && this.scene.textures.exists(key)) {
+        img = this.scene.add
+          .image(0, 0, key)
+          .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
+        container.add(img);
+      } else {
+        const circle = this.scene.add.graphics();
+        circle.fillStyle(0x4a90d9, 1);
+        circle.fillCircle(0, 0, ITEM_RADIUS);
+        circle.fillStyle(0xffffff, 0.15);
+        circle.fillCircle(-12, -14, 18);
+        container.add(circle);
+      }
 
       const label = this.scene.add
         .text(0, ITEM_RADIUS + 14, cfg.label, {
@@ -55,12 +71,13 @@ export class TapToSelectMechanic {
         })
         .setOrigin(0.5, 0);
 
-      container.add([circle, label]);
+      container.add(label);
       container.setData("itemId", cfg.id);
+      container.setData("img", img);
       container.setSize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
       container.setInteractive();
 
-      container.on("pointerdown", () => this.handleTap(cfg.id, container, circle));
+      container.on("pointerdown", () => this.handleTap(cfg.id, container));
 
       this.itemObjects.set(cfg.id, container);
     });
@@ -69,14 +86,13 @@ export class TapToSelectMechanic {
   private handleTap(
     itemId: string,
     container: Phaser.GameObjects.Container,
-    circle: Phaser.GameObjects.Graphics
   ) {
     if (this.tappedCorrect.has(itemId)) return;
 
     if (isTapCorrect(itemId, this.items)) {
       this.tappedCorrect.add(itemId);
       container.disableInteractive();
-      this.pulseCorrect(container, circle);
+      this.pulseCorrect(container);
       playSuccess();
       this.callbacks.onCorrectTap(itemId);
 
@@ -93,15 +109,9 @@ export class TapToSelectMechanic {
     }
   }
 
-  private pulseCorrect(
-    container: Phaser.GameObjects.Container,
-    circle: Phaser.GameObjects.Graphics
-  ) {
-    circle.clear();
-    circle.fillStyle(0x50c878, 1);
-    circle.fillCircle(0, 0, ITEM_RADIUS);
-    circle.fillStyle(0xffffff, 0.2);
-    circle.fillCircle(-12, -14, 18);
+  private pulseCorrect(container: Phaser.GameObjects.Container) {
+    const img = container.getData("img") as Phaser.GameObjects.Image | null;
+    if (img) img.setTint(0x50c878);
 
     this.scene.tweens.add({
       targets: container,

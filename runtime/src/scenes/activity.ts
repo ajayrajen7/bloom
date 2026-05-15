@@ -16,6 +16,13 @@ const PROGRESS_H = 0.15;
 
 const PALETTE = [0xe84040, 0xf5c842, 0x4a90d9, 0x50c878, 0xff8c00, 0xda70d6];
 
+const SPRITES = [
+  "apple","apple-basket","banana","banana-basket","barn","blue-ball","boot",
+  "cat","chicken","circle","coop","cow","dog","duck","fruit-basket",
+  "green-apple","horse","orange","orange-basket","pig","pond","red-apple",
+  "red-ball","sheep","shoe","sock","square","triangle","wicker-basket","yellow-ball",
+];
+
 export class ActivityScene extends Phaser.Scene {
   private activityId = "";
   private sessionId  = "";
@@ -39,6 +46,11 @@ export class ActivityScene extends Phaser.Scene {
 
   preload() {
     this.load.json("activity", `/activities/${this.activityId}.json`);
+    SPRITES.forEach((name) => {
+      if (!this.textures.exists(name)) {
+        this.load.image(name, `/assets/sprites/${name}.png`);
+      }
+    });
   }
 
   create() {
@@ -92,10 +104,10 @@ export class ActivityScene extends Phaser.Scene {
     // ── Mechanic routing ──────────────────────────────────────────────────────
     if (activity.mechanicId === "drag-to-target") {
       const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{
-        id: string; label: string;
+        id: string; label: string; assetRef?: string;
       }>;
       const rawItems = (activity.filledSlots["items"] ?? []) as Array<{
-        id: string; targetId: string; label: string;
+        id: string; targetId: string; label: string; assetRef?: string;
       }>;
 
       const targetZone = getZone(layout, "target_zone");
@@ -108,11 +120,12 @@ export class ActivityScene extends Phaser.Scene {
       rawTargets.forEach((t, i) => targetColorMap.set(t.id, PALETTE[i % PALETTE.length]));
 
       const targets: TargetConfig[] = rawTargets.map((t, i) => ({
-        id:    t.id,
-        label: t.label,
-        color: PALETTE[i % PALETTE.length],
-        x:     targetPositions[i].x,
-        y:     targetPositions[i].y,
+        id:       t.id,
+        label:    t.label,
+        color:    PALETTE[i % PALETTE.length],
+        x:        targetPositions[i].x,
+        y:        targetPositions[i].y,
+        assetRef: t.assetRef,
       }));
 
       const items: ItemConfig[] = rawItems.map((item, i) => ({
@@ -122,6 +135,7 @@ export class ActivityScene extends Phaser.Scene {
         color:    targetColorMap.get(item.targetId) ?? 0xffffff,
         x:        itemPositions[i].x,
         y:        itemPositions[i].y,
+        assetRef: item.assetRef,
       }));
 
       this.buildProgressDots(width, height, items.length);

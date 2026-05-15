@@ -12,6 +12,7 @@ export interface ItemConfig {
   color: number;
   x: number;
   y: number;
+  assetRef?: string;
 }
 
 export interface TargetConfig {
@@ -20,6 +21,7 @@ export interface TargetConfig {
   color: number;
   x: number;
   y: number;
+  assetRef?: string;
 }
 
 export function isNearTarget(

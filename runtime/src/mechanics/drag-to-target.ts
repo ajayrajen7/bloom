@@ -19,6 +19,11 @@ export interface DragToTargetCallbacks {
   onComplete: () => void;
 }
 
+function assetKey(assetRef: string | undefined): string | null {
+  if (!assetRef) return null;
+  return (assetRef.split("/").pop() ?? "").replace(".png", "");
+}
+
 // ── Phaser mechanic class ─────────────────────────────────────────────────────
 
 export class DragToTargetMechanic {
@@ -53,22 +58,33 @@ export class DragToTargetMechanic {
     this.targets.forEach((cfg) => {
       const container = this.scene.add.container(cfg.x, cfg.y);
 
-      // Outer ring (destination zone)
+      // Drop zone ring
       const ring = this.scene.add.graphics();
       ring.lineStyle(4, cfg.color, 0.5);
       ring.strokeCircle(0, 0, TARGET_RADIUS);
       ring.fillStyle(cfg.color, 0.12);
       ring.fillCircle(0, 0, TARGET_RADIUS);
 
-      // Label below
+      const key = assetKey(cfg.assetRef);
+      const children: Phaser.GameObjects.GameObject[] = [ring];
+
+      if (key && this.scene.textures.exists(key)) {
+        const ghost = this.scene.add
+          .image(0, 0, key)
+          .setDisplaySize(TARGET_RADIUS * 1.6, TARGET_RADIUS * 1.6)
+          .setAlpha(0.35);
+        children.push(ghost);
+      }
+
       const label = this.scene.add.text(0, TARGET_RADIUS + 20, cfg.label, {
         fontFamily: "system-ui, sans-serif",
         fontSize: "22px",
         color: "#ffffff",
         alpha: 0.7,
       }).setOrigin(0.5, 0);
+      children.push(label);
 
-      container.add([ring, label]);
+      container.add(children);
       container.setData("ring", ring);
       this.targetObjects.set(cfg.id, container);
     });
@@ -80,12 +96,20 @@ export class DragToTargetMechanic {
     this.items.forEach((cfg) => {
       const container = this.scene.add.container(cfg.x, cfg.y);
 
-      const circle = this.scene.add.graphics();
-      circle.fillStyle(cfg.color, 1);
-      circle.fillCircle(0, 0, ITEM_RADIUS);
-      // Subtle inner highlight
-      circle.fillStyle(0xffffff, 0.15);
-      circle.fillCircle(-12, -14, 18);
+      const key = assetKey(cfg.assetRef);
+      let visual: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
+      if (key && this.scene.textures.exists(key)) {
+        visual = this.scene.add
+          .image(0, 0, key)
+          .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
+      } else {
+        const g = this.scene.add.graphics();
+        g.fillStyle(cfg.color, 1);
+        g.fillCircle(0, 0, ITEM_RADIUS);
+        g.fillStyle(0xffffff, 0.15);
+        g.fillCircle(-12, -14, 18);
+        visual = g;
+      }
 
       const label = this.scene.add.text(0, ITEM_RADIUS + 14, cfg.label, {
         fontFamily: "system-ui, sans-serif",
@@ -93,7 +117,7 @@ export class DragToTargetMechanic {
         color: "#ffffff",
       }).setOrigin(0.5, 0);
 
-      container.add([circle, label]);
+      container.add([visual, label]);
       container.setData("itemId", cfg.id);
       container.setData("startX", cfg.x);
       container.setData("startY", cfg.y);
