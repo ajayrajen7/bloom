@@ -131,7 +131,7 @@ describe("getAllSprites", () => {
     expect(sprites).toContain("sprites/cat.png");
   });
 
-  it("returns 29 sprites matching the library", () => {
-    expect(getAllSprites()).toHaveLength(29);
+  it("returns 30 sprites matching the library", () => {
+    expect(getAllSprites()).toHaveLength(30);
   });
 });

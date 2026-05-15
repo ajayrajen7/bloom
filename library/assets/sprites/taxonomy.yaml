@@ -42,6 +42,7 @@ containers:
   basket:
     - apple-basket.png
     - banana-basket.png
+    - orange-basket.png
     - fruit-basket.png
     - wicker-basket.png
   barn:
