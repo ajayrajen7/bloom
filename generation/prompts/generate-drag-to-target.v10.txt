@@ -1,0 +1,167 @@
+You are generating a drag-to-target activity for Bloom, a learning app for children aged 24–36 months.
+
+A drag-to-target activity shows the child a set of items they drag to the correct target zones.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Theme:                  {{THEME_HINT}}
+Difficulty:             {{DIFFICULTY}}
+Items to generate:      {{ITEM_COUNT}}
+Targets to generate:    {{TARGET_COUNT}}
+Distractors to generate:{{DISTRACTOR_COUNT}}
+Division:               {{DIVISION_NAME}}
+
+Design principles for this division:
+{{DIVISION_DESIGN_PRINCIPLES}}
+
+Concept notes (follow these precisely — they override general rules where they conflict):
+{{NOTES}}
+
+Available sprites:
+{{SPRITE_TAXONOMY}}
+
+Use ONLY the sprites listed above. Do not invent filenames. Every assetRef in your output must exactly match a filename from this list, prefixed with sprites/.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFFICULTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Difficulty controls how visually similar the items are to each other. The theme and available sprites do not change based on difficulty.
+
+  low    — items are obviously different. Different shapes, clearly distinct objects.
+            A child can sort by recognition alone.
+  medium — items require closer inspection. Similar type or visual property (both round,
+            both the same colour family). Child must look carefully.
+  high   — items are near-identical variants. Same object, differ only in colour or size.
+            Child must discriminate fine visual detail.
+
+GOOD calibration:
+  low:    apple, banana, orange          — different shapes, obviously distinct
+  medium: apple, orange                  — both round; colour difference requires closer look
+  high:   apple, red-apple, green-apple  — same shape; child must distinguish by colour only
+
+BAD calibration:
+  low (wrong):  apple, red-apple  — nearly identical; same shape, only colour differs — this is high
+  high (wrong): apple, banana     — obviously different shapes — this is low, not high
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESIGN RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Design targets first. Decide which {{TARGET_COUNT}} targets make sense for this theme,
+   then pick items that clearly belong to them.
+
+2. Each item maps to exactly one target. The mapping must be unambiguous — a child should
+   immediately understand why this item goes here.
+
+3. At low difficulty: every item maps to a unique target — no two items share a target
+   (1:1 mapping). The sorting rule must be immediately obvious with no ambiguity.
+   At medium difficulty: items may share a target, but must be visually different types.
+   At high difficulty: variants of the same object share a target — that is the point.
+
+4. Prompt text: under 12 words, addresses the child directly, uses object names a
+   2-year-old would recognise.
+
+5. Target labels describe what the target IS ("Fruit Basket", "Barn") — not instructions.
+
+6. If multiple different items map to the same target, choose a target sprite that is
+   general enough to visually represent all of them — not one that implies only a subset.
+   Wrong: apple and orange both mapped to apple-basket.png (image signals "apple only").
+   Right: apple and orange both mapped to fruit-basket.png or wicker-basket.png (general).
+
+7. Distractors ({{DISTRACTOR_COUNT}} required):
+   A distractor is an item with NO correct target. It is shown alongside the regular items
+   but cannot be placed anywhere — the child must ignore it or try and fail.
+   Choose distractors from the same category as the items (visually similar) but with no
+   logical match among the targets. A good distractor looks plausible but is clearly wrong
+   on closer inspection.
+   Distractors have id, label, and assetRef — but NO targetId field.
+   If {{DISTRACTOR_COUNT}} is 0, output an empty distractors array.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GOOD — theme: fruits and baskets, difficulty: low, distractors: 0
+Targets designed first: apple-basket, banana-basket, fruit-basket — one per fruit (1:1).
+Apple, banana, orange are clearly distinct shapes and colours — correct for low.
+Each item has exactly one correct target, no sharing. The rule is immediately obvious.
+
+{
+  "filledSlots": {
+    "items": [
+      { "id": "apple_1",  "targetId": "apple_basket",  "label": "Apple",  "assetRef": "sprites/apple.png" },
+      { "id": "banana_1", "targetId": "banana_basket", "label": "Banana", "assetRef": "sprites/banana.png" },
+      { "id": "orange_1", "targetId": "fruit_basket",  "label": "Orange", "assetRef": "sprites/orange.png" }
+    ],
+    "targets": [
+      { "id": "apple_basket",  "label": "Apple Basket",  "assetRef": "sprites/apple-basket.png" },
+      { "id": "banana_basket", "label": "Banana Basket", "assetRef": "sprites/banana-basket.png" },
+      { "id": "fruit_basket",  "label": "Fruit Basket",  "assetRef": "sprites/fruit-basket.png" }
+    ],
+    "distractors": []
+  },
+  "prompt": { "text": "Put the fruits in the baskets!" }
+}
+
+GOOD — theme: farm animals and their homes, difficulty: medium, distractors: 1
+5 animals share 3 homes — valid at medium (items are different types: cow ≠ duck ≠ chicken).
+One distractor (cat) is a farm animal but has no home among the targets — plausible but wrong.
+
+{
+  "filledSlots": {
+    "items": [
+      { "id": "cow_1",     "targetId": "barn",  "label": "Cow",     "assetRef": "sprites/cow.png" },
+      { "id": "horse_1",   "targetId": "barn",  "label": "Horse",   "assetRef": "sprites/horse.png" },
+      { "id": "duck_1",    "targetId": "pond",  "label": "Duck",    "assetRef": "sprites/duck.png" },
+      { "id": "chicken_1", "targetId": "coop",  "label": "Chicken", "assetRef": "sprites/chicken.png" },
+      { "id": "sheep_1",   "targetId": "barn",  "label": "Sheep",   "assetRef": "sprites/sheep.png" }
+    ],
+    "targets": [
+      { "id": "barn", "label": "Barn", "assetRef": "sprites/barn.png" },
+      { "id": "pond", "label": "Pond", "assetRef": "sprites/pond.png" },
+      { "id": "coop", "label": "Coop", "assetRef": "sprites/coop.png" }
+    ],
+    "distractors": [
+      { "id": "cat_1", "label": "Cat", "assetRef": "sprites/cat.png" }
+    ]
+  },
+  "prompt": { "text": "Help the animals find their homes!" }
+}
+
+BAD — theme: fruits and baskets, difficulty: low (wrong)
+Apple and red-apple are the same object in different colours — nearly identical visually.
+This is high difficulty, not low. Rule 3 is also violated: same-type variants share a target.
+
+{
+  "filledSlots": {
+    "items": [
+      { "id": "apple_1",    "targetId": "fruit_basket",  "label": "Apple",     "assetRef": "sprites/apple.png" },
+      { "id": "redapple_1", "targetId": "fruit_basket",  "label": "Red Apple", "assetRef": "sprites/red-apple.png" },
+      { "id": "banana_1",   "targetId": "banana_basket", "label": "Banana",    "assetRef": "sprites/banana.png" }
+    ],
+    "targets": [
+      { "id": "fruit_basket",  "label": "Fruit Basket",  "assetRef": "sprites/fruit-basket.png" },
+      { "id": "banana_basket", "label": "Banana Basket", "assetRef": "sprites/banana-basket.png" }
+    ],
+    "distractors": []
+  },
+  "prompt": { "text": "Put the fruits in the baskets!" }
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return only valid JSON. No preamble, no explanation, no code fences. Exactly this shape:
+
+{
+  "filledSlots": {
+    "items": [{ "id": "...", "targetId": "...", "label": "...", "assetRef": "sprites/..." }],
+    "targets": [{ "id": "...", "label": "...", "assetRef": "sprites/..." }],
+    "distractors": [{ "id": "...", "label": "...", "assetRef": "sprites/..." }]
+  },
+  "prompt": { "text": "..." }
+}
