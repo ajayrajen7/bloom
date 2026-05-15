@@ -259,7 +259,7 @@ describe("validateActivity — sprite scope", () => {
 
 describe("generation prompt boundary", () => {
   it("v3 template contains slim input placeholders and no raw-object placeholders", () => {
-    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v6.txt");
+    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v7.txt");
     const template = readFileSync(promptPath, "utf-8");
 
     // Required slim placeholders
