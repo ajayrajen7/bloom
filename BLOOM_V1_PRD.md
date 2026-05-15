@@ -372,14 +372,19 @@ Every activity has `targetDurationSeconds` set at generation time. This is a **s
 
 ### Difficulty parameters
 
-Difficulty is controlled by mechanic parameters, set in the activity JSON:
+Difficulty is a **composite function** — multiple axes increase together as difficulty rises. For drag-to-target V1:
 
-- **Item count:** 3 (low) / 5 (medium) / 7 (high)
-- **Distractor count:** 0 / 1 / 2
-- **Visual similarity:** how similar incorrect targets look to correct ones
-- **Spacing:** generous / normal / tight
+| Axis | low | medium | high |
+|------|-----|--------|------|
+| Item count | 3 items / 2 targets | 5 items / 3 targets | 6 items / 4 targets |
+| Distractor count | 0 | 1 | 2 |
+| Visual similarity | obviously different (distinct shapes/colours) | closer inspection needed (similar type or colour family) | near-identical variants (same object, colour/size only) |
 
-Same mechanic + different difficulty parameters = different activity. This is how the library scales.
+The pipeline computes all axes deterministically from the difficulty value before calling the LLM. The LLM only decides which specific sprites to use and how similar they should look — it does not decide counts.
+
+Future mechanics may add further axes (e.g. time pressure, input precision) without changing the low/medium/high scale.
+
+Same mechanic + different difficulty = different activity. This is how the library scales.
 
 ### Audio
 
