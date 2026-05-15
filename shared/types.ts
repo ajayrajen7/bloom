@@ -158,7 +158,13 @@ export const LLMGenerationOutputSchema = z.object({
         assetRef: z.string(),
       })
     ),
-    distractors: z.array(z.unknown()),
+    distractors: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        assetRef: z.string(),
+      })
+    ),
   }),
   prompt: z.object({
     text: z.string(),

@@ -57,27 +57,36 @@ export function validateActivity(raw: unknown, concept?: ConceptBrief): Validati
 
   // ── Sprite scope (theme boundary) ─────────────────────────────────────────
   // Every sprite used must be in the concept's declared itemSprites or targetSprites.
+  // Distractors are item-type sprites so they are validated against itemSprites only.
   // Skipped when no concept is provided (e.g. standalone eval cases).
+  const distractors = (activity.filledSlots["distractors"] ?? []) as Array<{ id: string; assetRef?: string }>;
   if (concept) {
-  const allowedItems    = new Set(concept.itemSprites.map((s) => `sprites/${s}`));
-  const allowedTargets  = new Set(concept.targetSprites.map((s) => `sprites/${s}`));
-  const allowedAll      = new Set([...allowedItems, ...allowedTargets]);
+    const allowedItems    = new Set(concept.itemSprites.map((s) => `sprites/${s}`));
+    const allowedTargets  = new Set(concept.targetSprites.map((s) => `sprites/${s}`));
+    const allowedAll      = new Set([...allowedItems, ...allowedTargets]);
 
-  for (const item of items as Array<{ id: string; assetRef?: string }>) {
-    if (item.assetRef && !allowedAll.has(item.assetRef)) {
-      errors.push(
-        `theme: item "${item.id}" uses sprite "${item.assetRef}" which is outside the concept's itemSprites`
-      );
+    for (const item of items as Array<{ id: string; assetRef?: string }>) {
+      if (item.assetRef && !allowedAll.has(item.assetRef)) {
+        errors.push(
+          `theme: item "${item.id}" uses sprite "${item.assetRef}" which is outside the concept's itemSprites`
+        );
+      }
+    }
+    for (const target of rawTargets as Array<{ id: string; assetRef?: string }>) {
+      if (target.assetRef && !allowedAll.has(target.assetRef)) {
+        errors.push(
+          `theme: target "${target.id}" uses sprite "${target.assetRef}" which is outside the concept's targetSprites`
+        );
+      }
+    }
+    for (const distractor of distractors) {
+      if (distractor.assetRef && !allowedItems.has(distractor.assetRef)) {
+        errors.push(
+          `theme: distractor "${distractor.id}" uses sprite "${distractor.assetRef}" which is outside the concept's itemSprites`
+        );
+      }
     }
   }
-  for (const target of rawTargets as Array<{ id: string; assetRef?: string }>) {
-    if (target.assetRef && !allowedAll.has(target.assetRef)) {
-      errors.push(
-        `theme: target "${target.id}" uses sprite "${target.assetRef}" which is outside the concept's targetSprites`
-      );
-    }
-  }
-  } // end sprite scope check
 
   // ── Type-level discrimination (hierarchy check) ────────────────────────────
   // At low/medium difficulty, items sharing a target must be different types.
@@ -115,6 +124,18 @@ export function validateActivity(raw: unknown, concept?: ConceptBrief): Validati
   }
   if (difficulty === "high"   && (itemCount < 6 || itemCount > 7)) {
     errors.push(`params: high difficulty expects 6–7 items, got ${itemCount}`);
+  }
+
+  // ── Distractor count vs difficulty ────────────────────────────────────────
+  const distractorCount = distractors.length;
+  if (difficulty === "low"    && distractorCount !== 0) {
+    errors.push(`params: low difficulty expects 0 distractors, got ${distractorCount}`);
+  }
+  if (difficulty === "medium" && distractorCount !== 1) {
+    errors.push(`params: medium difficulty expects 1 distractor, got ${distractorCount}`);
+  }
+  if (difficulty === "high"   && distractorCount !== 2) {
+    errors.push(`params: high difficulty expects 2 distractors, got ${distractorCount}`);
   }
 
   // ── Prompt text length ─────────────────────────────────────────────────────

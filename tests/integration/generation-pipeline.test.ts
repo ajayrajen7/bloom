@@ -255,16 +255,102 @@ describe("validateActivity — sprite scope", () => {
   });
 });
 
+// ── Distractor validation ─────────────────────────────────────────────────────
+
+const mediumConcept: ConceptBrief = {
+  id: "concept_002",
+  targetDivisionId: "fine_motor.pincer_grip",
+  ageMonths: { min: 24, max: 36 },
+  difficulty: "medium",
+  themeHint: "farm animals and their homes",
+  targetDurationSeconds: 55,
+  itemSprites: ["cat.png", "chicken.png", "cow.png", "dog.png", "duck.png", "horse.png", "pig.png", "sheep.png"],
+  targetSprites: ["barn.png", "coop.png", "pond.png"],
+};
+
+const validMediumActivity: ActivityJSON = ActivityJSONSchema.parse({
+  id: "act_medium_test",
+  conceptId: "concept_002",
+  mechanicId: "drag-to-target",
+  generatedAt: "2026-05-15T10:00:00.000Z",
+  filledSlots: {
+    items: [
+      { id: "cow_1",     targetId: "barn",  label: "Cow",     assetRef: "sprites/cow.png" },
+      { id: "horse_1",   targetId: "barn",  label: "Horse",   assetRef: "sprites/horse.png" },
+      { id: "duck_1",    targetId: "pond",  label: "Duck",    assetRef: "sprites/duck.png" },
+      { id: "chicken_1", targetId: "coop",  label: "Chicken", assetRef: "sprites/chicken.png" },
+      { id: "sheep_1",   targetId: "barn",  label: "Sheep",   assetRef: "sprites/sheep.png" },
+    ],
+    targets: [
+      { id: "barn", label: "Barn", assetRef: "sprites/barn.png" },
+      { id: "coop", label: "Coop", assetRef: "sprites/coop.png" },
+      { id: "pond", label: "Pond", assetRef: "sprites/pond.png" },
+    ],
+    distractors: [
+      { id: "cat_1", label: "Cat", assetRef: "sprites/cat.png" },
+    ],
+  },
+  parameters: { layoutId: "horizontal-standard", itemCount: 5, distractorCount: 1, visualSimilarity: "medium" },
+  prompt: { text: "Help the animals find their homes!", audioRef: "audio/prompts/PLACEHOLDER.mp3" },
+  audioRefs: {
+    successSfx: "audio/sfx/success_bright.mp3",
+    errorSfx: "audio/sfx/try_again.mp3",
+    completionSfx: "audio/sfx/celebration.mp3",
+  },
+  metadata: {
+    targetDivisionId: "fine_motor.pincer_grip",
+    ageMonths: { min: 24, max: 36 },
+    difficulty: "medium",
+    targetDurationSeconds: 55,
+    reviewScore: 0,
+    reviewerNotes: "",
+  },
+});
+
+describe("validateActivity — distractors", () => {
+  it("passes when medium activity has exactly 1 distractor", () => {
+    const result = validateActivity(validMediumActivity, mediumConcept);
+    expect(result.passed).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("fails when medium activity has 0 distractors", () => {
+    const broken = {
+      ...validMediumActivity,
+      filledSlots: { ...validMediumActivity.filledSlots, distractors: [] },
+    };
+    const result = validateActivity(broken, mediumConcept);
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.includes("distractor"))).toBe(true);
+  });
+
+  it("fails when a distractor uses a sprite outside the concept's itemSprites", () => {
+    const broken = {
+      ...validMediumActivity,
+      filledSlots: {
+        ...validMediumActivity.filledSlots,
+        distractors: [
+          { id: "apple_1", label: "Apple", assetRef: "sprites/apple.png" },
+        ],
+      },
+    };
+    const result = validateActivity(broken, mediumConcept);
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.includes("apple.png") && e.includes("theme"))).toBe(true);
+  });
+});
+
 // ── LLM-pipeline boundary test ────────────────────────────────────────────────
 
 describe("generation prompt boundary", () => {
-  it("v3 template contains slim input placeholders and no raw-object placeholders", () => {
-    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v9.txt");
+  it("v10 template contains slim input placeholders and no raw-object placeholders", () => {
+    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v10.txt");
     const template = readFileSync(promptPath, "utf-8");
 
     // Required slim placeholders
     expect(template).toContain("{{ITEM_COUNT}}");
     expect(template).toContain("{{TARGET_COUNT}}");
+    expect(template).toContain("{{DISTRACTOR_COUNT}}");
     expect(template).toContain("{{THEME_HINT}}");
     expect(template).toContain("{{DIVISION_NAME}}");
     expect(template).toContain("{{SPRITE_TAXONOMY}}");
@@ -333,6 +419,18 @@ describe("assembleLLMOutput", () => {
     expect(activity.metadata.targetDivisionId).toBe("fine_motor.pincer_grip");
     expect(activity.metadata.targetDurationSeconds).toBe(40);
     expect(activity.metadata.reviewScore).toBe(0);
+  });
+
+  it("sets distractorCount in parameters from actual LLM output length, not hardcoded 0", () => {
+    const withDistractor: LLMGenerationOutput = LLMGenerationOutputSchema.parse({
+      ...mockLLMOutput,
+      filledSlots: {
+        ...mockLLMOutput.filledSlots,
+        distractors: [{ id: "lemon_1", label: "Lemon", assetRef: "sprites/orange.png" }],
+      },
+    });
+    const activity = assembleLLMOutput(withDistractor, mockConcept, 3);
+    expect((activity.parameters as Record<string, unknown>)["distractorCount"]).toBe(1);
   });
 });
 

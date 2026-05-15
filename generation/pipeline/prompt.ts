@@ -14,7 +14,7 @@ import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const PROMPT_VERSION = "v9";
+const PROMPT_VERSION = "v10";
 const PROMPT_FILE = join(
   __dirname,
   "../prompts",
@@ -22,9 +22,10 @@ const PROMPT_FILE = join(
 );
 
 // Difficulty → counts. These are pipeline decisions, not LLM decisions.
-const ITEM_COUNTS: Record<string, number> = { low: 3, medium: 5, high: 6 };
+const ITEM_COUNTS:       Record<string, number> = { low: 3, medium: 5, high: 6 };
 // low: 1:1 mapping (each item has its own target, no sharing). Sharing starts at medium.
-const TARGET_COUNTS: Record<string, number> = { low: 3, medium: 3, high: 4 };
+const TARGET_COUNTS:     Record<string, number> = { low: 3, medium: 3, high: 4 };
+const DISTRACTOR_COUNTS: Record<string, number> = { low: 0, medium: 1, high: 2 };
 
 export interface PromptResult {
   raw: string;
@@ -46,8 +47,9 @@ export async function runGenerationPrompt(
     .map((p) => `- ${p}`)
     .join("\n");
 
-  const itemCount = ITEM_COUNTS[concept.difficulty] ?? 3;
-  const targetCount = TARGET_COUNTS[concept.difficulty] ?? 2;
+  const itemCount       = ITEM_COUNTS[concept.difficulty]       ?? 3;
+  const targetCount     = TARGET_COUNTS[concept.difficulty]     ?? 3;
+  const distractorCount = DISTRACTOR_COUNTS[concept.difficulty] ?? 0;
 
   const filled = template
     .replace("{{THEME_HINT}}", concept.themeHint)
@@ -55,6 +57,7 @@ export async function runGenerationPrompt(
     .replace("{{DIFFICULTY}}", concept.difficulty)
     .replace("{{ITEM_COUNT}}", String(itemCount))
     .replace("{{TARGET_COUNT}}", String(targetCount))
+    .replace("{{DISTRACTOR_COUNT}}", String(distractorCount))
     .replace("{{TARGET_DURATION_SECONDS}}", String(concept.targetDurationSeconds))
     .replace("{{DIVISION_DESIGN_PRINCIPLES}}", designPrinciples)
     .replace("{{NOTES}}", concept.notes ?? "")
@@ -114,8 +117,8 @@ export function assembleLLMOutput(
     parameters: {
       layoutId: "horizontal-standard",
       itemCount,
-      distractorCount: 0,
-      visualSimilarity: "low",
+      distractorCount: llmOutput.filledSlots.distractors.length,
+      visualSimilarity: concept.difficulty,
     },
     prompt: {
       text: llmOutput.prompt.text,
