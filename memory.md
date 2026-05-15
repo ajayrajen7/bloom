@@ -61,32 +61,35 @@ Read this at the start of every session. Update it proactively when context appr
 - `shared/layout-engine.ts` — pure position computation, no Phaser dependency
 - `shared/layout-engine.test.ts` — 18 tests
 
-**Generation pipeline — structural sprite fix + prompt v9 (2026-05-15)**
-- `shared/types.ts` — `LLMGenerationOutputSchema`, `LLMGenerationOutput` type; `ConceptBriefSchema` now includes `itemSprites: z.array(z.string()).min(1)` and `targetSprites: z.array(z.string())`
-- `concepts/briefs/concept_001–005.json` — all updated with explicit `itemSprites` and `targetSprites`; concept_003 `targetDivisionId` corrected to `language.receptive_language`
-- `generation/taxonomy.ts` — `getSpriteInfo()`, `sameType()`, `formatTaxonomyForPrompt()`, `getAllSprites()`, `formatFilteredTaxonomyForPrompt(sprites[])` (concept-scoped filtered taxonomy)
-- `library/assets/sprites/taxonomy.yaml` — category > type > attribute hierarchy, 30 sprites (added orange-basket.png)
-- `generation/pipeline/validate.ts` — sprite-scope check: items and targets must use only sprites declared in concept brief; accepts `concept?: ConceptBrief` (optional for eval runner compat)
-- `generation/pipeline/prompt.ts` — active version v9; `formatFilteredTaxonomyForPrompt` injects only concept-scoped sprites; `{{NOTES}}` injected from concept.notes; TARGET_COUNTS.low=3 (1:1 mapping)
-- `generation/prompts/generate-drag-to-target.v9.txt` — active: slim inputs, difficulty as visual-similarity composite, Rule 3 (1:1 at low), Rule 6 (general target sprite), `{{NOTES}}` override block, GOOD/BAD examples
-- `generation/prompts/review.v2.txt` — active: compound target labels valid; visual sorting developmentally appropriate
-- `generation/taxonomy.test.ts` — 21 tests covering taxonomy loader, sameType, formatFilteredTaxonomyForPrompt
-- `tests/integration/generation-pipeline.test.ts` — sprite-scope validation tests, v9 boundary test, assembly tests (35 tests total)
-- `generation/pipeline/store.ts` — `.approved.json` filter fix (no more duplicate index entries)
+**Generation pipeline — structural sprite fix + prompt v10 (2026-05-15)**
+- `shared/types.ts` — `LLMGenerationOutputSchema` (distractors typed as `{id, label, assetRef}`); `ConceptBriefSchema` includes `itemSprites` and `targetSprites`
+- `concepts/briefs/concept_001–005.json` — all updated with explicit `itemSprites` and `targetSprites`; concept_003 corrected to `language.receptive_language`
+- `generation/taxonomy.ts` — `getSpriteInfo()`, `sameType()`, `formatTaxonomyForPrompt()`, `getAllSprites()`, `formatFilteredTaxonomyForPrompt(sprites[])`
+- `library/assets/sprites/taxonomy.yaml` — category > type > attribute hierarchy, 30 sprites
+- `generation/pipeline/validate.ts` — sprite-scope check (items, targets, distractors); distractor count check per difficulty (low=0, medium=1, high=2); taxonomy type-level check
+- `generation/pipeline/prompt.ts` — active version **v10**; DISTRACTOR_COUNTS map; `{{DISTRACTOR_COUNT}}` injection; distractorCount derived from LLM output length; visualSimilarity from concept.difficulty
+- `generation/prompts/generate-drag-to-target.v10.txt` — active: all v9 rules + Rule 7 (distractors), GOOD medium example (farm animals + cat distractor)
+- `generation/prompts/review.v2.txt` — active
+- `generation/pipeline/store.ts` — excludes `.approved.json` from index scan
+- `generation/review-ui/serve.ts` — excludes `.approved.json` and `.rejected.json` from review queue (was causing .approved.approved.json chains)
+- `.gitignore` — added `library/staged/` and `generation/review-ui/staged/`
+- `generation/taxonomy.test.ts` — 21 tests
+- `tests/integration/generation-pipeline.test.ts` — 39 tests (added distractor + medium concept fixtures, v10 boundary test)
 
-**Library (4 approved activities)**
-- `act_1778805627916_7da554.json` — concept_001, v4 prompt, "Put the fruits in the right basket!"
-- `act_1778825695936_390bc0.json` — concept_001, v9 prompt, "Put each fruit in its basket!"
-- `act_1778826178606_088db7.json` — concept_005, v9 prompt, "Match the shapes!"
+**Library (5 approved activities)**
+- `act_1778805627916_7da554.json` — concept_001, v4 prompt, low, "Put the fruits in the right basket!"
+- `act_1778825695936_390bc0.json` — concept_001, v9 prompt, low, "Put each fruit in its basket!"
+- `act_1778826178606_088db7.json` — concept_005, v9 prompt, low, "Match the shapes!"
+- `act_1778828810983_a85e98.json` — concept_002, v10 prompt, medium, "Help the animals find their homes!" (92/100)
 - `act_dev_001.json` — dev fixture
 
-**Test count: ~135 tests, all passing**
+**Test count: 139 tests, all passing**
 
 ---
 
 ## In progress
 
-Nothing — all pending fixes from last session are complete. Next work is M5 (tap-to-select) or concept_002 (medium difficulty, needs distractor support in prompt).
+Nothing — session complete. All committed.
 
 ---
 
@@ -108,9 +111,11 @@ Nothing — all pending fixes from last session are complete. Next work is M5 (t
 | TARGET_COUNTS.low changed 2→3: 1:1 mapping at low difficulty (no sharing). Pipeline + prompt updated. | 2026-05-15 |
 | {{NOTES}} injection added to prompt v9: per-concept overrides that take precedence over general rules | 2026-05-15 |
 | concept_003 targetDivisionId corrected to language.receptive_language ("Tap the dog!" is receptive language, not visual discrimination) | 2026-05-15 |
-| store.ts duplicate index bug fixed: .approved.json files excluded from index scan | 2026-05-15 |
+| store.ts + serve.ts .approved.json bug fixed: both now exclude non-pending files from scan/queue | 2026-05-15 |
 | pnpm worktree esbuild fix: run `pnpm approve-builds --all` in the worktree if you see ERR_PNPM_IGNORED_BUILDS | 2026-05-15 |
-| Prompt versioning discipline: never modify in place — always bump version. v5→v6→v7→v8→v9 this session. | 2026-05-15 |
+| Prompt versioning discipline: never modify in place — always bump version. v5→v9 one session, v9→v10 next. | 2026-05-15 |
+| Distractor support added: v10 prompt, DISTRACTOR_COUNTS, distractorCount from LLM output, validation per difficulty | 2026-05-15 |
+| library/staged/ and generation/review-ui/staged/ added to .gitignore (transient pipeline artifacts) | 2026-05-15 |
 
 ---
 
@@ -127,7 +132,6 @@ Nothing — all pending fixes from last session are complete. Next work is M5 (t
 
 ## Blockers
 
-- **concept_002 (medium difficulty):** Requires 1 distractor in the generation prompt. Current prompt hardcodes `"distractors": []`. Need to add distractor support to v9 (→ v10) before concept_002 can be generated.
 - M1 iPad test pending (not blocking M5)
 - GitHub push pending (not on critical path)
 
@@ -138,12 +142,10 @@ Nothing — all pending fixes from last session are complete. Next work is M5 (t
 1. **Start M5 — tap-to-select mechanic:**
    - `runtime/src/mechanics/tap-to-select-logic.ts` — pure logic (no Phaser), testable in Node
    - `runtime/src/mechanics/tap-to-select.ts` — Phaser tap mechanic
-   - `generation/prompts/generate-tap-to-select.v1.txt` — generation prompt (use same taxonomy system + {{NOTES}} pattern)
-   - Update `ActivityScene` to route based on `activity.mechanicId`
+   - `generation/prompts/generate-tap-to-select.v1.txt` — generation prompt (same taxonomy system + {{NOTES}} pattern)
+   - Update `ActivityScene` to route by `activity.mechanicId`
    - Generate 6-8 tap-to-select activities (concepts 003, 004 are ready)
    - 8 eval cases + integration test
-
-2. **concept_002 (medium difficulty):** Add distractor support to generation prompt (v9 → v10). Medium difficulty needs distractors — items that look similar but have no correct target.
 
 ---
 
@@ -161,3 +163,4 @@ Nothing — all pending fixes from last session are complete. Next work is M5 (t
 | 2026-05-09 | Generation pipeline working end-to-end. LLM review failing on prompt quality issues — Ajay reviewing prompts. |
 | 2026-05-15 | Major pipeline session: LLMGenerationOutputSchema, slim boundary, taxonomy system (30 sprites), sprite-scope validation, itemSprites/targetSprites on ConceptBrief, prompts v5→v9, 1:1 mapping at low, {{NOTES}} injection, concept_001 + concept_005 approved. ~135 tests. |
 | 2026-05-15 | Bug fixes: store.ts .approved.json duplicate index bug fixed; concept_003 division corrected to language.receptive_language; BLOOM_V1_IMPLEMENTATION.md ConceptBriefSchema updated. |
+| 2026-05-15 | Distractor support: v10 prompt, validate.ts distractor count + scope checks, concept_002 generated (92/100) and approved. serve.ts .approved.json re-queue bug fixed. 139 tests. 5 approved activities. |
