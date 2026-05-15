@@ -36,6 +36,28 @@ const validMechanicSpec = {
   deviceCompatibility: ["ipad"] as ["ipad"],
   slotSchema: { items: { type: "array" } },
   parameterSchema: { itemCount: { type: "number" } },
+  layouts: [
+    {
+      id: "horizontal-standard",
+      description: "Items in a row at bottom, targets above.",
+      zones: {
+        item_zone: {
+          arrangement: { type: "linear", axis: "horizontal", direction: "left-to-right" },
+          elementCount: { min: 3, max: 5 },
+          elementSize: { min: 80, max: 115 },
+          yFraction: 0.80,
+          xPadFraction: 0.10,
+        },
+        target_zone: {
+          arrangement: { type: "linear", axis: "horizontal", direction: "left-to-right" },
+          elementCount: { min: 2, max: 4 },
+          elementSize: { min: 100, max: 140 },
+          yFraction: 0.28,
+          xPadFraction: 0.10,
+        },
+      },
+    },
+  ],
 };
 
 const validActivityJSON = {

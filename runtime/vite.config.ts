@@ -3,6 +3,8 @@ import { resolve } from "path";
 
 export default defineConfig({
   root: ".",
+  // Serve library/ as static assets: /activities/*.json and /assets/**
+  publicDir: resolve(__dirname, "../library"),
   resolve: {
     alias: {
       shared: resolve(__dirname, "../shared"),

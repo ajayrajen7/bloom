@@ -1,0 +1,61 @@
+{
+  "id": "act_dev_001",
+  "conceptId": "concept_001",
+  "mechanicId": "drag-to-target",
+  "generatedAt": "2026-05-08T10:00:00.000Z",
+  "filledSlots": {
+    "items": [
+      { "id": "apple_1",  "targetId": "apple_basket",  "label": "Apple",  "assetRef": "sprites/apple.png" },
+      { "id": "apple_2",  "targetId": "apple_basket",  "label": "Apple",  "assetRef": "sprites/apple.png" },
+      { "id": "banana_1", "targetId": "banana_basket", "label": "Banana", "assetRef": "sprites/banana.png" },
+      { "id": "banana_2", "targetId": "banana_basket", "label": "Banana", "assetRef": "sprites/banana.png" }
+    ],
+    "targets": [
+      { "id": "apple_basket",  "label": "Apples",  "assetRef": "sprites/apple-basket.png" },
+      { "id": "banana_basket", "label": "Bananas", "assetRef": "sprites/banana-basket.png" }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "layout": {
+      "id": "horizontal-standard",
+      "description": "Items in a horizontal row at the bottom of the play area, targets in a horizontal row above. Left-to-right order. Default orientation — best for 24-30 months.",
+      "zones": {
+        "item_zone": {
+          "arrangement": { "type": "linear", "axis": "horizontal", "direction": "left-to-right" },
+          "yFraction": 0.80,
+          "xPadFraction": 0.10,
+          "elementCount": { "min": 3, "max": 5 },
+          "elementSize": { "min": 80, "max": 115 }
+        },
+        "target_zone": {
+          "arrangement": { "type": "linear", "axis": "horizontal", "direction": "left-to-right" },
+          "yFraction": 0.28,
+          "xPadFraction": 0.10,
+          "elementCount": { "min": 2, "max": 4 },
+          "elementSize": { "min": 100, "max": 140 }
+        }
+      }
+    },
+    "itemCount": 4,
+    "distractorCount": 0,
+    "visualSimilarity": "low"
+  },
+  "prompt": { "text": "Sort the fruit!", "audioRef": "audio/prompts/PLACEHOLDER.mp3" },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": { "min": 24, "max": 36 },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 1.0,
+    "reviewerNotes": "Dev fixture — fruit sorting activity.",
+    "humanApprovedAt": "2026-05-08T10:00:00.000Z",
+    "humanApprover": "dev"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "activities": [
+    {
+      "id": "act_dev_001",
+      "conceptId": "concept_001",
+      "mechanicId": "drag-to-target",
+      "prompt": "Sort the fruit!",
+      "difficulty": "low"
+    }
+  ]
+}
