@@ -1,4 +1,295 @@
-// M1: drag-to-target mechanic implementation
-// Receives filled slots from ActivityJSON, renders items + targets,
-// handles drag input via Phaser's input system (no DOM scroll conflict)
-export {};
+import Phaser from "phaser";
+import { playSuccess, playError, playCelebration } from "../audio.js";
+import {
+  isNearTarget,
+  findMatchingTarget,
+  SNAP_DISTANCE,
+  ITEM_RADIUS,
+  TARGET_RADIUS,
+  type ItemConfig,
+  type TargetConfig,
+} from "./drag-to-target-logic.js";
+
+export type { ItemConfig, TargetConfig };
+export { SNAP_DISTANCE, ITEM_RADIUS, TARGET_RADIUS };
+
+export interface DragToTargetCallbacks {
+  onItemPlaced: (itemId: string, targetId: string) => void;
+  onItemError: (itemId: string) => void;
+  onComplete: () => void;
+}
+
+// ── Phaser mechanic class ─────────────────────────────────────────────────────
+
+export class DragToTargetMechanic {
+  private scene: Phaser.Scene;
+  private items: ItemConfig[];
+  private targets: TargetConfig[];
+  private callbacks: DragToTargetCallbacks;
+
+  private itemObjects = new Map<string, Phaser.GameObjects.Container>();
+  private targetObjects = new Map<string, Phaser.GameObjects.Container>();
+  private placedItems = new Set<string>();
+
+  constructor(
+    scene: Phaser.Scene,
+    items: ItemConfig[],
+    targets: TargetConfig[],
+    callbacks: DragToTargetCallbacks
+  ) {
+    this.scene = scene;
+    this.items = items;
+    this.targets = targets;
+    this.callbacks = callbacks;
+
+    this.buildTargets();
+    this.buildItems();
+    this.bindDragEvents();
+  }
+
+  // ── Build targets ───────────────────────────────────────────────────────────
+
+  private buildTargets() {
+    this.targets.forEach((cfg) => {
+      const container = this.scene.add.container(cfg.x, cfg.y);
+
+      // Outer ring (destination zone)
+      const ring = this.scene.add.graphics();
+      ring.lineStyle(4, cfg.color, 0.5);
+      ring.strokeCircle(0, 0, TARGET_RADIUS);
+      ring.fillStyle(cfg.color, 0.12);
+      ring.fillCircle(0, 0, TARGET_RADIUS);
+
+      // Label below
+      const label = this.scene.add.text(0, TARGET_RADIUS + 20, cfg.label, {
+        fontFamily: "system-ui, sans-serif",
+        fontSize: "22px",
+        color: "#ffffff",
+        alpha: 0.7,
+      }).setOrigin(0.5, 0);
+
+      container.add([ring, label]);
+      container.setData("ring", ring);
+      this.targetObjects.set(cfg.id, container);
+    });
+  }
+
+  // ── Build items ─────────────────────────────────────────────────────────────
+
+  private buildItems() {
+    this.items.forEach((cfg) => {
+      const container = this.scene.add.container(cfg.x, cfg.y);
+
+      const circle = this.scene.add.graphics();
+      circle.fillStyle(cfg.color, 1);
+      circle.fillCircle(0, 0, ITEM_RADIUS);
+      // Subtle inner highlight
+      circle.fillStyle(0xffffff, 0.15);
+      circle.fillCircle(-12, -14, 18);
+
+      const label = this.scene.add.text(0, ITEM_RADIUS + 14, cfg.label, {
+        fontFamily: "system-ui, sans-serif",
+        fontSize: "22px",
+        color: "#ffffff",
+      }).setOrigin(0.5, 0);
+
+      container.add([circle, label]);
+      container.setData("itemId", cfg.id);
+      container.setData("startX", cfg.x);
+      container.setData("startY", cfg.y);
+
+      // Hit area = circle
+      container.setSize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
+      container.setInteractive();
+      this.scene.input.setDraggable(container);
+
+      this.itemObjects.set(cfg.id, container);
+    });
+  }
+
+  // ── Drag events ─────────────────────────────────────────────────────────────
+
+  private bindDragEvents() {
+    this.scene.input.on(
+      Phaser.Input.Events.DRAG_START,
+      (_pointer: Phaser.Input.Pointer, obj: Phaser.GameObjects.Container) => {
+        const itemId = obj.getData("itemId") as string | undefined;
+        if (!itemId || this.placedItems.has(itemId)) return;
+
+        this.scene.children.bringToTop(obj);
+        this.scene.tweens.add({
+          targets: obj,
+          scaleX: 1.12,
+          scaleY: 1.12,
+          duration: 80,
+          ease: "Sine.Out",
+        });
+      }
+    );
+
+    this.scene.input.on(
+      Phaser.Input.Events.DRAG,
+      (
+        _pointer: Phaser.Input.Pointer,
+        obj: Phaser.GameObjects.Container,
+        dragX: number,
+        dragY: number
+      ) => {
+        const itemId = obj.getData("itemId") as string | undefined;
+        if (!itemId || this.placedItems.has(itemId)) return;
+
+        obj.setPosition(dragX, dragY);
+        this.updateTargetHighlights(itemId, dragX, dragY);
+      }
+    );
+
+    this.scene.input.on(
+      Phaser.Input.Events.DRAG_END,
+      (_pointer: Phaser.Input.Pointer, obj: Phaser.GameObjects.Container) => {
+        const itemId = obj.getData("itemId") as string | undefined;
+        if (!itemId || this.placedItems.has(itemId)) return;
+
+        this.scene.tweens.add({
+          targets: obj,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 80,
+        });
+
+        this.clearTargetHighlights();
+        this.resolveItemDrop(itemId, obj);
+      }
+    );
+  }
+
+  // ── Drop resolution ──────────────────────────────────────────────────────────
+
+  private resolveItemDrop(itemId: string, obj: Phaser.GameObjects.Container) {
+    const correctTarget = findMatchingTarget(itemId, this.items, this.targets);
+    if (!correctTarget) return;
+
+    const targetObj = this.targetObjects.get(correctTarget.id);
+    if (!targetObj) return;
+
+    const nearCorrect = isNearTarget(obj.x, obj.y, correctTarget.x, correctTarget.y);
+
+    if (nearCorrect) {
+      this.snapToTarget(itemId, obj, targetObj, correctTarget);
+    } else {
+      this.bounceBack(obj);
+      this.callbacks.onItemError(itemId);
+      playError();
+    }
+  }
+
+  private snapToTarget(
+    itemId: string,
+    obj: Phaser.GameObjects.Container,
+    targetObj: Phaser.GameObjects.Container,
+    target: TargetConfig
+  ) {
+    this.scene.input.setDraggable(obj, false);
+    this.placedItems.add(itemId);
+
+    this.scene.tweens.add({
+      targets: obj,
+      x: target.x,
+      y: target.y,
+      scaleX: 0.85,
+      scaleY: 0.85,
+      duration: 180,
+      ease: "Back.Out",
+      onComplete: () => {
+        this.pulseSuccess(obj, targetObj);
+        playSuccess();
+        this.callbacks.onItemPlaced(itemId, target.id);
+
+        if (this.placedItems.size === this.items.length) {
+          this.scene.time.delayedCall(400, () => {
+            playCelebration();
+            this.callbacks.onComplete();
+          });
+        }
+      },
+    });
+  }
+
+  private bounceBack(obj: Phaser.GameObjects.Container) {
+    const startX = obj.getData("startX") as number;
+    const startY = obj.getData("startY") as number;
+
+    this.scene.tweens.add({
+      targets: obj,
+      x: startX,
+      y: startY,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 320,
+      ease: "Back.Out",
+    });
+  }
+
+  // ── Visual feedback ──────────────────────────────────────────────────────────
+
+  private updateTargetHighlights(itemId: string, dragX: number, dragY: number) {
+    const correctTarget = findMatchingTarget(itemId, this.items, this.targets);
+
+    this.targets.forEach((t) => {
+      const obj = this.targetObjects.get(t.id);
+      if (!obj) return;
+      const ring = obj.getData("ring") as Phaser.GameObjects.Graphics;
+      const isCorrect = correctTarget && t.id === correctTarget.id;
+      const isNear = isCorrect && isNearTarget(dragX, dragY, t.x, t.y);
+
+      // Highlight correct target when near; dim everything else
+      if (isNear) {
+        ring.clear();
+        ring.lineStyle(5, t.color, 0.95);
+        ring.strokeCircle(0, 0, TARGET_RADIUS);
+        ring.fillStyle(t.color, 0.28);
+        ring.fillCircle(0, 0, TARGET_RADIUS);
+      } else {
+        ring.clear();
+        ring.lineStyle(4, t.color, 0.5);
+        ring.strokeCircle(0, 0, TARGET_RADIUS);
+        ring.fillStyle(t.color, 0.12);
+        ring.fillCircle(0, 0, TARGET_RADIUS);
+      }
+    });
+  }
+
+  private clearTargetHighlights() {
+    this.targets.forEach((t) => {
+      const obj = this.targetObjects.get(t.id);
+      if (!obj) return;
+      const ring = obj.getData("ring") as Phaser.GameObjects.Graphics;
+      ring.clear();
+      ring.lineStyle(4, t.color, 0.5);
+      ring.strokeCircle(0, 0, TARGET_RADIUS);
+      ring.fillStyle(t.color, 0.12);
+      ring.fillCircle(0, 0, TARGET_RADIUS);
+    });
+  }
+
+  private pulseSuccess(
+    item: Phaser.GameObjects.Container,
+    _target: Phaser.GameObjects.Container
+  ) {
+    this.scene.tweens.add({
+      targets: item,
+      scaleX: 1.05,
+      scaleY: 1.05,
+      duration: 120,
+      yoyo: true,
+      repeat: 1,
+    });
+  }
+
+  destroy() {
+    this.scene.input.off(Phaser.Input.Events.DRAG_START);
+    this.scene.input.off(Phaser.Input.Events.DRAG);
+    this.scene.input.off(Phaser.Input.Events.DRAG_END);
+    this.itemObjects.forEach((obj) => obj.destroy());
+    this.targetObjects.forEach((obj) => obj.destroy());
+  }
+}
