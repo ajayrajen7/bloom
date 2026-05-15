@@ -14,7 +14,7 @@ import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const PROMPT_VERSION = "v5";
+const PROMPT_VERSION = "v6";
 const PROMPT_FILE = join(
   __dirname,
   "../prompts",

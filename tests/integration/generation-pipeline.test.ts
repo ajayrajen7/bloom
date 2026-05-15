@@ -22,6 +22,19 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// ── Concept fixture ───────────────────────────────────────────────────────────
+
+const testConcept: ConceptBrief = {
+  id: "concept_001",
+  targetDivisionId: "fine_motor.pincer_grip",
+  ageMonths: { min: 24, max: 36 },
+  difficulty: "low",
+  themeHint: "fruits and baskets",
+  targetDurationSeconds: 40,
+  itemSprites: ["apple.png", "banana.png", "orange.png"],
+  targetSprites: ["apple-basket.png", "banana-basket.png", "fruit-basket.png"],
+};
+
 // ── Fixture ───────────────────────────────────────────────────────────────────
 
 const validActivity: ActivityJSON = ActivityJSONSchema.parse({
@@ -83,7 +96,7 @@ afterEach(() => {
 
 describe("validateActivity", () => {
   it("passes a valid activity", () => {
-    const result = validateActivity(validActivity);
+    const result = validateActivity(validActivity, testConcept);
     expect(result.passed).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -100,7 +113,7 @@ describe("validateActivity", () => {
         ],
       },
     };
-    const result = validateActivity(broken);
+    const result = validateActivity(broken, testConcept);
     expect(result.passed).toBe(false);
     expect(result.errors.some((e) => e.includes("ghost_basket"))).toBe(true);
   });
@@ -110,7 +123,7 @@ describe("validateActivity", () => {
       ...validActivity,
       metadata: { ...validActivity.metadata, difficulty: "medium" as const },
     };
-    const result = validateActivity(broken);
+    const result = validateActivity(broken, testConcept);
     expect(result.passed).toBe(false);
     expect(result.errors.some((e) => e.includes("medium difficulty"))).toBe(true);
   });
@@ -127,7 +140,7 @@ describe("validateActivity", () => {
         ],
       },
     };
-    const result = validateActivity(broken);
+    const result = validateActivity(broken, testConcept);
     expect(result.passed).toBe(false);
     expect(result.errors.some((e) => e.includes("taxonomy"))).toBe(true);
   });
@@ -140,13 +153,13 @@ describe("validateActivity", () => {
         text: "Can you carefully put all of the fruits into the correct baskets right now please?",
       },
     };
-    const result = validateActivity(broken);
+    const result = validateActivity(broken, testConcept);
     expect(result.passed).toBe(false);
     expect(result.errors.some((e) => e.includes("words"))).toBe(true);
   });
 
   it("fails schema validation for non-datetime generatedAt", () => {
-    const result = validateActivity({ ...validActivity, generatedAt: "not-a-date" });
+    const result = validateActivity({ ...validActivity, generatedAt: "not-a-date" }, testConcept);
     expect(result.passed).toBe(false);
   });
 
@@ -162,9 +175,83 @@ describe("validateActivity", () => {
         ],
       },
     };
-    const result = validateActivity(broken);
+    const result = validateActivity(broken, testConcept);
     expect(result.passed).toBe(false);
     expect(result.errors.some((e) => e.includes("nonexistent-fruit.png"))).toBe(true);
+  });
+});
+
+// ── Sprite-scope validation ───────────────────────────────────────────────────
+
+describe("validateActivity — sprite scope", () => {
+  it("passes when all item and target sprites are within the concept's defined sets", () => {
+    const result = validateActivity(validActivity, testConcept);
+    expect(result.passed).toBe(true);
+  });
+
+  it("fails when an item uses a sprite outside itemSprites", () => {
+    const broken = {
+      ...validActivity,
+      filledSlots: {
+        ...validActivity.filledSlots,
+        items: [
+          { id: "duck_1",    targetId: "fruit_basket",  label: "Duck",   assetRef: "sprites/duck.png" },
+          { id: "orange_1",  targetId: "fruit_basket",  label: "Orange", assetRef: "sprites/orange.png" },
+          { id: "banana_1",  targetId: "banana_basket", label: "Banana", assetRef: "sprites/banana.png" },
+        ],
+      },
+    };
+    const result = validateActivity(broken, testConcept);
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.includes("duck.png") && e.includes("theme"))).toBe(true);
+  });
+
+  it("fails when a target uses a sprite outside targetSprites", () => {
+    const broken = {
+      ...validActivity,
+      filledSlots: {
+        ...validActivity.filledSlots,
+        targets: [
+          { id: "fruit_basket",   label: "Fruit Basket",  assetRef: "sprites/fruit-basket.png" },
+          { id: "animal_basket",  label: "Animal Basket", assetRef: "sprites/wicker-basket.png" },
+        ],
+      },
+    };
+    const result = validateActivity(broken, testConcept);
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.includes("wicker-basket.png") && e.includes("theme"))).toBe(true);
+  });
+
+  it("allows the same sprite in both itemSprites and targetSprites — valid for shape-matching", () => {
+    const shapeConcept: ConceptBrief = {
+      id: "concept_005",
+      targetDivisionId: "fine_motor.pincer_grip",
+      ageMonths: { min: 24, max: 36 },
+      difficulty: "low",
+      themeHint: "shapes and outlines",
+      targetDurationSeconds: 40,
+      itemSprites: ["circle.png", "square.png", "triangle.png"],
+      targetSprites: ["circle.png", "square.png", "triangle.png"],
+    };
+    const shapeActivity = {
+      ...validActivity,
+      metadata: { ...validActivity.metadata, difficulty: "low" as const },
+      filledSlots: {
+        items: [
+          { id: "circle_1",   targetId: "circle_target",   label: "Circle",   assetRef: "sprites/circle.png" },
+          { id: "square_1",   targetId: "square_target",   label: "Square",   assetRef: "sprites/square.png" },
+          { id: "triangle_1", targetId: "triangle_target", label: "Triangle", assetRef: "sprites/triangle.png" },
+        ],
+        targets: [
+          { id: "circle_target",   label: "Circle outline",   assetRef: "sprites/circle.png" },
+          { id: "square_target",   label: "Square outline",   assetRef: "sprites/square.png" },
+          { id: "triangle_target", label: "Triangle outline", assetRef: "sprites/triangle.png" },
+        ],
+        distractors: [],
+      },
+    };
+    const result = validateActivity(shapeActivity, shapeConcept);
+    expect(result.errors.some((e) => e.includes("theme"))).toBe(false);
   });
 });
 
@@ -172,7 +259,7 @@ describe("validateActivity", () => {
 
 describe("generation prompt boundary", () => {
   it("v3 template contains slim input placeholders and no raw-object placeholders", () => {
-    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v5.txt");
+    const promptPath = join(__dirname, "../../generation/prompts/generate-drag-to-target.v6.txt");
     const template = readFileSync(promptPath, "utf-8");
 
     // Required slim placeholders
@@ -199,6 +286,8 @@ describe("assembleLLMOutput", () => {
     difficulty: "low",
     themeHint: "fruits and baskets",
     targetDurationSeconds: 40,
+    itemSprites: ["apple.png", "banana.png", "orange.png"],
+    targetSprites: ["apple-basket.png", "banana-basket.png", "fruit-basket.png"],
   };
 
   const mockLLMOutput: LLMGenerationOutput = LLMGenerationOutputSchema.parse({
