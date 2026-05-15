@@ -89,14 +89,25 @@ Read this at the start of every session. Update it proactively when context appr
 - `generation/prompts/review.v3.txt` — active: mechanic-aware safety checks, tap-to-select item count guidance
 - `generation/pipeline/llm-review.ts` — bumped to v3
 
-**Library (7 approved activities)**
+**Library (12 approved activities)**
 - `act_1778805627916_7da554.json` — concept_001, v4 prompt, low, "Put the fruits in the right basket!"
 - `act_1778825695936_390bc0.json` — concept_001, v9 prompt, low, "Put each fruit in its basket!"
 - `act_1778826178606_088db7.json` — concept_005, v9 prompt, low, "Match the shapes!"
 - `act_1778828810983_a85e98.json` — concept_002, v10 prompt, medium, "Help the animals find their homes!" (92/100)
 - `act_1778833226026_c65726.json` — concept_003, tap-to-select v1 prompt, low, "Tap the dog!" (97/100)
 - `act_1778833454232_b8ed1d.json` — concept_004, tap-to-select v1 prompt, low, "Tap the red one!" (96/100)
+- 6 additional auto-approved activities generated in batch (concepts 001–005, mix of mechanics)
 - `act_dev_001.json` — dev fixture
+
+**Deployment**
+- `vercel.json` added at repo root: `buildCommand: pnpm build`, `outputDirectory: runtime/dist`
+- Repo pushed to https://github.com/ajayrajen7/bloom (uses `gh auth token` for push — SSH key not in shell)
+- Vercel connection: needs manual setup at vercel.com/new → import ajayrajen7/bloom
+
+**Sprites**
+- All 30 placeholder stub PNGs replaced with Fluent Emoji 3D 256×256 PNGs (microsoft/fluentui-emoji)
+- Baskets (apple-basket, banana-basket, orange-basket, fruit-basket, wicker-basket) all use the same basket.png
+- barn.png + coop.png use house-with-garden; pond.png uses water-wave; triangle.png uses star (no triangle in set)
 
 **Test count: 139 tests, all passing**
 
@@ -124,7 +135,7 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | LLM review threshold set to 0.85 (placeholder — calibrate after first batch) | 2026-05-08 |
 | Layout system added pre-M5: mechanic specs define layout variants; runtime reads from activity JSON | 2026-05-09 |
 | filledSlots typed as Record<string, unknown> — pipeline code casts per use | 2026-05-08 |
-| GitHub push parked — credentials not handy. Repo: https://github.com/ajayrajen7/bloom | 2026-05-08 |
+| GitHub repo: https://github.com/ajayrajen7/bloom — use `gh auth token --user ajayrajen7` for push (SSH not in shell) | 2026-05-08 |
 | Telemetry uses injectable storage (no localStorage default) | 2026-05-08 |
 | LLM boundary enforced: prompt receives slim fields only, not raw ConceptBrief/Division/MechanicSpec | 2026-05-15 |
 | Sprite taxonomy system: category > type > attribute. Validator blocks same-type items sharing target at low/medium | 2026-05-15 |
@@ -144,6 +155,10 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | review.v3.txt: mechanic-aware review prompt replacing v2; handles both drag-to-target and tap-to-select | 2026-05-15 |
 | concept_004 redesigned: difficulty low→low, medium difficulty dropped (sprite set too limited for 2 correct + 4 distractors without ambiguity); single-word colour labels ("Red", "Blue") | 2026-05-15 |
 | .env.local symlinked into worktree to enable pnpm generate from worktree directory | 2026-05-15 |
+| Skip manual review for all generated activities going forward — auto-approve pipeline only | 2026-05-15 |
+| All 30 sprite stubs replaced with Fluent Emoji 3D PNGs; download script uses gh curl + python URL encoding | 2026-05-15 |
+| vercel.json added: buildCommand=pnpm build, outputDirectory=runtime/dist | 2026-05-15 |
+| Selection screen: camera-based drag scroll, 8px dead zone, scrollbar indicator, scroll suppresses card tap | 2026-05-15 |
 
 ---
 
@@ -162,17 +177,17 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 ## Blockers
 
 - M1 iPad test pending (not blocking M5)
-- GitHub push pending (not on critical path)
+- Vercel not yet connected — needs one-time manual setup at vercel.com/new → import ajayrajen7/bloom
 
 ---
 
 ## Next steps
 
-1. **Generate more activities** — run `pnpm generate concept_003` (more animal variants) and `pnpm generate concept_004` (more colour variants) until library hits 15–20. Run from worktree (`/Users/ajayrajendran/Documents/code/bloom/.claude/worktrees/epic-kare-26d462`) — .env.local is symlinked there.
-2. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`: assembleTapToSelectOutput correctness, validateTapToSelect pass/fail cases.
-3. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
-4. **stage.ts preview** — update `buildPreviewHTML` to show correctItems/distractors for tap-to-select (currently renders drag-to-target item→target table, confusing for manual review).
-5. **iPad test** — play both mechanics on device before marking M5 complete.
+1. **Connect Vercel** — vercel.com/new → import ajayrajen7/bloom → deploy. Then share URL with Nitara.
+2. **iPad test** — play both mechanics on device; this is the top priority before generating more content.
+3. **Generate more activities** — once iPad test confirms mechanics work, run `pnpm generate` for concept_003/004/005 variants until library hits 15–20. Run from worktree (`.env.local` symlinked there).
+4. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`.
+5. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
 
 ---
 
@@ -192,3 +207,4 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | 2026-05-15 | Bug fixes: store.ts .approved.json duplicate index bug fixed; concept_003 division corrected to language.receptive_language; BLOOM_V1_IMPLEMENTATION.md ConceptBriefSchema updated. |
 | 2026-05-15 | Distractor support: v10 prompt, validate.ts distractor count + scope checks, concept_002 generated (92/100) and approved. serve.ts .approved.json re-queue bug fixed. 139 tests. 5 approved activities. |
 | 2026-05-15 | M5 tap-to-select: runtime mechanic (logic + Phaser), ActivityScene routing, full generation pipeline (prompt-tap-to-select.ts, validate branching, review.v3), concept_003 (97/100) + concept_004 (96/100) approved. 7 activities total. |
+| 2026-05-15 | Deployment prep: batch-generated 5 more activities (12 total), replaced 30 stub sprites with Fluent Emoji 3D PNGs, added vercel.json, pushed to GitHub. Fixed selection screen: camera scroll + scrollbar + tap/scroll conflict guard. |
