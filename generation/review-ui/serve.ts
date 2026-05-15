@@ -38,7 +38,9 @@ async function main() {
     process.exit(0);
   }
 
-  const stagedFiles = readdirSync(STAGED_DIR).filter((f) => f.endsWith(".json"));
+  const stagedFiles = readdirSync(STAGED_DIR).filter(
+    (f) => f.endsWith(".json") && !f.endsWith(".approved.json") && !f.endsWith(".rejected.json")
+  );
   if (stagedFiles.length === 0) {
     console.log("No staged activities pending review.");
     process.exit(0);

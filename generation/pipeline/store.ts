@@ -78,7 +78,7 @@ export function rejectActivity(
 
 function regenerateActivityIndex() {
   const files = readdirSync(ACTIVITIES_DIR)
-    .filter((f) => f.endsWith(".json") && f !== "index.json")
+    .filter((f) => f.endsWith(".json") && !f.endsWith(".approved.json") && f !== "index.json")
     .sort();
 
   const entries = [];
