@@ -6,3 +6,4 @@ library/sessions/
 generation/evals/results/
 *.local
 .DS_Store
+.claude/
