@@ -1,0 +1,86 @@
+{
+  "id": "act_1778833226026_c65726",
+  "conceptId": "concept_003",
+  "mechanicId": "tap-to-select",
+  "generatedAt": "2026-05-15T08:20:26.027Z",
+  "filledSlots": {
+    "correctItems": [
+      {
+        "id": "dog_1",
+        "label": "Dog",
+        "assetRef": "sprites/dog.png"
+      }
+    ],
+    "distractors": [
+      {
+        "id": "cat_1",
+        "label": "Cat",
+        "assetRef": "sprites/cat.png"
+      },
+      {
+        "id": "cow_1",
+        "label": "Cow",
+        "assetRef": "sprites/cow.png"
+      },
+      {
+        "id": "duck_1",
+        "label": "Duck",
+        "assetRef": "sprites/duck.png"
+      }
+    ]
+  },
+  "parameters": {
+    "layoutId": "grid-2x2",
+    "layout": {
+      "id": "grid-2x2",
+      "description": "2 columns, 2 rows — 4 items total. Fewest choices; best for 24-28 months or low-difficulty activities. Large items, generous spacing.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "grid",
+            "columns": 2,
+            "rows": 2
+          },
+          "elementCount": {
+            "min": 4,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 140,
+            "max": 180
+          },
+          "centerFraction": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "gapFraction": 0.08
+        }
+      }
+    },
+    "correctCount": 1,
+    "distractorCount": 3,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Tap the dog!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "language.receptive_language",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 35,
+    "reviewScore": 0.97,
+    "reviewerNotes": "This activity is an excellent fit for the 24–36 month range: dog, cat, cow, and duck are among the earliest animal words children acquire, the prompt 'Tap the dog!' is three words and uses a familiar action verb, and the 2×2 grid is ideal for this age. The activity precisely matches the concept brief — 1 correct item, 3 distractors, correct difficulty level, correct mechanic, and the 35-second target duration is plausible for a single-tap identification task. All assetRefs are unique across correct items and distractors, labels are single common words, and there are no negative associations. One minor note: the prompt uses 'Tap' rather than a verb from the division's recommended list (find, put, give, touch, show) — 'Find the dog!' would align more closely with the receptive language design principles, though 'Tap' is still clear and age-appropriate.",
+    "humanApprovedAt": "2026-05-15T08:22:24.880Z",
+    "humanApprover": "ajay"
+  }
+}

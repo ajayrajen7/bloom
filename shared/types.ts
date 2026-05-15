@@ -17,6 +17,7 @@ export type Division = z.infer<typeof DivisionSchema>;
 
 export const ConceptBriefSchema = z.object({
   id: z.string(),
+  mechanicId: z.enum(["drag-to-target", "tap-to-select"]),
   targetDivisionId: z.string(),
   secondaryDivisionId: z.string().optional(),
   ageMonths: z.object({
@@ -171,6 +172,32 @@ export const LLMGenerationOutputSchema = z.object({
   }),
 });
 export type LLMGenerationOutput = z.infer<typeof LLMGenerationOutputSchema>;
+
+// ── Generation Layer — tap-to-select LLM response schema ─────────────────────
+
+export const LLMTapToSelectOutputSchema = z.object({
+  _reasoning: z.string().optional(),
+  filledSlots: z.object({
+    correctItems: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        assetRef: z.string(),
+      })
+    ),
+    distractors: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        assetRef: z.string(),
+      })
+    ),
+  }),
+  prompt: z.object({
+    text: z.string(),
+  }),
+});
+export type LLMTapToSelectOutput = z.infer<typeof LLMTapToSelectOutputSchema>;
 
 // ── Runtime Layer output ─────────────────────────────────────────────────────
 

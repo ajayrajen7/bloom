@@ -6,6 +6,10 @@ import {
   type ItemConfig,
   type TargetConfig,
 } from "../mechanics/drag-to-target.js";
+import {
+  TapToSelectMechanic,
+  type TapItemConfig,
+} from "../mechanics/tap-to-select.js";
 
 const PROMPT_H   = 0.15;
 const PROGRESS_H = 0.15;
@@ -17,7 +21,7 @@ export class ActivityScene extends Phaser.Scene {
   private sessionId  = "";
   private startedAt  = "";
 
-  private mechanic?: DragToTargetMechanic;
+  private mechanic?: DragToTargetMechanic | TapToSelectMechanic;
   private progressDots: Phaser.GameObjects.Arc[] = [];
   private placedCount = 0;
 
@@ -85,60 +89,104 @@ export class ActivityScene extends Phaser.Scene {
 
     const playArea: PlayArea = { x: 0, y: playAreaY, width, height: playAreaH };
 
-    // ── Build item / target configs from filledSlots ─────────────────────────
-    const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{
-      id: string; label: string;
-    }>;
-    const rawItems = (activity.filledSlots["items"] ?? []) as Array<{
-      id: string; targetId: string; label: string;
-    }>;
+    // ── Mechanic routing ──────────────────────────────────────────────────────
+    if (activity.mechanicId === "drag-to-target") {
+      const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{
+        id: string; label: string;
+      }>;
+      const rawItems = (activity.filledSlots["items"] ?? []) as Array<{
+        id: string; targetId: string; label: string;
+      }>;
 
-    const targetZone = getZone(layout, "target_zone");
-    const itemZone   = getZone(layout, "item_zone");
+      const targetZone = getZone(layout, "target_zone");
+      const itemZone   = getZone(layout, "item_zone");
 
-    const targetPositions = computeZonePositions(targetZone, rawTargets.length, playArea);
-    const itemPositions   = computeZonePositions(itemZone,   rawItems.length,   playArea);
+      const targetPositions = computeZonePositions(targetZone, rawTargets.length, playArea);
+      const itemPositions   = computeZonePositions(itemZone,   rawItems.length,   playArea);
 
-    const targetColorMap = new Map<string, number>();
-    rawTargets.forEach((t, i) => targetColorMap.set(t.id, PALETTE[i % PALETTE.length]));
+      const targetColorMap = new Map<string, number>();
+      rawTargets.forEach((t, i) => targetColorMap.set(t.id, PALETTE[i % PALETTE.length]));
 
-    const targets: TargetConfig[] = rawTargets.map((t, i) => ({
-      id:    t.id,
-      label: t.label,
-      color: PALETTE[i % PALETTE.length],
-      x:     targetPositions[i].x,
-      y:     targetPositions[i].y,
-    }));
+      const targets: TargetConfig[] = rawTargets.map((t, i) => ({
+        id:    t.id,
+        label: t.label,
+        color: PALETTE[i % PALETTE.length],
+        x:     targetPositions[i].x,
+        y:     targetPositions[i].y,
+      }));
 
-    const items: ItemConfig[] = rawItems.map((item, i) => ({
-      id:       item.id,
-      targetId: item.targetId,
-      label:    item.label,
-      color:    targetColorMap.get(item.targetId) ?? 0xffffff,
-      x:        itemPositions[i].x,
-      y:        itemPositions[i].y,
-    }));
+      const items: ItemConfig[] = rawItems.map((item, i) => ({
+        id:       item.id,
+        targetId: item.targetId,
+        label:    item.label,
+        color:    targetColorMap.get(item.targetId) ?? 0xffffff,
+        x:        itemPositions[i].x,
+        y:        itemPositions[i].y,
+      }));
 
-    // ── Progress dots ────────────────────────────────────────────────────────
-    this.buildProgressDots(width, height, items.length);
+      this.buildProgressDots(width, height, items.length);
 
-    // ── Mechanic ─────────────────────────────────────────────────────────────
-    this.mechanic = new DragToTargetMechanic(this, items, targets, {
-      onItemPlaced: () => {
-        this.placedCount++;
-        this.updateProgressDots();
-      },
-      onItemError: () => this.flashPrompt(),
-      onComplete:  () => {
-        this.time.delayedCall(900, () => {
-          this.scene.start("CompletionScene", {
-            sessionId:  this.sessionId,
-            activityId: this.activityId,
-            startedAt:  this.startedAt,
+      this.mechanic = new DragToTargetMechanic(this, items, targets, {
+        onItemPlaced: () => {
+          this.placedCount++;
+          this.updateProgressDots();
+        },
+        onItemError: () => this.flashPrompt(),
+        onComplete:  () => {
+          this.time.delayedCall(900, () => {
+            this.scene.start("CompletionScene", {
+              sessionId:  this.sessionId,
+              activityId: this.activityId,
+              startedAt:  this.startedAt,
+            });
           });
-        });
-      },
-    });
+        },
+      });
+    } else if (activity.mechanicId === "tap-to-select") {
+      const correctItems = (activity.filledSlots["correctItems"] ?? []) as Array<{
+        id: string; label: string; assetRef: string;
+      }>;
+      const distractors = (activity.filledSlots["distractors"] ?? []) as Array<{
+        id: string; label: string; assetRef: string;
+      }>;
+
+      const itemZone = getZone(layout, "item_zone");
+      const allItems = [
+        ...correctItems.map((c) => ({ ...c, isCorrect: true as const })),
+        ...distractors.map((d) => ({ ...d, isCorrect: false as const })),
+      ];
+      const itemPositions = computeZonePositions(itemZone, allItems.length, playArea);
+
+      const tapItems: TapItemConfig[] = allItems.map((item, i) => ({
+        id:        item.id,
+        label:     item.label,
+        assetRef:  item.assetRef,
+        x:         itemPositions[i].x,
+        y:         itemPositions[i].y,
+        isCorrect: item.isCorrect,
+      }));
+
+      this.buildProgressDots(width, height, correctItems.length);
+
+      this.mechanic = new TapToSelectMechanic(this, tapItems, {
+        onCorrectTap: () => {
+          this.placedCount++;
+          this.updateProgressDots();
+        },
+        onIncorrectTap: () => this.flashPrompt(),
+        onComplete: () => {
+          this.time.delayedCall(900, () => {
+            this.scene.start("CompletionScene", {
+              sessionId:  this.sessionId,
+              activityId: this.activityId,
+              startedAt:  this.startedAt,
+            });
+          });
+        },
+      });
+    } else {
+      this.showError(`Unknown mechanic: ${activity.mechanicId}`);
+    }
   }
 
   // ── Progress dots ───────────────────────────────────────────────────────────

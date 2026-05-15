@@ -1,12 +1,13 @@
 {
   "id": "concept_004",
+  "mechanicId": "tap-to-select",
   "targetDivisionId": "cognitive.visual_discrimination",
   "secondaryDivisionId": "language.receptive_language",
   "ageMonths": { "min": 24, "max": 36 },
-  "difficulty": "medium",
+  "difficulty": "low",
   "themeHint": "find the colour",
-  "targetDurationSeconds": 45,
-  "notes": "Tap-to-select. Prompt names a colour: 'Tap the red one!' Show 2x3 grid of familiar objects in different colours. 2 correct items (both red), 4 distractors. Tests colour vocabulary.",
-  "itemSprites": ["blue-ball.png", "red-ball.png", "yellow-ball.png", "apple.png", "red-apple.png", "green-apple.png"],
+  "targetDurationSeconds": 35,
+  "notes": "Tap-to-select. Prompt: 'Tap the red one!' 1 correct item (red-ball.png), 3 distractors (blue-ball.png, yellow-ball.png, green-apple.png). Label each item with only its colour as a single word: Red, Blue, Yellow, Green. Do NOT use compound labels like 'Red Ball'. The single-word colour label is intentional — this activity tests colour vocabulary, not object names.",
+  "itemSprites": ["red-ball.png", "blue-ball.png", "yellow-ball.png", "green-apple.png"],
   "targetSprites": []
 }

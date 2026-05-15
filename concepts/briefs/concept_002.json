@@ -1,5 +1,6 @@
 {
   "id": "concept_002",
+  "mechanicId": "drag-to-target",
   "targetDivisionId": "fine_motor.pincer_grip",
   "ageMonths": { "min": 24, "max": 36 },
   "difficulty": "medium",
