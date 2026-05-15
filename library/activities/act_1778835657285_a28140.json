@@ -1,0 +1,87 @@
+{
+  "id": "act_1778835657285_a28140",
+  "conceptId": "concept_004",
+  "mechanicId": "tap-to-select",
+  "generatedAt": "2026-05-15T09:00:57.285Z",
+  "filledSlots": {
+    "correctItems": [
+      {
+        "id": "ball_red",
+        "label": "Red",
+        "assetRef": "sprites/red-ball.png"
+      }
+    ],
+    "distractors": [
+      {
+        "id": "ball_blue",
+        "label": "Blue",
+        "assetRef": "sprites/blue-ball.png"
+      },
+      {
+        "id": "ball_yellow",
+        "label": "Yellow",
+        "assetRef": "sprites/yellow-ball.png"
+      },
+      {
+        "id": "apple_green",
+        "label": "Green",
+        "assetRef": "sprites/green-apple.png"
+      }
+    ]
+  },
+  "parameters": {
+    "layoutId": "grid-2x2",
+    "layout": {
+      "id": "grid-2x2",
+      "description": "2 columns, 2 rows — 4 items total. Fewest choices; best for 24-28 months or low-difficulty activities. Large items, generous spacing.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "grid",
+            "columns": 2,
+            "rows": 2
+          },
+          "elementCount": {
+            "min": 4,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 140,
+            "max": 180
+          },
+          "centerFraction": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "gapFraction": 0.08
+        }
+      }
+    },
+    "correctCount": 1,
+    "distractorCount": 3,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Tap the red one!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "cognitive.visual_discrimination",
+    "secondaryDivisionId": "language.receptive_language",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 35,
+    "reviewScore": 0.94,
+    "reviewerNotes": "The activity is a strong match for the concept brief: correct item count (1 correct + 3 distractors), prompt is concise and action-driven at four words, and single-word colour labels align with the brief's intentional design for colour vocabulary testing. One minor concern is that the distractor set mixes object types (three balls and one apple), which introduces a shape/object difference alongside colour — at low difficulty this is fine and may even help, but it slightly reduces the purity of colour discrimination as the sole variable. The 35-second target duration is plausible for a single-tap low-difficulty task, though it leans generous; this is not a scoring issue.",
+    "humanApprovedAt": "2026-05-15T09:05:12.502Z",
+    "humanApprover": "ajay"
+  }
+}

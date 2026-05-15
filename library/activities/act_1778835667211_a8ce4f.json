@@ -1,0 +1,87 @@
+{
+  "id": "act_1778835667211_a8ce4f",
+  "conceptId": "concept_004",
+  "mechanicId": "tap-to-select",
+  "generatedAt": "2026-05-15T09:01:07.211Z",
+  "filledSlots": {
+    "correctItems": [
+      {
+        "id": "ball_red_1",
+        "label": "Red",
+        "assetRef": "sprites/red-ball.png"
+      }
+    ],
+    "distractors": [
+      {
+        "id": "ball_blue_1",
+        "label": "Blue",
+        "assetRef": "sprites/blue-ball.png"
+      },
+      {
+        "id": "ball_yellow_1",
+        "label": "Yellow",
+        "assetRef": "sprites/yellow-ball.png"
+      },
+      {
+        "id": "apple_green_1",
+        "label": "Green",
+        "assetRef": "sprites/green-apple.png"
+      }
+    ]
+  },
+  "parameters": {
+    "layoutId": "grid-2x2",
+    "layout": {
+      "id": "grid-2x2",
+      "description": "2 columns, 2 rows — 4 items total. Fewest choices; best for 24-28 months or low-difficulty activities. Large items, generous spacing.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "grid",
+            "columns": 2,
+            "rows": 2
+          },
+          "elementCount": {
+            "min": 4,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 140,
+            "max": 180
+          },
+          "centerFraction": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "gapFraction": 0.08
+        }
+      }
+    },
+    "correctCount": 1,
+    "distractorCount": 3,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Tap the red one!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "cognitive.visual_discrimination",
+    "secondaryDivisionId": "language.receptive_language",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 35,
+    "reviewScore": 0.94,
+    "reviewerNotes": "The activity is well-matched to 24–36 months: a single-word colour prompt, four bold familiar objects, and a clear tap action make the task immediately understandable without adult explanation. Item count (1 correct + 3 distractors) and layout (grid-2x2) are exactly right for low difficulty, the theme matches the 'find the colour' hint, and targetDurationSeconds of 35 is plausible. One minor concern is that the distractors include a green apple while all other items are balls — the shape difference could make the correct answer easier than intended at low visual similarity, though this is not a blocking issue. All assetRefs are unique and no labels are shared between the correct item and distractors.",
+    "humanApprovedAt": "2026-05-15T09:05:12.628Z",
+    "humanApprover": "ajay"
+  }
+}

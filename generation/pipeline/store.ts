@@ -15,6 +15,35 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ACTIVITIES_DIR = join(__dirname, "../../library/activities");
 const REJECTED_DIR   = join(__dirname, "../../library/rejected");
 
+export function approveActivityDirect(activity: ActivityJSON): ActivityJSON {
+  mkdirSync(ACTIVITIES_DIR, { recursive: true });
+
+  const approvedPath = join(ACTIVITIES_DIR, `${activity.id}.json`);
+
+  const layoutId = activity.parameters["layoutId"] as string | undefined;
+  const mechSpec = getMechanicSpec(activity.mechanicId);
+  const layoutVariant = mechSpec?.layouts.find((l) => l.id === layoutId);
+
+  const approved: ActivityJSON = {
+    ...activity,
+    parameters: {
+      ...activity.parameters,
+      ...(layoutVariant ? { layout: layoutVariant } : {}),
+    },
+    metadata: {
+      ...activity.metadata,
+      humanApprovedAt: new Date().toISOString(),
+      humanApprover: "pipeline-auto",
+    },
+  };
+
+  writeFileSync(approvedPath, JSON.stringify(approved, null, 2) + "\n");
+  regenerateActivityIndex();
+
+  console.log(`✓ Auto-approved: library/activities/${activity.id}.json`);
+  return approved;
+}
+
 export function approveActivity(activityId: string, approver: string): ActivityJSON {
   mkdirSync(ACTIVITIES_DIR, { recursive: true });
 

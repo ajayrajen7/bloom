@@ -15,7 +15,7 @@ import { runGenerationPrompt } from "./pipeline/prompt.js";
 import { runTapToSelectPrompt } from "./pipeline/prompt-tap-to-select.js";
 import { validateActivity } from "./pipeline/validate.js";
 import { runLLMReview } from "./pipeline/llm-review.js";
-import { stageActivity } from "./pipeline/stage.js";
+import { approveActivityDirect } from "./pipeline/store.js";
 import { ActivityJSONSchema } from "shared/types.js";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
@@ -110,14 +110,10 @@ async function main() {
     },
   };
 
-  // ── Stage 4: Stage + Preview ─────────────────────────────────────────────────
-  console.log("4/4  Staging…");
-  const staged = stageActivity(ActivityJSONSchema.parse(reviewed), review);
-  console.log(`     Activity: ${staged.activityPath}`);
-  console.log(`     Preview:  ${staged.previewPath}`);
-
-  console.log(`\n✓ Done. Open the preview:\n  open "${staged.previewPath}"\n`);
-  console.log(`Then run  pnpm review  to approve or reject.\n`);
+  // ── Stage 4: Auto-approve ────────────────────────────────────────────────────
+  console.log("4/4  Approving…");
+  const approved = approveActivityDirect(ActivityJSONSchema.parse(reviewed));
+  console.log(`\n✓ Done. Activity live: library/activities/${approved.id}.json\n`);
 }
 
 main().catch((err) => {
