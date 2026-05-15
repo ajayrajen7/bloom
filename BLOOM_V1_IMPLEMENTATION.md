@@ -73,6 +73,8 @@ export const ConceptBriefSchema = z.object({
   themeHint: z.string(),
   targetDurationSeconds: z.number(),
   notes: z.string().optional(),
+  itemSprites: z.array(z.string()).min(1),   // sprite filenames scoped to this concept's items
+  targetSprites: z.array(z.string()),        // sprite filenames scoped to this concept's targets (may overlap itemSprites for shape-matching)
 });
 export type ConceptBrief = z.infer<typeof ConceptBriefSchema>;
 ```

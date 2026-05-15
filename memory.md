@@ -7,7 +7,7 @@ Read this at the start of every session. Update it proactively when context appr
 ## Current milestone
 
 - **Active:** M5 — tap-to-select mechanic + 6-8 activities
-- **Status:** Not started (pipeline unblocked, ready to generate content)
+- **Status:** Not started
 
 ---
 
@@ -31,24 +31,24 @@ Read this at the start of every session. Update it proactively when context appr
 - Integration test: Framework→Concept→Mechanics handshake
 
 **M3 — complete**
-- `generation/pipeline/prompt.ts` — refactored: slim inputs only, validates LLM output against LLMGenerationOutputSchema, assembles full ActivityJSON via exported `assembleLLMOutput()`
-- `generation/pipeline/validate.ts` — schema + slot + item count + prompt length + asset ref + taxonomy type-level checks
-- `generation/pipeline/llm-review.ts` — Claude API review call, score threshold 0.85, now on review.v2.txt
-- `generation/pipeline/stage.ts` — writes staged JSON + HTML preview
-- `generation/pipeline/store.ts` — approve (→ library/activities/) or reject (→ library/rejected/)
-- `generation/generate-cli.ts` — `pnpm generate <concept-id>`, uses assembled output from prompt.ts
+- `generation/pipeline/prompt.ts` — slim inputs, validates LLM output via LLMGenerationOutputSchema, assembles full ActivityJSON via `assembleLLMOutput()`
+- `generation/pipeline/validate.ts` — schema + slot + item count + prompt length + asset ref + taxonomy type-level + sprite-scope checks
+- `generation/pipeline/llm-review.ts` — Claude API review call, score threshold 0.85, review.v2.txt
+- `generation/pipeline/stage.ts` — staged JSON + HTML preview
+- `generation/pipeline/store.ts` — approve (→ library/activities/) or reject (→ library/rejected/); regenerates index.json on approve; now correctly excludes .approved.json from index scan
+- `generation/generate-cli.ts` — `pnpm generate <concept-id>`
 - `generation/review-ui/serve.ts` — `pnpm review` interactive approval CLI
-- `library/assets/sprites/` — 29 placeholder stub PNGs
+- `library/assets/sprites/` — 30 placeholder stub PNGs
 - `library/assets/audio/sfx/` — 3 SFX stubs
 - `generation/evals/cases/eval_001–010.json` — 10 eval cases
 - `generation/evals/runner.ts` — `pnpm eval` runner
 
 **M4 — complete**
-- `shared/types.ts` — added ActivityIndexSchema + ActivityIndexEntrySchema
+- `shared/types.ts` — ActivityIndexSchema + ActivityIndexEntrySchema
 - `library/activities/act_dev_001.json` — dev fixture
 - `library/activities/index.json` — activity manifest (auto-regenerated on approve)
 - `runtime/vite.config.ts` — publicDir set to `../library`
-- `runtime/src/telemetry.ts` — buildSessionRecord, appendSession, getSessions (injectable storage)
+- `runtime/src/telemetry.ts` — buildSessionRecord, appendSession, getSessions
 - `runtime/src/scenes/activity.ts` — JSON-driven, layout-driven
 - `runtime/src/scenes/selection.ts` — loads index.json, renders card list
 - `runtime/src/scenes/completion.ts` — persists SessionRecord to localStorage on rating tap
@@ -61,26 +61,32 @@ Read this at the start of every session. Update it proactively when context appr
 - `shared/layout-engine.ts` — pure position computation, no Phaser dependency
 - `shared/layout-engine.test.ts` — 18 tests
 
-**Generation pipeline fixes + taxonomy system — complete (2026-05-15)**
-- `shared/types.ts` — added `LLMGenerationOutputSchema` + `LLMGenerationOutput` type
-- `generation/prompts/generate-drag-to-target.v3–v5.txt` — v5 is active: slim inputs ({{THEME_HINT}}, {{ITEM_COUNT}}, {{TARGET_COUNT}}, {{DIVISION_NAME}}, {{SPRITE_TAXONOMY}}), slim output (filledSlots + prompt.text only), hierarchy-aware design rules
-- `generation/prompts/review.v2.txt` — active: clarified compound target labels are allowed; visual sorting (colour/shape/size) is developmentally appropriate for 24–36 months
-- `generation/taxonomy.ts` — `getSpriteInfo()`, `sameType()`, `formatTaxonomyForPrompt()`, `getAllSprites()`
-- `library/assets/sprites/taxonomy.yaml` — canonical category > type > attribute hierarchy for all 29 sprites
-- `generation/pipeline/validate.ts` — taxonomy check: at low/medium difficulty, items sharing a target must be different types (apple.png + red-apple.png now fails validation)
-- `generation/taxonomy.test.ts` — 14 tests covering taxonomy loader and helpers
-- `tests/integration/generation-pipeline.test.ts` — boundary test (v5 prompt), assembly tests, taxonomy validation test (15 tests total)
+**Generation pipeline — structural sprite fix + prompt v9 (2026-05-15)**
+- `shared/types.ts` — `LLMGenerationOutputSchema`, `LLMGenerationOutput` type; `ConceptBriefSchema` now includes `itemSprites: z.array(z.string()).min(1)` and `targetSprites: z.array(z.string())`
+- `concepts/briefs/concept_001–005.json` — all updated with explicit `itemSprites` and `targetSprites`; concept_003 `targetDivisionId` corrected to `language.receptive_language`
+- `generation/taxonomy.ts` — `getSpriteInfo()`, `sameType()`, `formatTaxonomyForPrompt()`, `getAllSprites()`, `formatFilteredTaxonomyForPrompt(sprites[])` (concept-scoped filtered taxonomy)
+- `library/assets/sprites/taxonomy.yaml` — category > type > attribute hierarchy, 30 sprites (added orange-basket.png)
+- `generation/pipeline/validate.ts` — sprite-scope check: items and targets must use only sprites declared in concept brief; accepts `concept?: ConceptBrief` (optional for eval runner compat)
+- `generation/pipeline/prompt.ts` — active version v9; `formatFilteredTaxonomyForPrompt` injects only concept-scoped sprites; `{{NOTES}}` injected from concept.notes; TARGET_COUNTS.low=3 (1:1 mapping)
+- `generation/prompts/generate-drag-to-target.v9.txt` — active: slim inputs, difficulty as visual-similarity composite, Rule 3 (1:1 at low), Rule 6 (general target sprite), `{{NOTES}}` override block, GOOD/BAD examples
+- `generation/prompts/review.v2.txt` — active: compound target labels valid; visual sorting developmentally appropriate
+- `generation/taxonomy.test.ts` — 21 tests covering taxonomy loader, sameType, formatFilteredTaxonomyForPrompt
+- `tests/integration/generation-pipeline.test.ts` — sprite-scope validation tests, v9 boundary test, assembly tests (35 tests total)
+- `generation/pipeline/store.ts` — `.approved.json` filter fix (no more duplicate index entries)
+
+**Library (4 approved activities)**
+- `act_1778805627916_7da554.json` — concept_001, v4 prompt, "Put the fruits in the right basket!"
+- `act_1778825695936_390bc0.json` — concept_001, v9 prompt, "Put each fruit in its basket!"
+- `act_1778826178606_088db7.json` — concept_005, v9 prompt, "Match the shapes!"
+- `act_dev_001.json` — dev fixture
 
 **Test count: ~135 tests, all passing**
-
-**Staged activities**
-- `library/staged/act_1778805627916_7da554.json` — concept_001, v4 prompt, score 88/100. Ready to approve via `pnpm review`.
 
 ---
 
 ## In progress
 
-Nothing — pipeline is fully unblocked. v5 generation prompt + taxonomy system complete. Transient API overload prevented final e2e run of v5, but all tests pass and typecheck clean.
+Nothing — all pending fixes from last session are complete. Next work is M5 (tap-to-select) or concept_002 (medium difficulty, needs distractor support in prompt).
 
 ---
 
@@ -89,19 +95,22 @@ Nothing — pipeline is fully unblocked. v5 generation prompt + taxonomy system 
 | Decision | Date |
 |----------|------|
 | `onlyBuiltDependencies: ["esbuild"]` for pnpm v11 | 2026-05-08 |
-| Extracted `drag-to-target-logic.ts` (no Phaser dep) for testable logic | 2026-05-08 |
 | SNAP_DISTANCE=80pt starting value, calibrate against Nitara | 2026-05-08 |
 | LLM review threshold set to 0.85 (placeholder — calibrate after first batch) | 2026-05-08 |
 | Layout system added pre-M5: mechanic specs define layout variants; runtime reads from activity JSON | 2026-05-09 |
 | filledSlots typed as Record<string, unknown> — pipeline code casts per use | 2026-05-08 |
 | GitHub push parked — credentials not handy. Repo: https://github.com/ajayrajen7/bloom | 2026-05-08 |
-| Telemetry uses injectable storage (no localStorage default) — keeps module testable in Node | 2026-05-08 |
-| LLM boundary enforced: prompt receives slim fields only, not raw ConceptBrief/Division/MechanicSpec objects | 2026-05-15 |
-| Assembly moved into pipeline (assembleLLMOutput in prompt.ts) — generate-cli.ts no longer does the spread | 2026-05-15 |
-| Sprite taxonomy system added: category > type > attribute. Validator blocks same-type items sharing a target at low/medium difficulty | 2026-05-15 |
-| v5 prompt maps difficulty to hierarchy level: low=category sort, medium=type sort, high=attribute sort | 2026-05-15 |
-| review.v2: compound target labels (e.g. "Round Basket") are valid; visual sorting is developmentally appropriate for 24–36m | 2026-05-15 |
+| Telemetry uses injectable storage (no localStorage default) | 2026-05-08 |
+| LLM boundary enforced: prompt receives slim fields only, not raw ConceptBrief/Division/MechanicSpec | 2026-05-15 |
+| Sprite taxonomy system: category > type > attribute. Validator blocks same-type items sharing target at low/medium | 2026-05-15 |
+| itemSprites + targetSprites added to ConceptBrief: structural enforcement of sprite scope per concept | 2026-05-15 |
+| Difficulty is a composite function of item count + visual similarity (+ future axes). Docs updated. | 2026-05-15 |
+| TARGET_COUNTS.low changed 2→3: 1:1 mapping at low difficulty (no sharing). Pipeline + prompt updated. | 2026-05-15 |
+| {{NOTES}} injection added to prompt v9: per-concept overrides that take precedence over general rules | 2026-05-15 |
+| concept_003 targetDivisionId corrected to language.receptive_language ("Tap the dog!" is receptive language, not visual discrimination) | 2026-05-15 |
+| store.ts duplicate index bug fixed: .approved.json files excluded from index scan | 2026-05-15 |
 | pnpm worktree esbuild fix: run `pnpm approve-builds --all` in the worktree if you see ERR_PNPM_IGNORED_BUILDS | 2026-05-15 |
+| Prompt versioning discipline: never modify in place — always bump version. v5→v6→v7→v8→v9 this session. | 2026-05-15 |
 
 ---
 
@@ -109,30 +118,32 @@ Nothing — pipeline is fully unblocked. v5 generation prompt + taxonomy system 
 
 | Doc | Change | Date |
 |-----|--------|------|
-| BLOOM_V1_IMPLEMENTATION.md | LLMGenerationOutputSchema already defined in §2 type contracts — confirmed implemented in shared/types.ts | 2026-05-15 |
+| BLOOM_V1_PRD.md | "Difficulty parameters" section replaced with composite function table showing all axes by difficulty level | 2026-05-15 |
+| BLOOM_V1_ARCHITECTURE.md | Parameter computation table updated: low targetCount=3 (was 2); fixed high row; added itemSprites/targetSprites note to concept brief description | 2026-05-15 |
+| BLOOM_V1_IMPLEMENTATION.md | ConceptBriefSchema in §2 updated with itemSprites and targetSprites fields | 2026-05-15 |
+| CLAUDE.md | Added absolute path for memory.md; added commit discipline rule; added explicit "things to do without being asked" block | 2026-05-15 |
 
 ---
 
 ## Blockers
 
-- None blocking. API was transiently overloaded (529) at end of session — not a code issue.
-- GitHub push pending (not on critical path)
+- **concept_002 (medium difficulty):** Requires 1 distractor in the generation prompt. Current prompt hardcodes `"distractors": []`. Need to add distractor support to v9 (→ v10) before concept_002 can be generated.
 - M1 iPad test pending (not blocking M5)
+- GitHub push pending (not on critical path)
 
 ---
 
 ## Next steps
 
-1. **Verify v5 e2e:** `pnpm generate concept_001` — should produce a category-level sort (animals vs food, or similar) that passes review ≥ 0.85.
-2. **Approve staged activity:** `pnpm review` — approve `act_1778805627916_7da554` (88/100, v4 prompt, concept_001).
-3. **Generate batch for concepts 002–005** — one per concept, review and approve. Target: 5 approved activities before starting M5.
-4. **Start M5:**
+1. **Start M5 — tap-to-select mechanic:**
    - `runtime/src/mechanics/tap-to-select-logic.ts` — pure logic (no Phaser), testable in Node
    - `runtime/src/mechanics/tap-to-select.ts` — Phaser tap mechanic
-   - `generation/prompts/generate-tap-to-select.v1.txt` — generation prompt (use same taxonomy system)
+   - `generation/prompts/generate-tap-to-select.v1.txt` — generation prompt (use same taxonomy system + {{NOTES}} pattern)
    - Update `ActivityScene` to route based on `activity.mechanicId`
-   - Generate 6-8 tap-to-select activities
+   - Generate 6-8 tap-to-select activities (concepts 003, 004 are ready)
    - 8 eval cases + integration test
+
+2. **concept_002 (medium difficulty):** Add distractor support to generation prompt (v9 → v10). Medium difficulty needs distractors — items that look similar but have no correct target.
 
 ---
 
@@ -145,7 +156,8 @@ Nothing — pipeline is fully unblocked. v5 generation prompt + taxonomy system 
 | 2026-05-08 | M1 code complete. 29 tests. Dev server on port 3000. |
 | 2026-05-08 | M2 complete. 57 tests. Framework + Mechanics + Concepts layers fully wired. |
 | 2026-05-08 | M3 complete. 66 tests. Full generation pipeline — prompts, validate, LLM review, stage, store, eval system. |
-| 2026-05-08 | M4 complete. 73 tests. Runtime JSON-driven: activity loaded from library, selection grid, session telemetry persisted to localStorage. |
-| 2026-05-09 | Pre-M5 layout system. Mechanic specs rebuilt with layout variants. Layout engine in shared/. Runtime now layout-driven. 121 tests. |
-| 2026-05-09 | Generation pipeline working end-to-end (API key, env loading fixed). Generation + validation passing. LLM review failing on prompt quality issues — Ajay reviewing prompts. |
-| 2026-05-15 | Pipeline unblocked. LLMGenerationOutputSchema added. Prompt refactored to slim boundary (v3→v5). Assembly moved to pipeline. Review prompt v2. Taxonomy system built (category>type>attribute, 29 sprites). Validator now enforces type-level distinctness. ~135 tests. Staged activity 88/100 ready to approve. |
+| 2026-05-08 | M4 complete. 73 tests. Runtime JSON-driven: activity loaded from library, selection grid, session telemetry. |
+| 2026-05-09 | Pre-M5 layout system. Mechanic specs rebuilt with layout variants. Layout engine in shared/. 121 tests. |
+| 2026-05-09 | Generation pipeline working end-to-end. LLM review failing on prompt quality issues — Ajay reviewing prompts. |
+| 2026-05-15 | Major pipeline session: LLMGenerationOutputSchema, slim boundary, taxonomy system (30 sprites), sprite-scope validation, itemSprites/targetSprites on ConceptBrief, prompts v5→v9, 1:1 mapping at low, {{NOTES}} injection, concept_001 + concept_005 approved. ~135 tests. |
+| 2026-05-15 | Bug fixes: store.ts .approved.json duplicate index bug fixed; concept_003 division corrected to language.receptive_language; BLOOM_V1_IMPLEMENTATION.md ConceptBriefSchema updated. |
