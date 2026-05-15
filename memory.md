@@ -104,10 +104,14 @@ Read this at the start of every session. Update it proactively when context appr
 
 ## In progress
 
-M5 runtime complete. Generation pipeline complete. Need:
-- 4–6 more tap-to-select activities from concepts 003 and 004 (run pnpm generate again for variety)
-- 8 eval cases for tap-to-select
-- Integration tests for tap-to-select pipeline
+M5 runtime + generation pipeline complete. M5 done-when status:
+
+| Criterion | Status |
+|-----------|--------|
+| Tap-to-select activities playable on iPad | ❌ not tested |
+| Library reaches 15–20 activities | ❌ at 7 (need 8–13 more) |
+| All eval cases pass (drag + tap) | ❌ no tap-to-select evals yet |
+| Integration tests for both mechanics pass | ❌ no tap-to-select integration tests yet |
 
 ---
 
@@ -151,6 +155,7 @@ M5 runtime complete. Generation pipeline complete. Need:
 | BLOOM_V1_ARCHITECTURE.md | Parameter computation table updated: low targetCount=3 (was 2); fixed high row; added itemSprites/targetSprites note to concept brief description | 2026-05-15 |
 | BLOOM_V1_IMPLEMENTATION.md | ConceptBriefSchema in §2 updated with itemSprites and targetSprites fields | 2026-05-15 |
 | CLAUDE.md | Added absolute path for memory.md; added commit discipline rule; added explicit "things to do without being asked" block | 2026-05-15 |
+| BLOOM_V1_IMPLEMENTATION.md | ConceptBriefSchema in §2 needs update: mechanicId field added (required enum, drag-to-target or tap-to-select) — not yet done | 2026-05-15 |
 
 ---
 
@@ -163,10 +168,11 @@ M5 runtime complete. Generation pipeline complete. Need:
 
 ## Next steps
 
-1. **Complete M5 activity library:** generate 4–6 more tap-to-select activities (more variety from concept_003/004, possibly new concepts)
-2. **Eval cases for tap-to-select:** 8 cases in `generation/evals/cases/`, integration tests in `tests/integration/`
-3. **stage.ts preview:** update buildPreviewHTML to show correctItems/distractors for tap-to-select (currently shows drag-to-target item→target mapping)
-4. **M5 done-when checklist:** re-read IMPLEMENTATION.md §M5 and verify all criteria
+1. **Generate more activities** — run `pnpm generate concept_003` (more animal variants) and `pnpm generate concept_004` (more colour variants) until library hits 15–20. Run from worktree (`/Users/ajayrajendran/Documents/code/bloom/.claude/worktrees/epic-kare-26d462`) — .env.local is symlinked there.
+2. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`: assembleTapToSelectOutput correctness, validateTapToSelect pass/fail cases.
+3. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
+4. **stage.ts preview** — update `buildPreviewHTML` to show correctItems/distractors for tap-to-select (currently renders drag-to-target item→target table, confusing for manual review).
+5. **iPad test** — play both mechanics on device before marking M5 complete.
 
 ---
 
