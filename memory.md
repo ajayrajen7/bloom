@@ -119,10 +119,17 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 
 | Criterion | Status |
 |-----------|--------|
-| Tap-to-select activities playable on iPad | ❌ not tested |
-| Library reaches 15–20 activities | ❌ at 7 (need 8–13 more) |
+| Tap-to-select activities playable on iPad | ❌ not tested — visual issues found first |
+| Library reaches 15–20 activities | ❌ at 12 |
 | All eval cases pass (drag + tap) | ❌ no tap-to-select evals yet |
 | Integration tests for both mechanics pass | ❌ no tap-to-select integration tests yet |
+
+**Known visual/UX issues (Ajay to review):**
+- Activity screen has "many issues" — not yet diagnosed in detail; Ajay will come back with specifics
+- Sprite rendering wired (images now load instead of circles) but visual design of activities may need rework
+- Shape-matching activity: "Square" = 3D blue square emoji, "Triangle" = star emoji — not outline-style shapes, may look wrong
+- Baskets all share same asset; barn/coop also share — looks identical for those activities
+- All target drop zones are circle outlines regardless of shape (ring drawn programmatically) — only ghost image differs
 
 ---
 
@@ -183,9 +190,9 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 
 ## Next steps
 
-1. **Connect Vercel** — vercel.com/new → import ajayrajen7/bloom → deploy. Then share URL with Nitara.
-2. **iPad test** — play both mechanics on device; this is the top priority before generating more content.
-3. **Generate more activities** — once iPad test confirms mechanics work, run `pnpm generate` for concept_003/004/005 variants until library hits 15–20. Run from worktree (`.env.local` symlinked there).
+1. **Diagnose activity screen issues** — Ajay will come back with specifics. Known areas: sprite rendering, target zone shapes (all circles), asset quality (shape/basket/barn sprites), overall visual design.
+2. **Connect Vercel** — vercel.com/new → import ajayrajen7/bloom → deploy.
+3. **Generate more activities** — after visual issues resolved, run `pnpm generate` from worktree.
 4. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`.
 5. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
 
@@ -208,3 +215,4 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | 2026-05-15 | Distractor support: v10 prompt, validate.ts distractor count + scope checks, concept_002 generated (92/100) and approved. serve.ts .approved.json re-queue bug fixed. 139 tests. 5 approved activities. |
 | 2026-05-15 | M5 tap-to-select: runtime mechanic (logic + Phaser), ActivityScene routing, full generation pipeline (prompt-tap-to-select.ts, validate branching, review.v3), concept_003 (97/100) + concept_004 (96/100) approved. 7 activities total. |
 | 2026-05-15 | Deployment prep: batch-generated 5 more activities (12 total), replaced 30 stub sprites with Fluent Emoji 3D PNGs, added vercel.json, pushed to GitHub. Fixed selection screen: camera scroll + scrollbar + tap/scroll conflict guard. |
+| 2026-05-15 | Wired sprite rendering in both mechanics: ActivityScene preloads all 30 sprites, items/targets now use images. tap-to-select correct tap = green tint. Multiple visual issues remain — Ajay to review and specify. |
