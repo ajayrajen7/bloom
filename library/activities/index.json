@@ -43,6 +43,41 @@
       "difficulty": "low"
     },
     {
+      "id": "act_1778835617425_a0f3b7",
+      "conceptId": "concept_003",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the dog!",
+      "difficulty": "low"
+    },
+    {
+      "id": "act_1778835633286_67f0be",
+      "conceptId": "concept_003",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the dog!",
+      "difficulty": "low"
+    },
+    {
+      "id": "act_1778835646257_84d94d",
+      "conceptId": "concept_003",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the dog!",
+      "difficulty": "low"
+    },
+    {
+      "id": "act_1778835657285_a28140",
+      "conceptId": "concept_004",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the red one!",
+      "difficulty": "low"
+    },
+    {
+      "id": "act_1778835667211_a8ce4f",
+      "conceptId": "concept_004",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the red one!",
+      "difficulty": "low"
+    },
+    {
       "id": "act_dev_001",
       "conceptId": "concept_001",
       "mechanicId": "drag-to-target",
