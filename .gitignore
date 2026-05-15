@@ -3,7 +3,9 @@ dist/
 .env
 .env.local
 library/sessions/
+library/staged/
 generation/evals/results/
+generation/review-ui/staged/
 *.local
 .DS_Store
 .claude/

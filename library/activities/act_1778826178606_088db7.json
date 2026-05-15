@@ -1,0 +1,114 @@
+{
+  "id": "act_1778826178606_088db7",
+  "conceptId": "concept_005",
+  "mechanicId": "drag-to-target",
+  "generatedAt": "2026-05-15T06:22:58.606Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "circle_1",
+        "targetId": "circle_outline",
+        "label": "Circle",
+        "assetRef": "sprites/circle.png"
+      },
+      {
+        "id": "square_1",
+        "targetId": "square_outline",
+        "label": "Square",
+        "assetRef": "sprites/square.png"
+      },
+      {
+        "id": "triangle_1",
+        "targetId": "triangle_outline",
+        "label": "Triangle",
+        "assetRef": "sprites/triangle.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "circle_outline",
+        "label": "Circle Outline",
+        "assetRef": "sprites/circle.png"
+      },
+      {
+        "id": "square_outline",
+        "label": "Square Outline",
+        "assetRef": "sprites/square.png"
+      },
+      {
+        "id": "triangle_outline",
+        "label": "Triangle Outline",
+        "assetRef": "sprites/triangle.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "itemCount": 3,
+    "distractorCount": 0,
+    "visualSimilarity": "low",
+    "layout": {
+      "id": "horizontal-standard",
+      "description": "Items in a horizontal row at the bottom of the play area, targets in a horizontal row above. Left-to-right order. Default orientation — best for 24-30 months.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 3,
+            "max": 5
+          },
+          "elementSize": {
+            "min": 80,
+            "max": 115
+          },
+          "yFraction": 0.8,
+          "xPadFraction": 0.1
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 2,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 140
+          },
+          "yFraction": 0.28,
+          "xPadFraction": 0.1
+        }
+      }
+    }
+  },
+  "prompt": {
+    "text": "Match the shapes!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "cognitive.visual_discrimination",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 0.92,
+    "reviewerNotes": "All three targetIds correctly reference existing target ids, and the prompt 'Match the shapes!' is clear, concise, and well within 10 words. The activity precisely follows the concept brief: 3 distinct shapes, no distractors, target labels use the specified 'Circle Outline / Square Outline / Triangle Outline' format, and the 40-second duration is plausible for 3 items. The only minor concern is that 'Triangle' is a slightly longer vocabulary word for the youngest 24-month-olds, though it remains broadly recognisable at this age; item count of 3 is on the low end of engaging but acceptable for low-difficulty. The theme of shapes and outlines is familiar and motivating, though not as inherently exciting as animals or food for this age group.",
+    "humanApprovedAt": "2026-05-15T06:24:24.244Z",
+    "humanApprover": "ajay"
+  }
+}

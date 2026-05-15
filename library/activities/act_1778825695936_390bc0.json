@@ -1,0 +1,114 @@
+{
+  "id": "act_1778825695936_390bc0",
+  "conceptId": "concept_001",
+  "mechanicId": "drag-to-target",
+  "generatedAt": "2026-05-15T06:14:55.936Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple_1",
+        "targetId": "apple_basket",
+        "label": "Apple",
+        "assetRef": "sprites/apple.png"
+      },
+      {
+        "id": "banana_1",
+        "targetId": "banana_basket",
+        "label": "Banana",
+        "assetRef": "sprites/banana.png"
+      },
+      {
+        "id": "orange_1",
+        "targetId": "orange_basket",
+        "label": "Orange",
+        "assetRef": "sprites/orange.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "apple_basket",
+        "label": "Apple Basket",
+        "assetRef": "sprites/apple-basket.png"
+      },
+      {
+        "id": "banana_basket",
+        "label": "Banana Basket",
+        "assetRef": "sprites/banana-basket.png"
+      },
+      {
+        "id": "orange_basket",
+        "label": "Orange Basket",
+        "assetRef": "sprites/orange-basket.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "itemCount": 3,
+    "distractorCount": 0,
+    "visualSimilarity": "low",
+    "layout": {
+      "id": "horizontal-standard",
+      "description": "Items in a horizontal row at the bottom of the play area, targets in a horizontal row above. Left-to-right order. Default orientation — best for 24-30 months.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 3,
+            "max": 5
+          },
+          "elementSize": {
+            "min": 80,
+            "max": 115
+          },
+          "yFraction": 0.8,
+          "xPadFraction": 0.1
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 2,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 140
+          },
+          "yFraction": 0.28,
+          "xPadFraction": 0.1
+        }
+      }
+    }
+  },
+  "prompt": {
+    "text": "Put each fruit in its basket!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 0.88,
+    "reviewerNotes": "All three items (apple, banana, orange) are immediately recognisable to 2–3 year olds, all targetIds correctly reference existing targets, and target labels are appropriate compound descriptors. The prompt 'Put each fruit in its basket!' is 7 words with a clear action verb and is well within receptive language range. The only mild concern is that with only 3 items, no distractors, and low visual similarity, the activity sits at the very easy end of even the 'low' difficulty band — a 4th fruit or a single distractor would add minimal cognitive load while improving engagement and attention span. The audioRef placeholder should be resolved before publishing.",
+    "humanApprovedAt": "2026-05-15T06:17:18.221Z",
+    "humanApprover": "ajay"
+  }
+}

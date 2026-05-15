@@ -1,0 +1,109 @@
+{
+  "id": "act_1778805627916_7da554",
+  "conceptId": "concept_001",
+  "mechanicId": "drag-to-target",
+  "generatedAt": "2026-05-15T00:40:27.916Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple_1",
+        "targetId": "round_basket",
+        "label": "Apple",
+        "assetRef": "sprites/apple.png"
+      },
+      {
+        "id": "orange_1",
+        "targetId": "round_basket",
+        "label": "Orange",
+        "assetRef": "sprites/orange.png"
+      },
+      {
+        "id": "banana_1",
+        "targetId": "long_basket",
+        "label": "Banana",
+        "assetRef": "sprites/banana.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "round_basket",
+        "label": "Round Basket",
+        "assetRef": "sprites/wicker-basket.png"
+      },
+      {
+        "id": "long_basket",
+        "label": "Long Basket",
+        "assetRef": "sprites/banana-basket.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "itemCount": 3,
+    "distractorCount": 0,
+    "visualSimilarity": "low",
+    "layout": {
+      "id": "horizontal-standard",
+      "description": "Items in a horizontal row at the bottom of the play area, targets in a horizontal row above. Left-to-right order. Default orientation — best for 24-30 months.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 3,
+            "max": 5
+          },
+          "elementSize": {
+            "min": 80,
+            "max": 115
+          },
+          "yFraction": 0.8,
+          "xPadFraction": 0.1
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 2,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 140
+          },
+          "yFraction": 0.28,
+          "xPadFraction": 0.1
+        }
+      }
+    }
+  },
+  "prompt": {
+    "text": "Put the fruits in the right basket!",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 0.88,
+    "reviewerNotes": "Apple, orange, and banana are highly familiar to 2–3 year olds, and sorting by shape (round vs. long) is developmentally appropriate for this age range. All targetIds correctly reference existing targets, labels are single common words, and the prompt is clear and action-oriented. The activity is slightly borderline on engagement because only 3 items with no distractors makes completion very rapid and the sorting rule (shape) is implicit rather than named in the prompt — 'Put the fruits in the right basket!' does not tell the child what 'right' means, which could cause confusion without audio scaffolding. The concept brief prompt 'Put the fruits in the baskets!' is marginally clearer for this age; the generated version's word 'right' adds mild ambiguity.",
+    "humanApprovedAt": "2026-05-15T06:17:01.351Z",
+    "humanApprover": "ajay"
+  }
+}
