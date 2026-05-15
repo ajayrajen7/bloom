@@ -271,7 +271,7 @@ Before calling the LLM, the pipeline:
 
 1. Reads the ConceptBrief, Division (via Framework loader), and MechanicSpec (via Mechanics loader).
 2. Computes deterministic parameters from difficulty (difficulty is a composite function — all axes scale together):
-   - low:    itemCount=3, targetCount=2, distractorCount=0, visualSimilarity=low,    layoutId="horizontal-standard"
+   - low:    itemCount=3, targetCount=3, distractorCount=0, visualSimilarity=low,    layoutId="horizontal-standard"
    - medium: itemCount=5, targetCount=3, distractorCount=1, visualSimilarity=medium, layoutId="horizontal-standard"
    - high:   itemCount=6, targetCount=4, distractorCount=2, visualSimilarity=high,   layoutId="horizontal-standard"
 3. Reads itemSprites and targetSprites from the ConceptBrief to build a filtered sprite list scoped to this concept's theme.

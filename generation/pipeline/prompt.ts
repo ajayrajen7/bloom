@@ -14,7 +14,7 @@ import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const PROMPT_VERSION = "v7";
+const PROMPT_VERSION = "v8";
 const PROMPT_FILE = join(
   __dirname,
   "../prompts",
@@ -23,7 +23,8 @@ const PROMPT_FILE = join(
 
 // Difficulty → counts. These are pipeline decisions, not LLM decisions.
 const ITEM_COUNTS: Record<string, number> = { low: 3, medium: 5, high: 6 };
-const TARGET_COUNTS: Record<string, number> = { low: 2, medium: 3, high: 4 };
+// low: 1:1 mapping (each item has its own target, no sharing). Sharing starts at medium.
+const TARGET_COUNTS: Record<string, number> = { low: 3, medium: 3, high: 4 };
 
 export interface PromptResult {
   raw: string;

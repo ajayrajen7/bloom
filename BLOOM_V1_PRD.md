@@ -376,7 +376,7 @@ Difficulty is a **composite function** — multiple axes increase together as di
 
 | Axis | low | medium | high |
 |------|-----|--------|------|
-| Item count | 3 items / 2 targets | 5 items / 3 targets | 6 items / 4 targets |
+| Item count | 3 items / 3 targets | 5 items / 3 targets | 6 items / 4 targets |
 | Distractor count | 0 | 1 | 2 |
 | Visual similarity | obviously different (distinct shapes/colours) | closer inspection needed (similar type or colour family) | near-identical variants (same object, colour/size only) |
 
