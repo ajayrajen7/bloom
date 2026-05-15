@@ -22,6 +22,7 @@ const validDivision = {
 
 const validConceptBrief = {
   id: "concept_001",
+  mechanicId: "drag-to-target" as const,
   targetDivisionId: "fine_motor.pincer_grip",
   ageMonths: { min: 24, max: 36 },
   difficulty: "low" as const,

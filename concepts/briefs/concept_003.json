@@ -1,5 +1,6 @@
 {
   "id": "concept_003",
+  "mechanicId": "tap-to-select",
   "targetDivisionId": "language.receptive_language",
   "ageMonths": { "min": 24, "max": 36 },
   "difficulty": "low",

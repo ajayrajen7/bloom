@@ -7,7 +7,7 @@ import type { ActivityJSON, ConceptBrief, Division } from "shared/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const REVIEW_VERSION = "v2";
+const REVIEW_VERSION = "v3";
 const REVIEW_FILE = join(__dirname, "../prompts", `review.${REVIEW_VERSION}.txt`);
 
 export const REVIEW_PASS_THRESHOLD = 0.85;

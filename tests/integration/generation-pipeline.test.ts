@@ -26,6 +26,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const testConcept: ConceptBrief = {
   id: "concept_001",
+  mechanicId: "drag-to-target",
   targetDivisionId: "fine_motor.pincer_grip",
   ageMonths: { min: 24, max: 36 },
   difficulty: "low",
@@ -225,6 +226,7 @@ describe("validateActivity — sprite scope", () => {
   it("allows the same sprite in both itemSprites and targetSprites — valid for shape-matching", () => {
     const shapeConcept: ConceptBrief = {
       id: "concept_005",
+      mechanicId: "drag-to-target",
       targetDivisionId: "fine_motor.pincer_grip",
       ageMonths: { min: 24, max: 36 },
       difficulty: "low",
@@ -259,6 +261,7 @@ describe("validateActivity — sprite scope", () => {
 
 const mediumConcept: ConceptBrief = {
   id: "concept_002",
+  mechanicId: "drag-to-target",
   targetDivisionId: "fine_motor.pincer_grip",
   ageMonths: { min: 24, max: 36 },
   difficulty: "medium",
@@ -368,6 +371,7 @@ describe("generation prompt boundary", () => {
 describe("assembleLLMOutput", () => {
   const mockConcept: ConceptBrief = {
     id: "concept_001",
+    mechanicId: "drag-to-target",
     targetDivisionId: "fine_motor.pincer_grip",
     ageMonths: { min: 24, max: 36 },
     difficulty: "low",

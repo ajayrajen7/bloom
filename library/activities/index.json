@@ -29,6 +29,20 @@
       "difficulty": "medium"
     },
     {
+      "id": "act_1778833226026_c65726",
+      "conceptId": "concept_003",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the dog!",
+      "difficulty": "low"
+    },
+    {
+      "id": "act_1778833454232_b8ed1d",
+      "conceptId": "concept_004",
+      "mechanicId": "tap-to-select",
+      "prompt": "Tap the red one!",
+      "difficulty": "low"
+    },
+    {
       "id": "act_dev_001",
       "conceptId": "concept_001",
       "mechanicId": "drag-to-target",

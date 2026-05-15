@@ -1,5 +1,6 @@
 {
   "id": "concept_005",
+  "mechanicId": "drag-to-target",
   "targetDivisionId": "cognitive.visual_discrimination",
   "ageMonths": { "min": 24, "max": 36 },
   "difficulty": "low",

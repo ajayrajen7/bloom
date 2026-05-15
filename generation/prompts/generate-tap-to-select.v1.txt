@@ -1,0 +1,113 @@
+You are generating a tap-to-select activity for Bloom, a learning app for children aged 24–36 months.
+
+A tap-to-select activity plays an audio prompt ("Tap the dog!") and shows the child a grid of items.
+The child taps the item(s) that match the prompt. Correct taps are celebrated; wrong taps give
+gentle feedback. Activity ends when all correct items are tapped.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Theme:                     {{THEME_HINT}}
+Difficulty:                {{DIFFICULTY}}
+Correct items to generate: {{CORRECT_COUNT}}
+Distractors to generate:   {{DISTRACTOR_COUNT}}
+Division:                  {{DIVISION_NAME}}
+
+Design principles for this division:
+{{DIVISION_DESIGN_PRINCIPLES}}
+
+Concept notes (follow these precisely — they override general rules where they conflict):
+{{NOTES}}
+
+Available sprites:
+{{SPRITE_TAXONOMY}}
+
+Use ONLY the sprites listed above. Do not invent filenames. Every assetRef in your output must exactly match a filename from this list, prefixed with sprites/.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFFICULTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Difficulty controls how similar the distractors are to the correct item(s).
+
+  low    — distractors are from a different category. Obvious contrast.
+            correct = dog → distractors = apple / ball / banana
+  medium — distractors are same category, different type. Requires closer attention.
+            correct = dog → distractors = cat / duck / cow
+  high   — distractors are same type, differ only in one attribute (colour, size).
+            correct = red-ball → distractors = blue-ball / yellow-ball / green-ball
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESIGN RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Decide the correct item(s) first. Choose {{CORRECT_COUNT}} item(s) that fit the theme
+   and that the audio prompt can name unambiguously.
+
+2. Choose {{DISTRACTOR_COUNT}} distractors following the difficulty rules above.
+   A good distractor is plausible at a glance — the child must listen to reject it.
+
+3. Prompt text: under 10 words, direct imperative, names only the correct item(s).
+   GOOD: "Tap the dog!"   "Tap the red ones!"
+   BAD:  "Can you find the dog?"   "Tap the dog or the cat!"
+
+4. If there are multiple correct items, the prompt must name what they share — never ask
+   the child to tap one when there are two correct answers.
+
+5. No assetRef may appear more than once across correctItems and distractors combined.
+
+6. Labels must be 1–2 words, child-vocabulary ("Dog", not "Golden Retriever").
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GOOD — theme: find the animal, difficulty: low, correct: 1, distractors: 3
+Distractors are cross-category (apple, ball, banana) — obviously different from dog.
+Prompt names only the correct item.
+
+{
+  "filledSlots": {
+    "correctItems": [
+      { "id": "dog_1", "label": "Dog", "assetRef": "sprites/dog.png" }
+    ],
+    "distractors": [
+      { "id": "apple_1",  "label": "Apple",  "assetRef": "sprites/apple.png"  },
+      { "id": "ball_1",   "label": "Ball",   "assetRef": "sprites/ball.png"   },
+      { "id": "banana_1", "label": "Banana", "assetRef": "sprites/banana.png" }
+    ]
+  },
+  "prompt": { "text": "Tap the dog!" }
+}
+
+BAD — theme: find the animal, difficulty: low (wrong)
+Distractors are all animals — same category as the correct item. This is medium, not low.
+
+{
+  "filledSlots": {
+    "correctItems": [
+      { "id": "dog_1", "label": "Dog", "assetRef": "sprites/dog.png" }
+    ],
+    "distractors": [
+      { "id": "cat_1",  "label": "Cat",  "assetRef": "sprites/cat.png"  },
+      { "id": "duck_1", "label": "Duck", "assetRef": "sprites/duck.png" },
+      { "id": "cow_1",  "label": "Cow",  "assetRef": "sprites/cow.png"  }
+    ]
+  },
+  "prompt": { "text": "Tap the dog!" }
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return only valid JSON. No preamble, no explanation, no code fences. Exactly this shape:
+
+{
+  "filledSlots": {
+    "correctItems": [{ "id": "...", "label": "...", "assetRef": "sprites/..." }],
+    "distractors":  [{ "id": "...", "label": "...", "assetRef": "sprites/..." }]
+  },
+  "prompt": { "text": "..." }
+}

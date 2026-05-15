@@ -12,6 +12,7 @@ import { getConceptBrief } from "../concepts/loader.js";
 import { getDivisionById } from "../framework/loader.js";
 import { getMechanicSpec } from "../mechanics/loader.js";
 import { runGenerationPrompt } from "./pipeline/prompt.js";
+import { runTapToSelectPrompt } from "./pipeline/prompt-tap-to-select.js";
 import { validateActivity } from "./pipeline/validate.js";
 import { runLLMReview } from "./pipeline/llm-review.js";
 import { stageActivity } from "./pipeline/stage.js";
@@ -62,17 +63,17 @@ async function main() {
     process.exit(1);
   }
 
-  // Default to drag-to-target for M3; tap-to-select wired in M5
-  const mechanicId = "drag-to-target";
-  const mechanic = getMechanicSpec(mechanicId);
+  const mechanic = getMechanicSpec(concept.mechanicId);
   if (!mechanic) {
-    console.error(`Mechanic not found: ${mechanicId}`);
+    console.error(`Mechanic not found: ${concept.mechanicId}`);
     process.exit(1);
   }
 
   // ── Stage 1: Prompt ──────────────────────────────────────────────────────────
   console.log("1/4  Calling Claude (generation)…");
-  const promptResult = await runGenerationPrompt(concept, division, mechanic, client);
+  const promptResult = concept.mechanicId === "tap-to-select"
+    ? await runTapToSelectPrompt(concept, division, client)
+    : await runGenerationPrompt(concept, division, mechanic, client);
   console.log(`     tokens: ${promptResult.tokensUsed.input} in / ${promptResult.tokensUsed.output} out`);
 
   // ── Stage 2: Validate ────────────────────────────────────────────────────────
