@@ -4,15 +4,16 @@ import { getMechanicSpec, listMechanicSpecs, getLayoutVariant, _resetCache } fro
 beforeEach(() => _resetCache());
 
 describe("listMechanicSpecs", () => {
-  it("returns both V1 mechanics", () => {
+  it("returns all three registered mechanics (drag-to-target parked, not deleted)", () => {
     const specs = listMechanicSpecs();
-    expect(specs).toHaveLength(2);
+    expect(specs).toHaveLength(3);
   });
 
-  it("includes drag-to-target and tap-to-select", () => {
+  it("includes drag-to-target, tap-to-select, and find-all", () => {
     const ids = listMechanicSpecs().map((s) => s.id);
     expect(ids).toContain("drag-to-target");
     expect(ids).toContain("tap-to-select");
+    expect(ids).toContain("find-all");
   });
 });
 
@@ -95,6 +96,40 @@ describe("tap-to-select layouts", () => {
       expect(zone.arrangement.columns).toBe(2);
       expect(zone.arrangement.rows).toBe(2);
     }
+  });
+});
+
+describe("find-all layouts", () => {
+  it("returns find-all spec", () => {
+    const spec = getMechanicSpec("find-all");
+    expect(spec?.name).toBe("Find All");
+    expect(spec?.deviceCompatibility).toContain("ipad");
+  });
+
+  it("has the layout variants named in the V1.1 spec", () => {
+    const spec = getMechanicSpec("find-all")!;
+    const ids = spec.layouts.map((l) => l.id);
+    expect(ids).toContain("grid-2x3");
+    expect(ids).toContain("grid-3x3");
+    expect(ids).toContain("horizontal-line");
+    expect(ids).toContain("random");
+  });
+
+  it("grid-3x3 arrangement has 3 columns and 3 rows", () => {
+    const spec   = getMechanicSpec("find-all")!;
+    const layout = spec.layouts.find((l) => l.id === "grid-3x3")!;
+    const zone   = layout.zones["item_zone"]!;
+    expect(zone.arrangement.type).toBe("grid");
+    if (zone.arrangement.type === "grid") {
+      expect(zone.arrangement.columns).toBe(3);
+      expect(zone.arrangement.rows).toBe(3);
+    }
+  });
+
+  it("slotSchema and parameterSchema are defined", () => {
+    const spec = getMechanicSpec("find-all");
+    expect(spec?.slotSchema).toBeDefined();
+    expect(spec?.parameterSchema).toBeDefined();
   });
 });
 
