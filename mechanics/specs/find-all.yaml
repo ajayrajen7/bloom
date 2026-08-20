@@ -1,0 +1,126 @@
+id: "find-all"
+name: "Find All"
+description: >
+  Items are presented in a layout. The child must tap ALL items matching the
+  prompted attribute (e.g. "find all the red things"). Each correct tap gives
+  success feedback and marks that item found; a progress indicator fills as
+  targets are found. Wrong taps give gentle feedback without penalising.
+  Activity ends when every target has been found — no time limit, no failure
+  state. Distinguished from tap-to-select by having multiple items to find
+  per activity rather than a single correct item (or up to 3 independently-
+  celebrated correct items with no "all must be found before completion"
+  framing).
+deviceCompatibility:
+  - ipad
+
+slotSchema:
+  targets:
+    type: array
+    minLength: 2
+    maxLength: 3
+    itemShape:
+      id: string
+      label: string           # shared attribute value, e.g. "Red" — must match the audio prompt
+      assetRef: string
+  distractors:
+    type: array
+    minLength: 3
+    maxLength: 4
+    itemShape:
+      id: string
+      label: string
+      assetRef: string
+  # Total items displayed = targets.length + distractors.length
+  # Must match the selected layout's item_zone elementCount constraint.
+
+parameterSchema:
+  layoutId:
+    type: string
+    description: "Which layout variant to use. Must match an id in layouts[]."
+  targetCount:
+    type: number
+    range: [2, 3]
+    description: "Number of items the child must find (low=2, medium=3 per V1.1 spec)."
+  distractorCount:
+    type: number
+    range: [3, 4]
+    description: >
+      Number of distractor items shown alongside targets.
+      targetCount + distractorCount must satisfy the selected layout's
+      item_zone elementCount constraint.
+  visualSimilarity:
+    type: enum
+    values: [low, medium]
+    description: >
+      How closely distractors resemble targets. Low = attribute is color and
+      obvious; medium = attribute is color or size and closer. (find-all has
+      no "high" tier in the V1.1 spec — tap-one carries the high-difficulty case.)
+
+# ── Layout variants ───────────────────────────────────────────────────────────
+#
+# Single zone (item_zone), same convention as tap-to-select — no separate
+# target zone; the audio prompt names the shared attribute. Element sizes
+# and exact spacing are starting values, tuned against the iPad in Batch 1
+# (V1.1 spec §9 open item).
+
+layouts:
+  - id: "grid-2x3"
+    description: >
+      2 columns, 3 rows — up to 6 cells. Used for low difficulty
+      (5 items: 2 targets + 3 distractors).
+    zones:
+      item_zone:
+        arrangement:
+          type: grid
+          columns: 2
+          rows: 3
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 5, max: 6 }
+        elementSize: { min: 105, max: 115 }
+        gapFraction: 0.06
+
+  - id: "grid-3x3"
+    description: >
+      3 columns, 3 rows — up to 9 cells. Used for medium difficulty
+      (7 items: 3 targets + 4 distractors).
+    zones:
+      item_zone:
+        arrangement:
+          type: grid
+          columns: 3
+          rows: 3
+        centerFraction: { x: 0.50, y: 0.50 }
+        elementCount: { min: 7, max: 9 }
+        elementSize: { min: 90, max: 100 }
+        gapFraction: 0.05
+
+  - id: "horizontal-line"
+    description: >
+      All items in a single horizontal row. Simplest visual read; best kept
+      to the low-difficulty item count (5) — crowds at medium (7).
+    zones:
+      item_zone:
+        arrangement:
+          type: linear
+          axis: horizontal
+          direction: left-to-right
+        yFraction: 0.50
+        xPadFraction: 0.06
+        elementCount: { min: 5, max: 5 }
+        elementSize: { min: 100, max: 115 }
+
+  - id: "random"
+    description: >
+      Items placed at random non-overlapping positions within the play area.
+      Re-randomised each play session. Available as an alternative to grid
+      layouts for either difficulty; 48pt minimum spacing rule stands.
+    zones:
+      item_zone:
+        arrangement:
+          type: random
+          minSpacing: 100
+        bounds:
+          xPadFraction: 0.08
+          yPadFraction: 0.08
+        elementCount: { min: 5, max: 9 }
+        elementSize: { min: 90, max: 115 }

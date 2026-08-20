@@ -1,0 +1,28 @@
+{
+  "id": "concept_playground_tap_low",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "low",
+  "themeHint": "playground",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, low: 3 items, 1 target, distractors from a different category, min element size 120pt.",
+  "itemSprites": [
+    "playground_ball.png",
+    "playground_swing.png",
+    "playground_slide.png",
+    "playground_bucket.png",
+    "playground_spade.png",
+    "playground_kite.png",
+    "playground_seesaw.png",
+    "playground_sandpit.png",
+    "playground_hoop.png",
+    "playground_cone.png",
+    "playground_rope.png",
+    "playground_drum.png"
+  ],
+  "targetSprites": [],
+  "setting": "playground"
+}

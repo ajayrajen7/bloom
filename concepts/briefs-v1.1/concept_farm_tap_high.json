@@ -1,0 +1,28 @@
+{
+  "id": "concept_farm_tap_high",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "high",
+  "themeHint": "farm",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, high: 7 items, 1 target, distractors = same object/different attribute, min element size 90pt.",
+  "itemSprites": [
+    "farm_cow.png",
+    "farm_dog.png",
+    "farm_cat.png",
+    "farm_hen.png",
+    "farm_goat.png",
+    "farm_duck.png",
+    "farm_pig.png",
+    "farm_sheep.png",
+    "farm_horse.png",
+    "farm_barn.png",
+    "farm_tractor.png",
+    "farm_haystack.png"
+  ],
+  "targetSprites": [],
+  "setting": "farm"
+}

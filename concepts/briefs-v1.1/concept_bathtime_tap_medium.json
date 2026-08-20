@@ -1,0 +1,28 @@
+{
+  "id": "concept_bathtime_tap_medium",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "bathtime",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, medium: 5 items, 1 target, distractors from the same category, min element size 100pt.",
+  "itemSprites": [
+    "bathtime_duck.png",
+    "bathtime_soap.png",
+    "bathtime_towel.png",
+    "bathtime_bubbles.png",
+    "bathtime_mug.png",
+    "bathtime_brush.png",
+    "bathtime_sponge.png",
+    "bathtime_boat.png",
+    "bathtime_cup.png",
+    "bathtime_bottle.png",
+    "bathtime_mirror.png",
+    "bathtime_tap.png"
+  ],
+  "targetSprites": [],
+  "setting": "bathtime"
+}

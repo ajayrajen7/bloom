@@ -1,0 +1,41 @@
+# V1.1 content settings — BLOOM_V1.1_MVP_SPEC.md §2.
+#
+# 6 settings × 5 briefs each (3 tap-one + 2 find-all) = 30 activities.
+# `objects` seeds the asset-sheet prompts for M7 (one sheet generation per
+# setting) and the itemSprites/targetSprites scoping for concept briefs once
+# the manifest exists. Padded to ~12 objects per setting from the spec's
+# examples — not final; trim/swap freely, the pipeline doesn't care (per spec).
+#
+# introLine feeds {{settingIntro}} in the M8 instruction-template prompt
+# work — not consumed by expand-settings.ts today.
+
+settings:
+  kitchen:
+    introLine: "In the kitchen…"
+    objects:
+      [apple, banana, orange, cup, spoon, plate, bottle, pot, pan, jug, bowl, tray]
+
+  playground:
+    introLine: "At the playground…"
+    objects:
+      [ball, swing, slide, bucket, spade, kite, seesaw, sandpit, hoop, cone, rope, drum]
+
+  garden:
+    introLine: "In the garden…"
+    objects:
+      [flower, butterfly, bee, leaf, pot, watering-can, ladybird, snail, tree, bush, worm, sun]
+
+  market:
+    introLine: "At the market…"
+    objects:
+      [apple, tomato, carrot, basket, bag, weighing-scale, potato, onion, orange, cabbage, jar, crate]
+
+  farm:
+    introLine: "On the farm…"
+    objects:
+      [cow, dog, cat, hen, goat, duck, pig, sheep, horse, barn, tractor, haystack]
+
+  bathtime:
+    introLine: "At bathtime…"
+    objects:
+      [duck, soap, towel, bubbles, mug, brush, sponge, boat, cup, bottle, mirror, tap]

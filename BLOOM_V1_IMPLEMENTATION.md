@@ -4,6 +4,16 @@ This is the working document. It owns: full type contracts, test strategy, miles
 
 The architecture (`ARCHITECTURE.md`) defines *what* is being built. The PRD (`PRD.md`) defines *why*. This document defines *how* and *in what order*.
 
+## V1.1 addendum
+
+M0–M5 below (the plan through tap-to-select) is complete and historical — read it for test strategy, git discipline, and AI-native workflow rules, all of which still apply unchanged. Its *content scope* (division-targeted drag-to-target/tap-to-select activities) is superseded by `BLOOM_V1.1_MVP_SPEC.md`; those 13 activities and their sprites moved to `library/archive/`. The active milestone plan is **§4a V1.1 Milestones (M6–M10)**, appended after the original milestone plan rather than rewriting it in place — same reasoning as never deleting old prompt versions.
+
+Type contract deltas from V1.1 (full schemas still below in §2, this just flags what changed):
+- `ConceptBriefSchema.mechanicId` gains `"find-all"`. `tap-to-select` is *not* renamed to "tap-one" — that's the spec's name for the same mechanic, param-reworked; see the mapping note in §4a.
+- `ConceptBriefSchema.targetDivisionId` and `ActivityJSONSchema.metadata.targetDivisionId` are now **optional** — V1.1 drops per-activity division targeting in favor of settings.
+- `ConceptBriefSchema.setting` / `ActivityJSONSchema.metadata.setting` (new, optional) — which of the 6 V1.1 settings (kitchen, playground, garden, market, farm, bathtime) this brief/activity belongs to.
+- `instructionTemplate` / `settingIntro` (LLM-authored, replacing `prompt.audioRef` resolved at generation time) land in M8 alongside the prompt-template rework — not yet in the schema as of M6, since prompt changes go through the review process in CLAUDE.md before being written.
+
 ---
 
 ## 1. Tech stack
@@ -63,7 +73,11 @@ export type Division = z.infer<typeof DivisionSchema>;
 ```typescript
 export const ConceptBriefSchema = z.object({
   id: z.string(),                    // e.g., "concept_001"
-  targetDivisionId: z.string(),
+  // V1.1: find-all added alongside tap-to-select (the spec's "tap-one" variant,
+  // no rename — see V1.1 addendum above). drag-to-target stays registered (parked).
+  mechanicId: z.enum(["drag-to-target", "tap-to-select", "find-all"]),
+  // V1.1: optional — settings replace per-activity division targeting.
+  targetDivisionId: z.string().optional(),
   secondaryDivisionId: z.string().optional(),
   ageMonths: z.object({
     min: z.number(),
@@ -75,6 +89,9 @@ export const ConceptBriefSchema = z.object({
   notes: z.string().optional(),
   itemSprites: z.array(z.string()).min(1),   // sprite filenames scoped to this concept's items
   targetSprites: z.array(z.string()),        // sprite filenames scoped to this concept's targets (may overlap itemSprites for shape-matching)
+  // V1.1 (new, optional): which content setting this brief belongs to — see
+  // concepts/settings.yaml. Optional until the M7/M8 briefs cutover makes it load-bearing.
+  setting: z.string().optional(),
 });
 export type ConceptBrief = z.infer<typeof ConceptBriefSchema>;
 ```
@@ -136,9 +153,10 @@ export const MechanicSpecSchema = z.object({
 export type MechanicSpec = z.infer<typeof MechanicSpecSchema>;
 ```
 
-**Layout variants per mechanic (V1):**
-- `drag-to-target`: `horizontal-standard`, `horizontal-reversed`, `vertical-standard`, `vertical-reversed`
-- `tap-to-select`: `grid-2x2`, `grid-2x3`, `grid-3x2`, `horizontal-line`, `circle`, `random`
+**Layout variants per mechanic:**
+- `drag-to-target` (parked, V1): `horizontal-standard`, `horizontal-reversed`, `vertical-standard`, `vertical-reversed`
+- `tap-to-select` (V1.1's "tap-one"): `grid-2x2`, `grid-2x3`, `grid-3x2`, `horizontal-line`, `circle`, `random`
+- `find-all` (new, V1.1): `grid-2x3`, `grid-3x3`, `horizontal-line`, `random` — see `mechanics/specs/find-all.yaml`
 
 The generation layer selects a `layoutId` per activity. At store time, `store.ts` resolves it against the mechanic spec and inlines the full `LayoutVariant` into `parameters.layout`. The ActivityJSON in the library is self-describing — the runtime reads `parameters.layout` directly and never loads the mechanic spec.
 
@@ -162,7 +180,7 @@ export const ActivityJSONSchema = z.object({
     completionSfx: z.string(),
   }),
   metadata: z.object({
-    targetDivisionId: z.string(),
+    targetDivisionId: z.string().optional(),  // V1.1: optional, see ConceptBrief note above
     secondaryDivisionId: z.string().optional(),
     ageMonths: z.object({ min: z.number(), max: z.number() }),
     difficulty: z.enum(["low", "medium", "high"]),
@@ -171,6 +189,7 @@ export const ActivityJSONSchema = z.object({
     reviewerNotes: z.string(),
     humanApprovedAt: z.string().datetime().optional(),
     humanApprover: z.string().optional(),
+    setting: z.string().optional(),           // V1.1 (new)
   }),
 });
 export type ActivityJSON = z.infer<typeof ActivityJSONSchema>;
@@ -533,6 +552,63 @@ The build is sequenced so that **Nitara has new content at the end of every mile
 - Parallel work between Milestones 1 and 2, and between Milestones 3 and 4, can compress total wall-clock time
 
 **Critical path:** M0 → M1 → M3 → M4 → M5 → M6. M2 runs parallel to M1.
+
+*Note: M6 above (Polish + V1 ship) is the original plan's final milestone and was never reached — V1.1 rescoped before it started. The "M6" used from here on refers to the first V1.1 milestone below, not this one. Renumbering avoided a collision by starting V1.1 at M6 anyway, since nothing here was built; flagged so the two aren't confused later.*
+
+---
+
+## 4a. V1.1 Milestones (M6–M10)
+
+Supersedes §4's remaining milestones (the original M6 above). Scope per `BLOOM_V1.1_MVP_SPEC.md`; sequencing mirrors its §8 build sequence.
+
+**Mechanic naming, settled:** the spec calls the two tap variants "tap-one" and "find-all." `tap-to-select` (built, 8 V1 activities, code/specs/prompts all reference this id) **is** tap-one — param-map rework only (§3a's low/medium/high table), no rename, no code churn. `find-all` is a new, separate `mechanicId` (`mechanics/specs/find-all.yaml`, landed M6).
+
+**Gate policy, settled:** Gates 1–2 (validate, LLM review) stay auto-approve. The spec's "sampled human" gate = per-batch iPad review (you, each batch of 5, before it ships to Nitara) — not a return to per-activity staging. `pnpm review` / `library/staged/` stay in the repo, parked.
+
+### M6: Foundations
+
+**Goal:** Docs and schema catch up to reality and to V1.1, without touching the generation prompts or runtime yet.
+
+**Deliverables:**
+- Fix rejection logging: `generate-cli.ts` Gate 1/Gate 2 failures now call `rejectActivityDirect()` (`generation/pipeline/store.ts`), restoring the CLAUDE.md invariant that every rejection is logged to `library/rejected/`.
+- Schema deltas landed additively (§2 above): `ConceptBrief.setting` (optional), `targetDivisionId` → optional on both `ConceptBrief` and `ActivityJSON.metadata`, `mechanicId` gains `find-all`.
+- `mechanics/specs/find-all.yaml` — slotSchema (`targets[]`, `distractors[]`), parameterSchema (`targetCount`, `distractorCount`, `visualSimilarity`), 4 layout variants per the spec's §3 table.
+- `concepts/settings.yaml` + `concepts/expand-settings.ts` — deterministic expander, 6 settings × 5 briefs (3 tap-one + 2 find-all). Writes to `concepts/briefs-v1.1/` (draft), **not** `concepts/briefs/` — see below.
+- Old V1 content archived: 13 activities → `library/archive/v1-activities/`, `library/activities/index.json` reset to empty. Old concept briefs (`concept_001`–`005`) and the 30 Fluent Emoji sprites **stay in place** (see "What M6 deliberately doesn't do").
+- Docs updated: this file, `ARCHITECTURE.md`, `CLAUDE.md` (all addenda), `BLOOM_V1_PRD.md` (superseded-scope banner).
+
+**What M6 deliberately doesn't do, and why:**
+- **Doesn't cut over `concepts/briefs/`.** The expander's output briefs reference manifest-driven sprite filenames (`kitchen_apple.png` etc.) that don't exist on disk until M7's asset spike runs. Promoting them into `concepts/briefs/` now would either break `validate.ts`'s asset-existence check the moment anyone runs `pnpm generate`, or require faking file existence — neither is honest. Cutover (archive old briefs, promote new ones) happens once the M7 manifest is real.
+- **Doesn't touch `library/assets/sprites/` or `taxonomy.yaml`.** Both are load-bearing for the still-green V1 test suite (`generation/taxonomy.test.ts`, the asset-existence checks in `tests/integration/generation-pipeline.test.ts`). Archiving them now would break 60+ passing tests with nothing to replace them until M7 lands. They move to `library/archive/` in the same commit that wires the new manifest in (M7/M8), not before.
+- **Doesn't touch `instructionTemplate`/`settingIntro`/prompt text.** Prompt changes go through the CLAUDE.md review process (structure proposed, feedback, then written) — that's M8 work, done with Ajay, not autonomously here.
+
+**Done when:** `pnpm test && pnpm typecheck` green; `library/activities/` empty (archived, not deleted); `concepts/expand-settings.test.ts` passes with the 3+2×6=30 split; docs no longer contradict the codebase or the V1.1 spec.
+
+### M7: Asset spike (gates everything visual)
+
+**Goal:** Prove the sheet-generation technique works before spending a mechanic/pipeline build on it.
+
+**Deliverables:** style block (prompt — reviewed with Ajay, not written autonomously); sheet-gen script (GPT Image only per Ajay's call — no Recraft comparison arm this round, see risk note below); slice/normalize/palette-snap scripts (`scripts/assets/`, new top-level dir, already asked/approved); curate-review UI (reuses the `review-ui` HTML-preview pattern); manifest writer (`assets/manifest.json`); kitchen sheets run end-to-end; keep-rate measured. Runs **locally on Ajay's Mac** — keys in `.env.local`, not this remote environment.
+
+**Known risk (flagged at planning, not new):** GPT-Image-only means no comparison arm. If keep-rate misses the ≥50% bar, that's ambiguous — technique failure vs. model weakness — and the honest next step is trying Recraft before concluding the sheet-generation approach itself doesn't work, not falling back to icon libraries (explicitly ruled out in the spec).
+
+**Done when:** ≥50% keep-rate on kitchen sheets, manifest populated, decision logged either way. Below 30% after 2 prompt iterations → stop, reassess with Ajay — no silent fallback.
+
+### M8: Mechanic + pipeline update
+
+**Goal:** find-all runtime-wired, tap-to-select reparamaterized, manifest replaces taxonomy.yaml, multimodal Gate 2, audio pipeline.
+
+**Deliverables:** `find-all` Phaser mechanic (progress dots, per-item found state); tap-to-select param rework to the spec's §3a table; `taxonomy.ts` repointed at `assets/manifest.json` (old sprites + `taxonomy.yaml` archived in this same change, per the M6 deferral above); generation prompt updates for both mechanics (**structure proposed to Ajay first**, per CLAUDE.md); multimodal review harness (Playwright + built runtime + `?activity=<id>` deep link) and review.v4 prompt (**same review process**); `instructionTemplate`/`settingIntro` added to the LLM output schema and `ActivityJSONSchema` (this is where those fields actually land — see V1.1 addendum note above); TTS 3-voice "Nitara" test; `build-pack` CLI (new `distribution/` dir); replay button + backdrop rendering in the runtime; `concepts/briefs/` cutover (archive V1 briefs, promote `concepts/briefs-v1.1/` in).
+
+**Done when:** one kitchen activity flows brief → generate → both gates → `build-pack --child nitara` → plays on iPad with her name in the audio.
+
+### M9: Batch 1 — kitchen
+
+5 activities through the full pipeline, iPad, 2–3 informal Nitara sessions. Cost + human-minutes logged per the spec's §7 metrics. **Done when:** repeatability check passes — a second setting's batch needs zero code changes.
+
+### M10: Batches 2–6 + 4-week observation
+
+Remaining 5 settings, 5 activities each, assets generated the weekend before each batch. Weekly pack refresh mixing new + old. Decision gate at end of week 4 against the spec's §7 success criteria — not a build milestone, an evaluation one.
 
 ---
 

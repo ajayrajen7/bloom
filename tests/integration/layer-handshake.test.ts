@@ -18,11 +18,15 @@ beforeEach(() => {
 });
 
 describe("Framework → Concept handshake", () => {
-  it("every ConceptBrief targetDivisionId resolves in the Framework", () => {
+  // V1.1 made targetDivisionId optional — settings replace per-activity division
+  // targeting as the organizing principle (BLOOM_V1_ARCHITECTURE.md, V1.1 delta).
+  // Briefs that still declare one (the parked V1 set) must still resolve.
+  it("every ConceptBrief targetDivisionId, where present, resolves in the Framework", () => {
     const briefs = listConceptBriefs();
     expect(briefs.length).toBeGreaterThan(0);
 
     for (const brief of briefs) {
+      if (!brief.targetDivisionId) continue;
       const division = getDivisionById(brief.targetDivisionId);
       expect(
         division,
@@ -44,7 +48,7 @@ describe("Framework → Concept handshake", () => {
 
   it("concept_001 targets fine_motor.pincer_grip with correct age band", () => {
     const brief = getConceptBrief("concept_001");
-    const division = getDivisionById(brief!.targetDivisionId);
+    const division = getDivisionById(brief!.targetDivisionId!);
     expect(division?.id).toBe("fine_motor.pincer_grip");
     expect(brief!.ageMonths.min).toBeGreaterThanOrEqual(division!.ageRangeMonths[0]);
     expect(brief!.ageMonths.max).toBeLessThanOrEqual(division!.ageRangeMonths[1]);
@@ -52,7 +56,7 @@ describe("Framework → Concept handshake", () => {
 });
 
 describe("Mechanics layer integrity", () => {
-  it("both V1 mechanics load with slotSchema and parameterSchema", () => {
+  it("all registered mechanics load with slotSchema and parameterSchema", () => {
     for (const spec of listMechanicSpecs()) {
       expect(spec.slotSchema, `${spec.id} missing slotSchema`).toBeDefined();
       expect(spec.parameterSchema, `${spec.id} missing parameterSchema`).toBeDefined();
@@ -60,9 +64,10 @@ describe("Mechanics layer integrity", () => {
     }
   });
 
-  it("drag-to-target and tap-to-select are both present", () => {
+  it("drag-to-target, tap-to-select, and find-all are all present", () => {
     expect(getMechanicSpec("drag-to-target")).toBeDefined();
     expect(getMechanicSpec("tap-to-select")).toBeDefined();
+    expect(getMechanicSpec("find-all")).toBeDefined();
   });
 });
 
@@ -71,7 +76,7 @@ describe("Full three-layer lookup", () => {
     const brief = getConceptBrief("concept_001");
     expect(brief).toBeDefined();
 
-    const division = getDivisionById(brief!.targetDivisionId);
+    const division = getDivisionById(brief!.targetDivisionId!);
     expect(division).toBeDefined();
     expect(division!.designPrinciples.length).toBeGreaterThan(0);
 

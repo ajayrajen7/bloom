@@ -1,0 +1,28 @@
+{
+  "id": "concept_bathtime_findall_low",
+  "mechanicId": "find-all",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "low",
+  "themeHint": "bathtime",
+  "targetDurationSeconds": 40,
+  "notes": "find-all, low: 5 items, 2 targets, attribute = color (obvious), min element size 110pt.",
+  "itemSprites": [
+    "bathtime_duck.png",
+    "bathtime_soap.png",
+    "bathtime_towel.png",
+    "bathtime_bubbles.png",
+    "bathtime_mug.png",
+    "bathtime_brush.png",
+    "bathtime_sponge.png",
+    "bathtime_boat.png",
+    "bathtime_cup.png",
+    "bathtime_bottle.png",
+    "bathtime_mirror.png",
+    "bathtime_tap.png"
+  ],
+  "targetSprites": [],
+  "setting": "bathtime"
+}

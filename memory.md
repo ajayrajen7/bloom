@@ -6,8 +6,8 @@ Read this at the start of every session. Update it proactively when context appr
 
 ## Current milestone
 
-- **Active:** M5 — tap-to-select mechanic + 6-8 activities
-- **Status:** In progress — runtime mechanic complete, 2 tap-to-select activities approved, 4-6 more needed
+- **Active:** V1.1 rescope, M6 — Foundations (docs + schema + rejection-logging fix + settings→briefs expander)
+- **Status:** M6 complete pending final review/push. See `BLOOM_V1.1_MVP_SPEC.md` for the new scope and `BLOOM_V1_IMPLEMENTATION.md` §4a for the M6–M10 plan. M0–M5 (below) are historical — content archived, architecture/pipeline/test-strategy discipline carries forward unchanged.
 
 ---
 
@@ -109,27 +109,43 @@ Read this at the start of every session. Update it proactively when context appr
 - Baskets (apple-basket, banana-basket, orange-basket, fruit-basket, wicker-basket) all use the same basket.png
 - barn.png + coop.png use house-with-garden; pond.png uses water-wave; triangle.png uses star (no triangle in set)
 
-**Test count: 139 tests, all passing**
+**Test count: 139 tests, all passing (as of end of M5 / pre-V1.1)**
+
+**V1.1, M6 — Foundations (2026-08-20)**
+- State-of-repo audit done first (`STATE_OF_REPO_2026-08-18.md`, PR #1) — surfaced the auto-approve gate bypass and broken rejection logging before any V1.1 work started
+- GitHub App plumbing fixed: was authorized (OAuth) but never installed (no repo access grant) — reconnecting via claude.ai only re-did the OAuth half. Fix was installing directly via `github.com/apps/claude` → Install & Authorize, selecting the `bloom` repo
+- `BLOOM_V1.1_MVP_SPEC.md` + `BLOOM_ARCHITECTURE_CANONICAL.mermaid` — landed in-repo as first-class canonical docs (previously only existed as uploaded files)
+- `generation/pipeline/store.ts` — `rejectActivityDirect()` added; `generation/generate-cli.ts` now calls it on both Gate 1 (validate) and Gate 2 (LLM review) failures. Restores the CLAUDE.md rejection-logging invariant; auto-approve itself stays (per V1.1 sign-off: sampled human = per-batch iPad review, not per-activity staging)
+- `shared/types.ts` — `ConceptBriefSchema`: `mechanicId` gains `"find-all"`; `targetDivisionId` → optional; new optional `setting` field. `ActivityJSONSchema.metadata`: same `targetDivisionId`→optional and new optional `setting`. All additive — old V1 fixtures/briefs still validate unchanged
+- `mechanics/specs/find-all.yaml` — new mechanic spec (slotSchema `targets[]`+`distractors[]`, parameterSchema `targetCount`/`distractorCount`/`visualSimilarity`, 4 layout variants); wired into `mechanics/loader.ts`'s `MECHANIC_FILES` map
+- `concepts/settings.yaml` + `concepts/expand-settings.ts` — 6 settings × ~12 objects each (seeded from the spec's examples, padded); deterministic expander produces 30 ConceptBrief-shaped stubs (3 tap-one + 2 find-all per setting). Writes to `concepts/briefs-v1.1/` (committed as a preview), deliberately **not** `concepts/briefs/` — see "deferred" note below
+- 13 V1 activities archived: `library/activities/*.json` → `library/archive/v1-activities/`; `index.json` reset to `{"activities": []}`
+- Docs: `CLAUDE.md`, `BLOOM_V1_ARCHITECTURE.md`, `BLOOM_V1_IMPLEMENTATION.md` (§4a added), `BLOOM_V1_PRD.md` — all updated with V1.1 addenda/banners, old content kept for history, not deleted
+- Test count: **157 tests, all passing** — 139 prior + 8 new (`concepts/expand-settings.test.ts`) + 4 new (`find-all` cases in `mechanics/loader.test.ts`) + 6 new (V1.1 schema-delta cases in `shared/types.test.ts`)
+
+**Deliberately deferred to M7/M8 (not oversights — reasoning in `BLOOM_V1_IMPLEMENTATION.md` §4a):**
+- `concepts/briefs/` cutover (old V1 briefs archived, `briefs-v1.1/` promoted in) — blocked on M7's manifest existing to fill real `itemSprites`
+- `library/assets/sprites/` + `taxonomy.yaml` archival — load-bearing for the still-green V1 test suite until the new manifest replaces them
+- `instructionTemplate`/`settingIntro`/prompt text — prompt changes go through the CLAUDE.md review process with Ajay, not written autonomously here
 
 ---
 
 ## In progress
 
-M5 runtime + generation pipeline complete. M5 done-when status:
+V1.1 M6 done-when checklist:
 
 | Criterion | Status |
 |-----------|--------|
-| Tap-to-select activities playable on iPad | ❌ not tested — visual issues found first |
-| Library reaches 15–20 activities | ❌ at 12 |
-| All eval cases pass (drag + tap) | ❌ no tap-to-select evals yet |
-| Integration tests for both mechanics pass | ❌ no tap-to-select integration tests yet |
+| `pnpm test && pnpm typecheck` green | ✅ 157/157, clean typecheck |
+| `library/activities/` empty, old content archived not deleted | ✅ |
+| `expand-settings` produces the 3+2×6=30 split | ✅ (tested + run, output committed) |
+| Docs no longer contradict codebase or V1.1 spec | ✅ this pass — re-verify at M7 kickoff |
+| Committed + pushed to PR #1 | ⏳ next action |
 
-**Known visual/UX issues (Ajay to review):**
-- Activity screen has "many issues" — not yet diagnosed in detail; Ajay will come back with specifics
-- Sprite rendering wired (images now load instead of circles) but visual design of activities may need rework
-- Shape-matching activity: "Square" = 3D blue square emoji, "Triangle" = star emoji — not outline-style shapes, may look wrong
-- Baskets all share same asset; barn/coop also share — looks identical for those activities
-- All target drop zones are circle outlines regardless of shape (ring drawn programmatically) — only ghost image differs
+**Known pre-existing issues, noted but not fixed this session (out of M6 scope):**
+- `concepts/new-concept.ts` — `ConceptBriefSchema.parse()` call omits `mechanicId`, `itemSprites`, `targetSprites` (all required at the time this CLI was last touched). Would throw at runtime. Not covered by tests. Mostly superseded by `expand-settings.ts` for V1.1 batch authoring, but still broken if anyone runs it.
+- `generation/pipeline/llm-review.ts` injects raw `concept` and `division` objects (JSON.stringify'd) directly into the review prompt template — violates CLAUDE.md invariant #2 ("no raw domain objects in LLM prompts"), pre-existing, not introduced this session. Worth fixing when review.v4 is authored in M8.
+- Old V1 visual/UX issues from the 2026-05-15 session (circle-only target zones, shared basket/barn sprites, shape emoji mismatches) are moot — that content is archived and V1.1 uses a different asset pipeline entirely.
 
 ---
 
@@ -166,6 +182,13 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | All 30 sprite stubs replaced with Fluent Emoji 3D PNGs; download script uses gh curl + python URL encoding | 2026-05-15 |
 | vercel.json added: buildCommand=pnpm build, outputDirectory=runtime/dist | 2026-05-15 |
 | Selection screen: camera-based drag scroll, 8px dead zone, scrollbar indicator, scroll suppresses card tap | 2026-05-15 |
+| V1.1 rescope adopted: ~30 tap-based activities, 6 settings, AI-generated sprite manifest, TTS at pack-build time. Full reconciliation + sign-off in chat, 2026-08-20. | 2026-08-20 |
+| Old content archived, not deleted: 13 activities + concept briefs stay on disk under `library/archive/` (activities) and `concepts/briefs/` (briefs, archival deferred to M7/M8) | 2026-08-20 |
+| Mechanic naming: `tap-to-select` = V1.1's "tap-one" (param rework only, no rename). `find-all` is a new, separate `mechanicId`. Decided with Ajay to avoid renaming churn across working code/content. | 2026-08-20 |
+| Gate policy formalized: Gates 1–2 stay auto-approve (was already true, undocumented); "sampled human" = per-batch iPad review, not per-activity staging restored | 2026-08-20 |
+| Division targeting dropped: `targetDivisionId` optional on ConceptBrief + ActivityJSON — settings are the new organizing principle, not divisions | 2026-08-20 |
+| M7 asset spike: GPT Image only (no Recraft comparison arm) per Ajay's call — known risk that low keep-rate won't distinguish technique failure from model weakness, logged for M7 kickoff | 2026-08-20 |
+| Asset generation scripts run locally on Ajay's Mac (not this remote environment) — keys stay local, curation needs his eyes anyway | 2026-08-20 |
 
 ---
 
@@ -178,23 +201,29 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | BLOOM_V1_IMPLEMENTATION.md | ConceptBriefSchema in §2 updated with itemSprites and targetSprites fields | 2026-05-15 |
 | CLAUDE.md | Added absolute path for memory.md; added commit discipline rule; added explicit "things to do without being asked" block | 2026-05-15 |
 | BLOOM_V1_IMPLEMENTATION.md | ConceptBriefSchema in §2 needs update: mechanicId field added (required enum, drag-to-target or tap-to-select) — not yet done | 2026-05-15 |
+| BLOOM_V1.1_MVP_SPEC.md | New file — landed in-repo verbatim from Ajay's uploaded spec (previously only existed outside the repo) | 2026-08-20 |
+| BLOOM_ARCHITECTURE_CANONICAL.mermaid | New file — landed in-repo verbatim, canonical 3-plane architecture diagram | 2026-08-20 |
+| CLAUDE.md | V1.1 addendum: new required-reading docs, updated Project context decisions (mechanics/divisions/TTS/visual assets/gate policy), updated "never without asking" list, Current milestone → M6 | 2026-08-20 |
+| BLOOM_V1_ARCHITECTURE.md | V1.1 addendum at top (5-layer ↔ 3-plane mapping, gate policy delta, Gate 2 multimodal delta); "Visual assets" decision marked superseded; TTS decision updated with pack-build-time delta | 2026-08-20 |
+| BLOOM_V1_IMPLEMENTATION.md | V1.1 addendum at top; §2 ConceptBriefSchema/ActivityJSONSchema updated with actual current schema (setting, optional targetDivisionId, find-all); layout-variants-per-mechanic table updated; new §4a with M6–M10 milestone plan | 2026-08-20 |
+| BLOOM_V1_PRD.md | Superseded-scope banner added at top, pointing to BLOOM_V1.1_MVP_SPEC.md; original sections kept for history | 2026-08-20 |
 
 ---
 
 ## Blockers
 
-- M1 iPad test pending (not blocking M5)
-- Vercel not yet connected — needs one-time manual setup at vercel.com/new → import ajayrajen7/bloom
+- Vercel not yet connected — needs one-time manual setup at vercel.com/new → import ajayrajen7/bloom (carried over from V1, still applies to V1.1's iPad PWA delivery)
+- M7 asset spike needs Ajay's local machine (keys + curation) — not something this remote session can execute
+- M1 iPad test / old V1 visual issues: moot, superseded by V1.1 rescope
 
 ---
 
 ## Next steps
 
-1. **Diagnose activity screen issues** — Ajay will come back with specifics. Known areas: sprite rendering, target zone shapes (all circles), asset quality (shape/basket/barn sprites), overall visual design.
-2. **Connect Vercel** — vercel.com/new → import ajayrajen7/bloom → deploy.
-3. **Generate more activities** — after visual issues resolved, run `pnpm generate` from worktree.
-4. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`.
-5. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
+1. **Get M6 committed + pushed** — this session's work, to PR #1 on `claude/state-of-repo-report-btqas0`.
+2. **M7 asset spike** (Ajay, locally): style block authored with Claude first (prompt review process), then kitchen sheets via GPT Image, slice/normalize/palette-snap scripts, curate, measure keep-rate against the ≥50% bar.
+3. **M8 kickoff** only after M7's keep-rate decision is logged — don't start pipeline/mechanic wiring against a manifest that might not exist yet.
+4. Old next-steps (Vercel connection, tap-to-select integration tests/evals) are superseded by the V1.1 plan — tap-to-select gets new integration tests/evals as part of M8, not bolted onto the old V1 content.
 
 ---
 
@@ -216,3 +245,5 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 | 2026-05-15 | M5 tap-to-select: runtime mechanic (logic + Phaser), ActivityScene routing, full generation pipeline (prompt-tap-to-select.ts, validate branching, review.v3), concept_003 (97/100) + concept_004 (96/100) approved. 7 activities total. |
 | 2026-05-15 | Deployment prep: batch-generated 5 more activities (12 total), replaced 30 stub sprites with Fluent Emoji 3D PNGs, added vercel.json, pushed to GitHub. Fixed selection screen: camera scroll + scrollbar + tap/scroll conflict guard. |
 | 2026-05-15 | Wired sprite rendering in both mechanics: ActivityScene preloads all 30 sprites, items/targets now use images. tap-to-select correct tap = green tint. Multiple visual issues remain — Ajay to review and specify. |
+| 2026-08-18 | State-of-repo audit (fresh session, remote environment). Verified 139 tests / clean typecheck, then found and reported: generate-cli.ts bypasses manual review + staging entirely (auto-approve direct to library), rejection logging broken on Gates 1–2, M5 done-when 3/4 unmet, TTS never implemented, empty tests/regression/, CI missing lint. Report pushed as `STATE_OF_REPO_2026-08-18.md`, PR #1. GitHub App plumbing fixed along the way (authorized-but-not-installed). |
+| 2026-08-20 | V1.1 rescope: reconciled BLOOM_V1.1_MVP_SPEC.md + BLOOM_ARCHITECTURE_CANONICAL.mermaid against the audited repo, got sign-off on M6–M10 plan and 4 decision points (archive-and-regenerate, tap-to-select=tap-one naming, auto-approve+sampled-human gates, GPT-Image-only spike run locally). Executed M6: rejection logging fixed, schema deltas landed (find-all mechanicId, optional targetDivisionId, new setting field), find-all mechanic spec, settings.yaml + expand-settings.ts (30-brief expander, tested), 13 V1 activities archived, all 4 core docs updated with V1.1 addenda. 157 tests passing, clean typecheck. |

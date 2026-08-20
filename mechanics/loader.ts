@@ -10,6 +10,7 @@ const SPECS_DIR = join(__dirname, "specs");
 const MECHANIC_FILES: Record<string, string> = {
   "drag-to-target": "drag-to-target.yaml",
   "tap-to-select": "tap-to-select.yaml",
+  "find-all": "find-all.yaml",
 };
 
 let cache: Map<string, MechanicSpec> | null = null;
