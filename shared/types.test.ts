@@ -173,6 +173,29 @@ describe("ConceptBriefSchema", () => {
     const parsed = ConceptBriefSchema.parse(JSON.parse(JSON.stringify(validConceptBrief)));
     expect(parsed).toEqual(validConceptBrief);
   });
+
+  // ── V1.1 deltas ──────────────────────────────────────────────────────────
+
+  it("accepts find-all as a mechanicId", () => {
+    const result = ConceptBriefSchema.parse({ ...validConceptBrief, mechanicId: "find-all" });
+    expect(result.mechanicId).toBe("find-all");
+  });
+
+  it("still parses without targetDivisionId — V1.1 drops per-activity division targeting", () => {
+    const { targetDivisionId: _, ...without } = validConceptBrief;
+    const result = ConceptBriefSchema.parse(without);
+    expect(result.targetDivisionId).toBeUndefined();
+  });
+
+  it("accepts an optional setting field", () => {
+    const result = ConceptBriefSchema.parse({ ...validConceptBrief, setting: "kitchen" });
+    expect(result.setting).toBe("kitchen");
+  });
+
+  it("still parses without setting — optional until the M7/M8 briefs cutover", () => {
+    const result = ConceptBriefSchema.parse(validConceptBrief);
+    expect(result.setting).toBeUndefined();
+  });
 });
 
 // ── MechanicSpec ─────────────────────────────────────────────────────────────
@@ -226,6 +249,23 @@ describe("ActivityJSONSchema", () => {
   it("round-trips through JSON serialisation", () => {
     const parsed = ActivityJSONSchema.parse(JSON.parse(JSON.stringify(validActivityJSON)));
     expect(parsed).toEqual(validActivityJSON);
+  });
+
+  // ── V1.1 deltas ──────────────────────────────────────────────────────────
+
+  it("still parses without metadata.targetDivisionId", () => {
+    const { targetDivisionId: _, ...metaWithout } = validActivityJSON.metadata;
+    const result = ActivityJSONSchema.parse({ ...validActivityJSON, metadata: metaWithout });
+    expect(result.metadata.targetDivisionId).toBeUndefined();
+  });
+
+  it("accepts an optional metadata.setting field", () => {
+    const withSetting = {
+      ...validActivityJSON,
+      metadata: { ...validActivityJSON.metadata, setting: "kitchen" },
+    };
+    const result = ActivityJSONSchema.parse(withSetting);
+    expect(result.metadata.setting).toBe("kitchen");
   });
 });
 

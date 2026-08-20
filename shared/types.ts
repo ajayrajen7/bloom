@@ -17,8 +17,14 @@ export type Division = z.infer<typeof DivisionSchema>;
 
 export const ConceptBriefSchema = z.object({
   id: z.string(),
-  mechanicId: z.enum(["drag-to-target", "tap-to-select"]),
-  targetDivisionId: z.string(),
+  // V1.1: find-all added alongside tap-to-select (the spec's "tap-one" variant —
+  // no rename, see BLOOM_V1_IMPLEMENTATION.md mechanic-naming note). drag-to-target
+  // stays registered (parked, not deleted) so V1 content/tests keep validating.
+  mechanicId: z.enum(["drag-to-target", "tap-to-select", "find-all"]),
+  // V1.1: division targeting is no longer required per-activity — settings are
+  // the organizing principle now (see setting below). Kept optional, not removed,
+  // so V1 briefs and the parked drag-to-target path keep validating.
+  targetDivisionId: z.string().optional(),
   secondaryDivisionId: z.string().optional(),
   ageMonths: z.object({
     min: z.number(),
@@ -30,6 +36,10 @@ export const ConceptBriefSchema = z.object({
   notes: z.string().optional(),
   itemSprites: z.array(z.string()).min(1),
   targetSprites: z.array(z.string()),
+  // V1.1: which of the 6 content settings (kitchen, playground, ...) this brief
+  // belongs to. Optional until the settings→briefs expander replaces the V1
+  // hand-authored briefs (M7/M8 cutover) — see concepts/settings.yaml.
+  setting: z.string().optional(),
 });
 export type ConceptBrief = z.infer<typeof ConceptBriefSchema>;
 
@@ -124,7 +134,8 @@ export const ActivityJSONSchema = z.object({
     completionSfx: z.string(),
   }),
   metadata: z.object({
-    targetDivisionId: z.string(),
+    // V1.1: optional — see ConceptBriefSchema.targetDivisionId note above.
+    targetDivisionId: z.string().optional(),
     secondaryDivisionId: z.string().optional(),
     ageMonths: z.object({ min: z.number(), max: z.number() }),
     difficulty: z.enum(["low", "medium", "high"]),
@@ -133,6 +144,9 @@ export const ActivityJSONSchema = z.object({
     reviewerNotes: z.string(),
     humanApprovedAt: z.string().datetime().optional(),
     humanApprover: z.string().optional(),
+    // V1.1: carried from ConceptBrief.setting once the pipeline generates
+    // setting-scoped activities (M7/M8). Optional until that cutover.
+    setting: z.string().optional(),
   }),
 });
 export type ActivityJSON = z.infer<typeof ActivityJSONSchema>;
