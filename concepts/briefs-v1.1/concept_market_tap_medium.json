@@ -1,0 +1,28 @@
+{
+  "id": "concept_market_tap_medium",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "market",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, medium: 5 items, 1 target, distractors from the same category, min element size 100pt.",
+  "itemSprites": [
+    "market_apple.png",
+    "market_tomato.png",
+    "market_carrot.png",
+    "market_basket.png",
+    "market_bag.png",
+    "market_weighing-scale.png",
+    "market_potato.png",
+    "market_onion.png",
+    "market_orange.png",
+    "market_cabbage.png",
+    "market_jar.png",
+    "market_crate.png"
+  ],
+  "targetSprites": [],
+  "setting": "market"
+}

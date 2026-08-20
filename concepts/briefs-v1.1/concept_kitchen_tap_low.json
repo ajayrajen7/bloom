@@ -1,0 +1,28 @@
+{
+  "id": "concept_kitchen_tap_low",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "low",
+  "themeHint": "kitchen",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, low: 3 items, 1 target, distractors from a different category, min element size 120pt.",
+  "itemSprites": [
+    "kitchen_apple.png",
+    "kitchen_banana.png",
+    "kitchen_orange.png",
+    "kitchen_cup.png",
+    "kitchen_spoon.png",
+    "kitchen_plate.png",
+    "kitchen_bottle.png",
+    "kitchen_pot.png",
+    "kitchen_pan.png",
+    "kitchen_jug.png",
+    "kitchen_bowl.png",
+    "kitchen_tray.png"
+  ],
+  "targetSprites": [],
+  "setting": "kitchen"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "concept_market_findall_medium",
+  "mechanicId": "find-all",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "market",
+  "targetDurationSeconds": 40,
+  "notes": "find-all, medium: 7 items, 3 targets, attribute = color or size (closer), min element size 95pt.",
+  "itemSprites": [
+    "market_apple.png",
+    "market_tomato.png",
+    "market_carrot.png",
+    "market_basket.png",
+    "market_bag.png",
+    "market_weighing-scale.png",
+    "market_potato.png",
+    "market_onion.png",
+    "market_orange.png",
+    "market_cabbage.png",
+    "market_jar.png",
+    "market_crate.png"
+  ],
+  "targetSprites": [],
+  "setting": "market"
+}

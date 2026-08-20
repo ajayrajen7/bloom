@@ -1,0 +1,28 @@
+{
+  "id": "concept_garden_findall_low",
+  "mechanicId": "find-all",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "low",
+  "themeHint": "garden",
+  "targetDurationSeconds": 40,
+  "notes": "find-all, low: 5 items, 2 targets, attribute = color (obvious), min element size 110pt.",
+  "itemSprites": [
+    "garden_flower.png",
+    "garden_butterfly.png",
+    "garden_bee.png",
+    "garden_leaf.png",
+    "garden_pot.png",
+    "garden_watering-can.png",
+    "garden_ladybird.png",
+    "garden_snail.png",
+    "garden_tree.png",
+    "garden_bush.png",
+    "garden_worm.png",
+    "garden_sun.png"
+  ],
+  "targetSprites": [],
+  "setting": "garden"
+}

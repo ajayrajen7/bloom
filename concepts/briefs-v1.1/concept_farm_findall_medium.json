@@ -1,0 +1,28 @@
+{
+  "id": "concept_farm_findall_medium",
+  "mechanicId": "find-all",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "farm",
+  "targetDurationSeconds": 40,
+  "notes": "find-all, medium: 7 items, 3 targets, attribute = color or size (closer), min element size 95pt.",
+  "itemSprites": [
+    "farm_cow.png",
+    "farm_dog.png",
+    "farm_cat.png",
+    "farm_hen.png",
+    "farm_goat.png",
+    "farm_duck.png",
+    "farm_pig.png",
+    "farm_sheep.png",
+    "farm_horse.png",
+    "farm_barn.png",
+    "farm_tractor.png",
+    "farm_haystack.png"
+  ],
+  "targetSprites": [],
+  "setting": "farm"
+}

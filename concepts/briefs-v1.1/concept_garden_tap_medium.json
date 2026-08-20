@@ -1,0 +1,28 @@
+{
+  "id": "concept_garden_tap_medium",
+  "mechanicId": "tap-to-select",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "garden",
+  "targetDurationSeconds": 40,
+  "notes": "tap-one, medium: 5 items, 1 target, distractors from the same category, min element size 100pt.",
+  "itemSprites": [
+    "garden_flower.png",
+    "garden_butterfly.png",
+    "garden_bee.png",
+    "garden_leaf.png",
+    "garden_pot.png",
+    "garden_watering-can.png",
+    "garden_ladybird.png",
+    "garden_snail.png",
+    "garden_tree.png",
+    "garden_bush.png",
+    "garden_worm.png",
+    "garden_sun.png"
+  ],
+  "targetSprites": [],
+  "setting": "garden"
+}

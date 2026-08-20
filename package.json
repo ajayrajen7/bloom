@@ -11,6 +11,7 @@
     "build": "vite build runtime",
     "generate": "node --env-file=.env.local --import tsx/esm generation/generate-cli.ts",
     "new-concept": "node --env-file=.env.local --import tsx/esm concepts/new-concept.ts",
+    "expand-settings": "node --import tsx/esm concepts/expand-settings.ts",
     "review": "node --env-file=.env.local --import tsx/esm generation/review-ui/serve.ts",
     "eval": "node --env-file=.env.local --import tsx/esm generation/evals/runner.ts"
   },

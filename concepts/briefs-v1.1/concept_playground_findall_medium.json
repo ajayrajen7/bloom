@@ -1,0 +1,28 @@
+{
+  "id": "concept_playground_findall_medium",
+  "mechanicId": "find-all",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "playground",
+  "targetDurationSeconds": 40,
+  "notes": "find-all, medium: 7 items, 3 targets, attribute = color or size (closer), min element size 95pt.",
+  "itemSprites": [
+    "playground_ball.png",
+    "playground_swing.png",
+    "playground_slide.png",
+    "playground_bucket.png",
+    "playground_spade.png",
+    "playground_kite.png",
+    "playground_seesaw.png",
+    "playground_sandpit.png",
+    "playground_hoop.png",
+    "playground_cone.png",
+    "playground_rope.png",
+    "playground_drum.png"
+  ],
+  "targetSprites": [],
+  "setting": "playground"
+}
