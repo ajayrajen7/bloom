@@ -1,0 +1,49 @@
+flowchart TB
+    subgraph FACTORY["PLANE A — CONTENT FACTORY (build-time, shared)"]
+        A1["A1 Development Framework<br/>V1.1: static doc"]:::stub
+        A2["A2 Concept Layer<br/>V1.1: in prompts"]:::stub
+        A3["A3 Mechanics Registry<br/>V1.1: tap-one + find-all"]:::built
+        A4["A4 Story/Theme Engine<br/>V1.1: 6 settings, 1 intro line"]:::thin
+        A5["A5 Asset Registry<br/>sheets + style-ref + palette-snap<br/>V1.1: FULL BUILD (spike)"]:::built
+        A6["A6 Generation Layer<br/>V1.1: full (existing pipeline)"]:::built
+        G1{{"QA gates<br/>evals + multimodal review<br/>+ sampled human"}}:::gate
+        A8[("A8 Content Library<br/>specs with open slots<br/>NOT finished content")]:::built
+
+        A1 --> A2
+        A2 -- constrains --> A3
+        A2 --> A6
+        A3 --> A6
+        A4 --> A6
+        A5 -- manifest --> A6
+        A6 --> G1 --> A8
+    end
+
+    subgraph DIST["PLANE B — DISTRIBUTION (per child, build-time)"]
+        B1["B1 Pack Builder<br/>resolves {childName} + TTS<br/>V1.1: build-pack CLI"]:::built
+        G2{{"automated gate<br/>100% auto, no human possible"}}:::gate
+    end
+
+    subgraph RUNTIME["PLANE C — RUNTIME (child-facing, zero AI)"]
+        C1[("C1 Child Context<br/>PRIVACY CORE<br/>V1.1: config json")]:::thin
+        C2["C2 Selection Engine<br/>V1.1: parent picks"]:::stub
+        C3["C3 Child Runtime<br/>Phaser PWA, offline, calm<br/>V1.1: full"]:::built
+        C4["C4 Assessment & Profile<br/>THE MOAT<br/>V1.1: session notes"]:::thin
+        C5["C5 Parent Surface<br/>V1.1: absent"]:::stub
+    end
+
+    A8 --> B1
+    C1 -. resolved ONLY here .-> B1
+    B1 --> G2 -- offline pack --> C3
+    C3 -- telemetry / notes --> C4
+    C4 --> C2
+    C1 --> C2
+    A1 --> C2
+    C2 -. end-state: selects specs .-> B1
+    C4 -. progress narrative .-> C5
+    C5 -. policy + context mgmt .-> C1
+    G2 -. instance failure = spec defect .-> G1
+
+    classDef built fill:#dcecdc,stroke:#3e7a4e,stroke-width:2px
+    classDef thin fill:#fdf3dc,stroke:#c08a2d,stroke-width:1.5px
+    classDef stub fill:#f2f2f2,stroke:#999,stroke-dasharray: 4 3
+    classDef gate fill:#e8e8f5,stroke:#5a5a99
