@@ -7,13 +7,17 @@ You are working on **Bloom** with Ajay. This file is your operating manual for t
 **Always load at session start:**
 - `/Users/ajayrajendran/Documents/code/bloom/memory.md` — session memory. Current milestone, what's built, in-progress work, blockers, next steps. Read this first, every session, no exceptions. **Always use this absolute path.** Never read `memory.md` from the working directory — when running in a worktree, that copy is stale.
 
+**Also always load at session start, alongside memory.md:**
+- `BLOOM_V1.1_MVP_SPEC.md` — the current scope. Supersedes the *scope* sections of `BLOOM_V1_PRD.md` and the visual-assets decision in `BLOOM_V1_ARCHITECTURE.md`. Architecture, pipeline design, and implementation discipline from those two docs still stand — this spec narrows *what content gets built*, not *how the system is built*.
+- `BLOOM_ARCHITECTURE_CANONICAL.mermaid` — the current canonical architecture picture (Plane A Content Factory / Plane B Distribution / Plane C Runtime). Supersedes `bloom_v1_end_to_end_architecture.html` as the reference diagram; open it whenever `BLOOM_V1_ARCHITECTURE.md`'s 5-layer diagrams are in play — see the mapping note in that file.
+
 Then load the following when relevant; do not reload on every task.
 
 - `BLOOM_VISION.md` — long-term product vision. Read once. Reload only when discussing strategy or scope expansion.
-- `BLOOM_V1_PRD.md` — V1 product requirements. Reload when scope, goals, or success criteria are in question.
-- `BLOOM_V1_ARCHITECTURE.md` — system architecture (HLD). Reload when designing or modifying any cross-layer interaction.
-- `bloom_v1_end_to_end_architecture.html` — visual architecture diagram. Open in browser for reference when working on cross-layer changes. Shows the full pipeline with gates, the LLM vs pipeline boundary, and how eval sits beside the pipeline.
-- `BLOOM_V1_IMPLEMENTATION.md` — the working build plan. **Reload at the start of every session.** It owns type contracts, test strategy, milestone status, and AI-native workflow rules.
+- `BLOOM_V1_PRD.md` — V1 product requirements. Reload when scope, goals, or success criteria are in question — but check `BLOOM_V1.1_MVP_SPEC.md` first for anything scope-related; it wins on conflict.
+- `BLOOM_V1_ARCHITECTURE.md` — system architecture (HLD). Reload when designing or modifying any cross-layer interaction. The 5-layer framing still holds; read the V1.1 addendum at the top for what's changed.
+- `bloom_v1_end_to_end_architecture.html` — visual architecture diagram, V1-only (pre-V1.1). Superseded by `BLOOM_ARCHITECTURE_CANONICAL.mermaid` — kept for history, not for current reference.
+- `BLOOM_V1_IMPLEMENTATION.md` — the working build plan. **Reload at the start of every session.** It owns type contracts, test strategy, milestone status, and AI-native workflow rules. See the V1.1 addendum for the M6–M10 milestone plan and schema deltas.
 
 If anything in your suggestions contradicts these documents, the documents win. If you think a document is wrong, say so explicitly and propose a change rather than working around it.
 
@@ -110,12 +114,13 @@ These are the foundational decisions. Do not relitigate them unless explicitly a
 - **Architecture:** Five layers — Framework, Concept, Mechanics, Generation, Runtime. Studio vs Runtime split. Activity library is the boundary.
 - **Storage:** File-based JSON for V1. No database.
 - **Hosting:** Vercel for the runtime. Studio is local-only.
-- **Mechanics:** drag-to-target and tap-to-select for V1. No others.
-- **Age band:** 24-36 months only for V1.
-- **Divisions:** Pincer grip, Visual discrimination, Receptive language. Three only.
-- **TTS:** OpenAI TTS HD.
-- **Visual assets:** Free icon library (Flaticon/Iconify) for V1. No AI-generated images.
-- **Audio assets:** Free SFX library (Freesound/Mixkit). Shared across all V1 activities.
+- **Mechanics:** drag-to-target (parked as of V1.1 — code and specs stay, not generated or reviewed against), tap-to-select (= the V1.1 spec's "tap-one" variant, no rename), and find-all (new in V1.1). See `BLOOM_V1.1_MVP_SPEC.md` §3.
+- **Age band:** 24-36 months only for V1 / V1.1.
+- **Divisions:** Pincer grip, Visual discrimination, Receptive language still exist in `framework/`, but V1.1 no longer requires each activity to target one — settings (kitchen, playground, garden, market, farm, bathtime) are the organizing principle. `targetDivisionId` is optional, not removed.
+- **TTS:** OpenAI TTS HD. V1.1 change: resolved at pack-build time (`build-pack --child <name>`), not at generation time — activities store an `instructionTemplate` with a `{childName}` slot, not a resolved `audioRef`. See `BLOOM_V1.1_MVP_SPEC.md` §5.
+- **Visual assets:** V1.1 change — AI-generated sprite sheets (Recraft/GPT Image → slice → normalize → palette-snap → curate → manifest) replace the Flaticon/Iconify decision. See `BLOOM_V1.1_MVP_SPEC.md` §4.
+- **Audio assets:** Free SFX library (Freesound/Mixkit). Shared across all V1 / V1.1 activities. Unchanged.
+- **Gate 3 (manual review):** as of 2026-05-15, auto-approve replaced mandatory per-activity human review — this was done without going through the doc-contradiction process this file specifies (flagged in `STATE_OF_REPO_2026-08-18.md`). V1.1 formalizes the replacement: the human gate is a **per-batch sample** (you review each batch of 5 on the actual iPad before it ships to Nitara), not per-activity staging. `pnpm review` / staging code stays in the repo but is not part of the active pipeline path.
 
 If a request implies changing any of these, flag it explicitly: "this would change the [decision] in BLOOM_V1_ARCHITECTURE.md / BLOOM_V1_PRD.md — do you want to make that change?"
 
@@ -174,10 +179,10 @@ If a request implies changing any of these, flag it explicitly: "this would chan
 - Change a cross-layer type in `shared/types.ts`
 - Modify the activity JSON schema
 - Change a prompt without bumping its version
-- Skip the manual review step in the generation pipeline
+- Skip the manual per-activity review gate *beyond* what V1.1 already sanctions (per-batch iPad sample). Reverting to per-batch-only sampling, or dropping the sample entirely, still needs asking.
 - Make a real LLM call in a test that runs in CI
 - Suggest moving to a database, framework, or runtime not in the stack list
-- Add a new mechanic
+- Add a mechanic beyond drag-to-target / tap-to-select / find-all (those three are now decided — see Project context above)
 - Add a new layer
 - Generate code for V2+ features (Selection Layer, Personalisation, Story, etc.)
 - Write or modify an LLM prompt without following the prompt review process above
@@ -195,8 +200,9 @@ If a request implies changing any of these, flag it explicitly: "this would chan
 
 ## Current milestone
 
-M5: Tap-to-select mechanic.
-See IMPLEMENTATION.md § Milestone 5 for deliverables and done criteria.
+**V1.1 rescope in effect** (see `BLOOM_V1.1_MVP_SPEC.md`). The old V1 milestone plan (M0–M5, drag-to-target/tap-to-select content across 3 divisions) is complete and parked, not deleted — its content moved to `library/archive/v1-activities/`. Active plan is M6–M10; see `BLOOM_V1_IMPLEMENTATION.md` § V1.1 Milestones.
+
+M6: Foundations (docs + schema + rejection-logging fix + settings→briefs expander) — in progress.
 Before starting work, re-read the milestone's deliverables and done-when list. After completing work, verify every done-when criterion yourself before presenting to Ajay.
 
 Update this section when moving to the next milestone.

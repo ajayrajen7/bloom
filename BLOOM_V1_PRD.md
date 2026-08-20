@@ -1,5 +1,11 @@
 # Bloom V1 — PRD
 
+## V1.1 supersedes this document's scope
+
+`BLOOM_V1.1_MVP_SPEC.md` supersedes this document's *scope* sections specifically: **Activity scope, by mechanic** (drag-to-target dropped from active scope, parked; find-all added), **Visual style** (the asset-sourcing part — Flaticon/Iconify replaced by an AI-generated sprite manifest), and the content-planning shape (division-targeted activities → 6 settings × 5 activities = 30). It also changes the goal count: "15-20 working activities" below is superseded by "~30 tap-based activities across 6 settings."
+
+Everything else here — Problem, Goals as a *shape* (engage Nitara + prove the pipeline + build skill), the layered-architecture framing, Users, Success criteria's *structure* — still holds. This section flags what changed; it doesn't rewrite the sections below, which are kept for history per the same discipline that keeps old prompt versions. When in doubt, `BLOOM_V1.1_MVP_SPEC.md` wins.
+
 ## Problem
 
 A 2-3 year old child needs active engagement during the day. Currently available digital content is either passive (video), generic (mass-market apps), or janky (current HTML prototype where drag fights scroll, feedback is too subtle, and the child gets confused).

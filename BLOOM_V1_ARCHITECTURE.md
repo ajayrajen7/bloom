@@ -4,6 +4,30 @@ This document captures the high-level architecture for Bloom V1. It defines the 
 
 This document is the persistent contract. It changes rarely. The implementation plan changes often.
 
+## V1.1 addendum
+
+`BLOOM_V1.1_MVP_SPEC.md` rescoped *content* (settings-based instead of division-targeted, tap-one + find-all instead of drag-to-target + tap-to-select, AI-generated asset manifest instead of Flaticon). This document's architecture — the five layers, the studio/runtime split, the generation pipeline's three phases, the LLM/pipeline boundary — stands unchanged; V1.1 is a scope change, not an architecture change.
+
+`BLOOM_ARCHITECTURE_CANONICAL.mermaid` is the current canonical diagram, using different names for the same shape:
+
+| This doc (5 layers) | Canonical diagram (3 planes) |
+|---|---|
+| Development Framework | A1 (Plane A — now a static doc, not a queried per-brief system) |
+| Content Concept Layer | A2 (Plane A — "in prompts" / `concepts/settings.yaml` + expander, thinner than the V1 hand-authored-briefs model) |
+| Mechanics Layer | A3 (Plane A) |
+| — (new) | A4 Story/Theme Engine (Plane A — V1.1: 6 settings, 1 intro line each; not a real story layer, see PRD non-goals) |
+| — (new) | A5 Asset Registry (Plane A — the new AI-generated sprite manifest, §4 of the V1.1 spec; **full build for V1.1**, this is the piece that failed before) |
+| Generation Layer | A6 (Plane A) — unchanged pipeline shape, gate policy changed (see below) |
+| Activity Library | A8 (boundary between Plane A and Plane B — unchanged) |
+| — (new) | Plane B Distribution: B1 Pack Builder (`build-pack` CLI) — resolves `{childName}` and calls TTS **at pack-build time**, not generation time. New addition, not in the original 5-layer model. |
+| Runtime Layer | Plane C (C1 Child Context / C2 Selection Engine / C3 Child Runtime / C4 Assessment / C5 Parent Surface — C3 is what this doc calls the Runtime Layer; C1/C2/C4/C5 are mostly still stubs, per the diagram's own `stub`/`thin` classing) |
+
+**Gate policy delta (Phase 3 of the generation pipeline, below):** Gate 3 in this document's diagram is drawn as mandatory per-activity human review. As of 2026-05-15 the pipeline auto-approves after Gate 2 (see `STATE_OF_REPO_2026-08-18.md` §4.1 for how that happened without going through this file's own contradiction process). V1.1's canonical diagram's `G1` gate — "evals + multimodal review + sampled human" — formalizes this: the human check moves from per-activity staging to a per-batch iPad sample. `library/staged/` and `pnpm review` stay in the repo (parked) but are not in the active pipeline path.
+
+**Gate 2 delta:** V1.1 adds a multimodal pass to Gate 2 — the LLM review call receives a rendered screenshot of the actual Phaser scene alongside the JSON (not the static preview HTML, which isn't what the child sees). New checks: visual crowding, target/distractor visual distinctness vs. intended difficulty, sprite/backdrop contrast. Lands in M8.
+
+**Asset pipeline delta:** §"Visual assets: free icon library" below is superseded. See `BLOOM_V1.1_MVP_SPEC.md` §4 for the sheet-generation → slice → normalize → palette-snap → curate → manifest pipeline, landing in M7 (asset spike) and M8 (pipeline wiring).
+
 ## End-state architecture
 
 Before describing V1, here is the steady-state architecture Bloom is being built towards. V1 is a deliberate subset of this — the portions that prove the foundational claims of the system.
@@ -477,11 +501,15 @@ bloom/
 
 **Rationale:** Warm voices, single-API integration alongside Anthropic, pennies at V1 volume. Google Cloud TTS WaveNet is the austerity alternative if cost becomes meaningful at scale.
 
-### Visual assets: free icon library
+**V1.1 delta:** provider decision unchanged, but *when* TTS runs changed — resolved at pack-build time (`build-pack --child <name>`) so the child's name can be baked in, not at activity-generation time. Gate before committing: generate "Nitara" in 3 voices, pick by ear; if all mangle it, switch to ElevenLabs. See `BLOOM_V1.1_MVP_SPEC.md` §5.
 
-**Decision:** Flaticon or Iconify for V1. AI-generated assets deferred to V1.5.
+### Visual assets: free icon library — **superseded by V1.1**
 
-**Rationale:** Library art is consistent, fast, and removes the AI-image-generation pipeline as a V1 dependency. The interaction quality is the priority for V1; visual style consistency with library art is sufficient.
+**Original V1 decision:** Flaticon or Iconify for V1. AI-generated assets deferred to V1.5.
+
+**Original rationale:** Library art is consistent, fast, and removes the AI-image-generation pipeline as a V1 dependency. The interaction quality is the priority for V1; visual style consistency with library art is sufficient.
+
+**V1.1 supersedes this decision.** AI-generated sprite sheets replace it: generate sheets (many objects per image = consistent by construction) → slice programmatically → normalize (background removal, resize, palette-snap to a fixed brand palette) → human curation pass → tagged manifest. This directly targets the failure mode that killed the previous AI-asset attempt (per-object generation, uncontrolled drift) — see `BLOOM_V1.1_MVP_SPEC.md` §4 for the full workflow, budget, and QA rules. Lands in M7 (spike, single setting) then M8 (wired into the generation pipeline, replacing the static `taxonomy.yaml`).
 
 ### Audio assets: free SFX library
 
