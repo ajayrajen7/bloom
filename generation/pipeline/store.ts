@@ -105,6 +105,38 @@ export function rejectActivity(
   return rejection;
 }
 
+// Logs a Gate 1 (validate) or Gate 2 (llm_review) failure directly, without
+// requiring a prior stageActivity() call — the auto-approve pipeline
+// (generate-cli.ts) never stages, so there's no staged file to rename. This
+// restores the CLAUDE.md invariant that every rejection, at every gate, is
+// logged to library/rejected/ with a structured reason, even though Gate 3
+// (manual review) is currently bypassed. Details carry the full failing
+// activity/errors so a rejection can become an eval case without re-running
+// the generation call.
+export function rejectActivityDirect(
+  stage: RejectionReason["stage"],
+  reason: string,
+  details: Record<string, unknown>
+): RejectionReason {
+  mkdirSync(REJECTED_DIR, { recursive: true });
+
+  const activityId = (details["activityId"] as string | undefined) ?? `rejected_${Date.now()}`;
+  const rejectedPath = join(REJECTED_DIR, `${activityId}.json`);
+
+  const rejection: RejectionReason = RejectionReasonSchema.parse({
+    stage,
+    reason,
+    details,
+    rejectedAt: new Date().toISOString(),
+  });
+
+  writeFileSync(rejectedPath, JSON.stringify(rejection, null, 2) + "\n");
+
+  console.log(`✗ Rejected: library/rejected/${activityId}.json`);
+  console.log(`  Reason: ${reason}`);
+  return rejection;
+}
+
 function regenerateActivityIndex() {
   const files = readdirSync(ACTIVITIES_DIR)
     .filter((f) => f.endsWith(".json") && !f.endsWith(".approved.json") && f !== "index.json")

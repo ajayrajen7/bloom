@@ -15,7 +15,7 @@ import { runGenerationPrompt } from "./pipeline/prompt.js";
 import { runTapToSelectPrompt } from "./pipeline/prompt-tap-to-select.js";
 import { validateActivity } from "./pipeline/validate.js";
 import { runLLMReview } from "./pipeline/llm-review.js";
-import { approveActivityDirect } from "./pipeline/store.js";
+import { approveActivityDirect, rejectActivityDirect } from "./pipeline/store.js";
 import { ActivityJSONSchema } from "shared/types.js";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
@@ -57,9 +57,19 @@ async function main() {
     process.exit(1);
   }
 
-  const division = getDivisionById(concept.targetDivisionId);
+  // V1.1 made targetDivisionId optional on ConceptBrief (settings replace
+  // division targeting as the organizing principle), but this CLI path still
+  // runs the division-scoped V1 pipeline (prompt.ts / prompt-tap-to-select.ts
+  // both require a Division). Setting-scoped generation lands in M8.
+  const targetDivisionId = concept.targetDivisionId;
+  if (!targetDivisionId) {
+    console.error(`Concept ${conceptId} has no targetDivisionId — required for generation until the M8 setting-scoped pipeline lands.`);
+    process.exit(1);
+  }
+
+  const division = getDivisionById(targetDivisionId);
   if (!division) {
-    console.error(`Division not found: ${concept.targetDivisionId}`);
+    console.error(`Division not found: ${targetDivisionId}`);
     process.exit(1);
   }
 
@@ -82,6 +92,11 @@ async function main() {
   if (!validation.passed) {
     console.error("     Validation failed:");
     validation.errors.forEach((e) => console.error(`     • ${e}`));
+    rejectActivityDirect("validate", validation.errors.join("; "), {
+      activityId: promptResult.activity.id,
+      conceptId: conceptId,
+      errors: validation.errors,
+    });
     process.exit(1);
   }
   console.log("     Passed.");
@@ -97,6 +112,13 @@ async function main() {
 
   if (!review.response.passed) {
     console.error(`     LLM review failed: ${review.response.rejectReason}`);
+    rejectActivityDirect("llm_review", review.response.rejectReason ?? "no reason given", {
+      activityId: activity.id,
+      conceptId: conceptId,
+      score: review.response.score,
+      dimensionScores: review.response.dimensionScores,
+      notes: review.response.notes,
+    });
     process.exit(1);
   }
 
