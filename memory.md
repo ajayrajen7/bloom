@@ -1,13 +1,15 @@
 # Bloom — Session Memory
 
-Read this at the start of every session. Update it proactively when context approaches ~80%, and at the end of every session.
+This file records the original V1 build. Current restart direction is summarized below; dated milestone notes farther down are historical unless explicitly updated.
 
 ---
 
 ## Current milestone
 
-- **Active:** M5 — tap-to-select mechanic + 6-8 activities
-- **Status:** In progress — runtime mechanic complete, 2 tap-to-select activities approved, 4-6 more needed
+- **Active:** Restart MVP design and document alignment
+- **Status:** Implementation has not restarted. The two required claims are a coherent AI-generated asset library and engaging activities made from it using two mechanics. Asset library comes first; name-in-audio personalization is deferred.
+- **Current source documents:** `bloom-v1.1-mvp-spec.md`, `BLOOM_V1_ARCHITECTURE_CANONICAL.md`, and `BLOOM_V1_ARCHITECTURE_CANONICAL.mermaid`.
+- **Last updated:** 2026-09-26
 
 ---
 
@@ -190,11 +192,10 @@ M5 runtime + generation pipeline complete. M5 done-when status:
 
 ## Next steps
 
-1. **Diagnose activity screen issues** — Ajay will come back with specifics. Known areas: sprite rendering, target zone shapes (all circles), asset quality (shape/basket/barn sprites), overall visual design.
-2. **Connect Vercel** — vercel.com/new → import ajayrajen7/bloom → deploy.
-3. **Generate more activities** — after visual issues resolved, run `pnpm generate` from worktree.
-4. **Tap-to-select integration tests** — add to `tests/integration/generation-pipeline.test.ts`.
-5. **Tap-to-select eval cases** — add 8 cases to `generation/evals/cases/`, run `pnpm eval` green.
+1. Agree on the pilot visual style/reference and asset consistency bar.
+2. Select the pilot object set and clarify which variants are separate images versus render-time parameters.
+3. Build and review the bounded AI asset pilot; expand only if it passes.
+4. Use the approved assets in `tap-one` and `find-all`, then manually observe the activities on the target tablet.
 
 ---
 

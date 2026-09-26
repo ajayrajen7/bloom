@@ -1,8 +1,10 @@
-# Bloom V1 — Implementation Plan
+# Bloom V1 — Original Implementation Plan
 
-This is the working document. It owns: full type contracts, test strategy, milestone breakdown, git and shipping discipline, and the AI-native workflow specifics (evals, prompt versioning, content review, batch rhythm). It is updated as the build progresses.
+> **Status: Historical.** This plan describes the first V1 build and its M0–M6 sequence. It is not the execution plan for the restart. Current product scope and sequence are in [`bloom-v1.1-mvp-spec.md`](bloom-v1.1-mvp-spec.md); current system boundaries are in [`BLOOM_V1_ARCHITECTURE_CANONICAL.md`](BLOOM_V1_ARCHITECTURE_CANONICAL.md). The old asset-sourcing assumptions, mechanic pair, activity-count goal, and milestone order are superseded. Type-contract, eval, and prompt-versioning guidance remains reference material where compatible with the current scope.
 
-The architecture (`ARCHITECTURE.md`) defines *what* is being built. The PRD (`PRD.md`) defines *why*. This document defines *how* and *in what order*.
+This document records the original implementation plan and its practices. Do not use its milestone checklist as the restart sequence.
+
+The canonical architecture and current PRD define what the restart will build and why. This historical document may inform how, where its guidance remains compatible.
 
 ---
 

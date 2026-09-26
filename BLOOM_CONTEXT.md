@@ -2,7 +2,7 @@
 
 This document is for Claude (claude.ai conversations, not Claude Code) to load at the start of any future Bloom-related conversation. It captures who Ajay is, what Bloom is, what's been decided, and where the project stands. It is updated by Ajay periodically as the build progresses.
 
-The other Bloom docs (`BLOOM_VISION.md`, `BLOOM_V1_PRD.md`, `BLOOM_V1_ARCHITECTURE.md`, `BLOOM_V1_IMPLEMENTATION.md`, `CLAUDE.md`) are the authoritative product/engineering artifacts. This doc is conversation context — what's needed to be a useful thinking partner, not what's needed to build.
+The authoritative current artifacts are `BLOOM_VISION.md`, `bloom-v1.1-mvp-spec.md`, `BLOOM_V1_ARCHITECTURE_CANONICAL.md`, and its companion Mermaid diagram. `BLOOM_V1_IMPLEMENTATION.md` is the original V1 plan and is historical. This doc is conversation context — what's needed to be a useful thinking partner, not what's needed to build.
 
 ---
 
@@ -30,7 +30,7 @@ The other Bloom docs (`BLOOM_VISION.md`, `BLOOM_V1_PRD.md`, `BLOOM_V1_ARCHITECTU
 
 A personalised, AI-generated activity studio for young children. Pre-generates a continuously growing library of age-appropriate activities, serves them via a runtime that feels native and zero-latency. Engagement is the product; learning is an outcome, not the promise.
 
-V1 is for Nitara (ages 2-3, on shared iPad) and is a vertical slice through the architecture: all five layers (Framework, Concept, Mechanics, Generation, Runtime) exist, each minimally, with real handshakes between them.
+The restart MVP tests whether AI-generated assets can form a coherent library and whether activities using that library with two mechanics engage a child aged 2–3. Assets come first; mechanics and manual activity observation follow. The architecture is intentionally staged, with personalization deferred.
 
 Working name "Bloom" is a placeholder — replaceable.
 
@@ -42,44 +42,34 @@ Working name "Bloom" is a placeholder — replaceable.
 - Long-term ambition: global product, multi-format (activities + audio stories + video), competing with Cocomelon / Sago Mini / Lingokids. Real competitive set is Sago Mini and Lingokids.
 - Two viable shapes long-term: $100M ARR venture path or $5-7M ARR profitable-small. Decision deferred. V1 is shaped to support either.
 
-**Architecture (end state):**
-- Studio (offline) + Library (boundary) + Personalisation + Online Delivery + Operator Surfaces. See `BLOOM_V1_ARCHITECTURE.md` for diagrams.
-- Studio is async; runtime has zero LLM calls in hot path. 95% of work happens before the child opens the app.
-- Personalisation is the moat, not generation. Generation is commoditisable; personalisation isn't.
-- Production economics is a first-class constraint. Target gross margin 70%+ at 100K users.
+**Earlier end-state hypotheses (not restart commitments):**
+- The original architecture explored Studio + Library + Personalisation + Online Delivery + Operator Surfaces, with an async factory and no LLM calls in the runtime hot path. The current canonical layer map is in `BLOOM_V1_ARCHITECTURE_CANONICAL.md`.
+- Personalisation, multi-format expansion, competitive positioning, business shape, and production-economics targets were explored as long-term hypotheses. They are not validated and are outside the restart experiment.
 
-**V1 architecture (subset of end state):**
-- Five layers: Development Framework, Content Concept, Mechanics, Generation, Runtime.
-- Framework, Concept, Mechanics are data layers. Generation is the AI-craft layer. Runtime is Phaser-on-iPad.
-- File-based JSON storage. No DB. No auth. One child, one device.
-- Activity library is the boundary between studio and runtime.
+**Current restart scope:**
+- The AI asset library is the first experiment: common fruits, vegetables, utensils, and familiar animals, with intentional variants and a consistent visual system.
+- V1.1 mechanics: `tap-one` and `find-all`; drag-to-target is parked.
+- Review the generated assets and both rendered activities manually, then observe actual tablet play.
+- No fixed target of 90–100 assets or 15–20 activities.
+- Name-in-audio personalization, child profiles, Pack Builder, and automated selection are deferred.
+- See `bloom-v1.1-mvp-spec.md` and `BLOOM_V1_ARCHITECTURE_CANONICAL.md` for current acceptance criteria and system boundaries.
 
-**V1 stack:**
-- TypeScript everywhere. Node 20+. pnpm.
-- Phaser 3 + Vite for runtime. Vercel hosting.
-- Anthropic SDK for generation and review. OpenAI TTS HD for voice. zod for types/validation. vitest for tests.
-- Free icon library (Flaticon/Iconify) for V1 art. Free SFX library for sound. AI-generated assets deferred to V1.5.
+**Existing codebase stack (restart scope may extend it):**
+- TypeScript, Node, pnpm; Phaser 3 + Vite for runtime; Vercel hosting was the original deployment choice.
+- Anthropic SDK for activity generation/review; zod and vitest for types and tests.
+- Recraft v4 is the primary image-generation model in the canonical architecture, with GPT Image 2 as a bounded comparison arm.
+- OpenAI TTS and other personalized audio are not required for the restart.
 
-**V1 scope:**
-- Two mechanics: drag-to-target and tap-to-select. iPad only.
-- Three divisions: pincer grip, visual discrimination, receptive language.
-- Age band 24-36 months only.
-- 15-20 activities target.
-- Parent picks from a categorised grid (no Selection Layer).
-- No personalisation, no story arcs, no recurring characters.
-- Generation pipeline: prompt → validate → LLM review → stage + preview → manual review → store.
-- Three eval levels: schema, content, mechanic.
-
-**V1 estimate:** ~7 weekends, realistically 9-10. Build in 6 milestones with explicit dependencies.
+The original V1 scope and schedule are historical; use the restart spec instead.
 
 ## What's deferred (with known landing places)
 
-These are real future work, not vague gestures. Each has a known place in the end-state architecture:
+These ideas appeared in earlier planning. They remain possible future directions, not committed roadmap items; revisit them only after the restart experiment:
 
 - Selection Layer (replaces parent-pick grid)
 - Personalisation Layer + Profile/Memory
 - Story Layer (narrative continuity, character bibles)
-- Asset Generation pipeline (visual + audio + voice with style consistency)
+- Broader asset generation beyond the bounded V1.1 pilot
 - Multi-format content (audio stories, video)
 - Operator surfaces (parent surface, studio operator UI)
 - Telemetry beyond local storage
@@ -91,7 +81,7 @@ These came up during planning, weren't fully resolved, and may need attention la
 
 - **Indian parent willingness-to-pay for engagement-without-learning.** The bet is real but unvalidated. Likely needs an "aspirational tier" that leans into learning, even if learning isn't the core.
 - **Continuity vs novelty.** Parasocial attachment is the engagement driver, but continuity is age-bound (probably starts at 4+, not 2-3). V1 doesn't have to solve this; V2+ does.
-- **Asset generation as eventual bottleneck.** Free library art works for V1. At scale, AI-generated assets with style consistency is genuinely hard and not yet planned.
+- **Asset generation is the first restart risk to test.** The original downloaded assets varied in style, background, and apparent size. The pilot must show that AI generation plus normalization and curation can produce a coherent reusable library.
 - **Voice/audio strategy at multi-language scale.** Global product implies multi-language. TTS quality varies meaningfully across languages. Not a V1 problem; will be a real V2/V3 problem.
 - **The showrunner question.** A continuity layer (light: a memory of "things this child's world contains") vs. a strong narrative arc system (heavy: seasons, themes, character development). Ajay leaned toward the lighter version. Worth re-examining as personalisation is built.
 
@@ -107,17 +97,18 @@ The conversation that produced V1's docs went through these phases:
 6. **Refinement** — manual review added (with static preview as the runtime-independent mechanism), TTS switched to OpenAI, hosting on Vercel, end-state diagram added to architecture.
 7. **Document production** — Vision, PRD, Architecture, Implementation, CLAUDE.md created and iterated.
 8. **Naming/identity cleanup** — file rename to `BLOOM_*` prefix; the embarrassing "Nikhil" hallucination corrected to Ajay.
+9. **Restart direction (2026-09)** — asset consistency identified as the first-build failure. Restart scope tests AI-generated asset-library quality first, then child engagement with activities using two mechanics. Name-in-audio personalization is deferred.
 
 ## Current status
 
-As of when this doc was created: V1 docs are complete. Ajay is moving to Claude Code to execute. Milestone 0 (project skeleton) is the next step.
+As of 2026-09-26: Ajay is restarting after a pause. The current direction and document alignment are being completed before implementation. The two required claims are asset-library consistency and child engagement with activities made from that library. Name-in-audio personalization is deferred.
 
 **Update this section as the build progresses. Suggested format:**
 
-- Current milestone: [M0 / M1 / M2 / M3 / M4 / M5 / M6]
-- What's working: [brief description]
-- What's blocked: [brief description if anything]
-- Last updated: [date]
+- Current milestone: Restart MVP design/document alignment
+- What's working: Original build established an initial child-interest signal; canonical V1.1 architecture and restart spec now capture the new scope
+- What's blocked: Implementation has not restarted; asset style/acceptance bar and pilot object list remain to be agreed
+- Last updated: 2026-09-26
 
 ## Patterns from past conversations worth carrying forward
 
