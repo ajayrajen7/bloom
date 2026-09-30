@@ -72,6 +72,8 @@ Review each rendered activity before child testing. Check object legibility, lay
 
 Test the activities on the target tablet with a parent nearby. Capture brief observations about whether the child understands the task, engages with it, encounters confusing or frustrating moments, and asks to replay or continue. Completion, abandonment, and adult assistance are useful context. Session length alone is not a success measure.
 
+The pilot does not ask the parent for an in-app rating or feedback after an activity. Completion shows a brief celebration, records the completed session without a parent rating, and returns automatically to the activity list. The parent may keep observation notes outside the app.
+
 The experiment is qualitative and small. Do not present one child’s sessions as evidence of population-level engagement or developmental efficacy.
 
 ## 5. In scope

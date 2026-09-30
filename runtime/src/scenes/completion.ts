@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { playTap } from "../audio.js";
 import { buildSessionRecord, appendSession } from "../telemetry.js";
 import { resolveTheme, resolvePresentationColors, type PresentationColors } from "../themes/theme-resolver.js";
 
@@ -12,7 +11,6 @@ interface CompletionData {
 
 export class CompletionScene extends Phaser.Scene {
   private completionData: CompletionData = { sessionId: "", activityId: "", startedAt: "", themeId: "" };
-  private rated = false;
 
   constructor() {
     super({ key: "CompletionScene" });
@@ -20,7 +18,6 @@ export class CompletionScene extends Phaser.Scene {
 
   init(data: CompletionData) {
     this.completionData = data;
-    this.rated = false;
   }
 
   create() {
@@ -31,6 +28,11 @@ export class CompletionScene extends Phaser.Scene {
     } catch (error) {
       this.showError(error instanceof Error ? error.message : "Could not load activity theme");
       return;
+    }
+
+    const { sessionId, activityId, startedAt } = this.completionData;
+    if (sessionId) {
+      appendSession(buildSessionRecord(sessionId, activityId, startedAt, "completed"), localStorage);
     }
 
     this.add.rectangle(width / 2, height / 2, width, height, colors.backgroundFill);
@@ -49,56 +51,7 @@ export class CompletionScene extends Phaser.Scene {
 
     this.tweens.add({ targets: msg, scaleX: 1, scaleY: 1, duration: 400, ease: "Back.Out" });
 
-    this.time.delayedCall(700, () => {
-      this.add
-        .text(width / 2, height * 0.56, "How did it go?", {
-          fontFamily: "system-ui, sans-serif",
-          fontSize: "26px",
-          color: colors.foregroundText,
-        })
-        .setOrigin(0.5);
-      this.buildRatingButtons(width, height, colors);
-    });
-  }
-
-  private buildRatingButtons(width: number, height: number, colors: PresentationColors) {
-    const ratings: Array<{ label: string; y: number; value: "loved" | "fine" | "bailed" }> = [
-      { label: "😍  Loved it",    y: height * 0.70, value: "loved"  },
-      { label: "😐  It was fine", y: height * 0.82, value: "fine"   },
-      { label: "🚶  We bailed",   y: height * 0.94, value: "bailed" },
-    ];
-
-    ratings.forEach(({ label, y, value }) => {
-      const bg = this.add
-        .rectangle(width / 2, y, 320, 56, colors.promptPanelFill, 1)
-        .setStrokeStyle(2, colors.foregroundFill)
-        .setInteractive({ useHandCursor: true });
-
-      this.add
-        .text(width / 2, y, label, {
-          fontFamily: "system-ui, sans-serif",
-          fontSize: "26px",
-          color: colors.foregroundText,
-        })
-        .setOrigin(0.5);
-
-      bg.on("pointerup", () => {
-        if (this.rated) return;
-        this.rated = true;
-
-        playTap();
-        this.persistRating(value);
-        this.time.delayedCall(200, () => this.scene.start("SelectionScene"));
-      });
-    });
-  }
-
-  private persistRating(rating: "loved" | "fine" | "bailed") {
-    const { sessionId, activityId, startedAt } = this.completionData;
-    if (!sessionId) return;
-
-    const record = buildSessionRecord(sessionId, activityId, startedAt, "completed", rating);
-    appendSession(record, localStorage);
+    this.time.delayedCall(2000, () => this.scene.start("SelectionScene"));
   }
 
   private spawnStars(width: number, height: number, presentation: PresentationColors) {

@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-09-30
 **Active project checkout:** `/private/tmp/bloom-doc-review-source`
-**Branch:** `codex/restart-doc-alignment`
-**GitHub:** Ajay authorized a PR and push on 2026-09-30; GitHub CLI re-authentication is required before creating the PR.
+**Branch:** `codex/fix-activity-switch-feedback`
+**GitHub:** PR #2 is merged. Ajay authorized the PR/push workflow; GitHub CLI is authenticated. The activity-switch and completion-flow follow-up is being prepared on this branch.
 
 ## Project objective and current direction
 
@@ -28,8 +28,9 @@ The asset-library design spec is `docs/superpowers/specs/2026-09-27-fruit-vegeta
 - Built the manifest schema, PNG alpha/framing validator, contact-sheet workflow, style anchor/prompt contract, controlled banana/carrot text-only versus style-anchor comparison, eight canonical fruit/vegetable objects, and one green-apple color variant.
 - Ajay approved the visible candidates. Nine approved sprites are in `library/assets/sprites/`; two visually approved text-only comparison controls remain in staging because the PNG validator detects opaque corner pixels and edge-touching subjects.
 - See `library/assets/manifest.json`, `library/assets/reviews/chatgpt-pilot-001.json`, `library/assets/reviews/chatgpt-pilot-002.json`, `library/assets/reviews/chatgpt-pilot-summary.md`, and `library/assets/reviews/contact-sheet.html` for provenance, decisions, results, and previews.
-- Current branch verification on 2026-09-30: `pnpm test` passed 276/276; root and runtime TypeScript checks passed; `pnpm build` succeeded and emitted 17 activities (two pilots plus 15 approved activities); `git diff --check` passed. The production build excludes staged sources, review previews, and the authoring asset manifest. Vite reports a >500 kB JavaScript chunk warning.
+- Current branch verification on 2026-09-30: `pnpm test` passed 277/277; root and runtime TypeScript checks passed; `pnpm build` succeeded and emitted 17 activities (two pilots plus 15 approved activities); `git diff --check` passed. The production build excludes staged sources, review previews, and the authoring asset manifest. Vite reports a >500 kB JavaScript chunk warning.
 - The 15 additional Kitchen produce activities have been individually tested in the runtime and approved by Ajay on 2026-09-30 for the one-child iPad pilot. They are stored directly under `library/activities/` and indexed alongside the two initial pilots. Child enjoyment and learning efficacy remain untested until observations are recorded.
+- For the pilot, do not ask for in-app parent feedback after completion. Show the existing brief celebration, record completion without a parent rating, and return automatically to the activity list. Parent observations stay outside the app.
 
 ## Agreed architecture direction for the next phase
 
@@ -54,5 +55,5 @@ The detailed continuation is in the implementation plan under **Phase 2: Runtime
 
 1. Open this checkout and branch, not the separate desktop checkout at `/Users/ajayrajendran/Documents/ChatGPT/Bloom` (that checkout did not contain this feature-branch work when checked).
 2. Read this checkpoint, `BLOOM_VISION.md`, `bloom-v1.1-mvp-spec.md`, both canonical architecture files, and the current activity-set spec and plan.
-3. Ajay selected a PR/push workflow on 2026-09-30. Verify the complete suite/build and clean diff, then push `codex/restart-doc-alignment` and create a PR against `main`; he will handle production deployment after checking the Vercel project.
+3. Current follow-up: activity JSON loads must use activity-specific Phaser cache keys; completion must not ask for parent ratings and should celebrate briefly, record completion without a rating, then return to the activity list. The code is on `codex/fix-activity-switch-feedback`; push and open a PR against `main`. Let Ajay test the preview on iPad before merging it to production.
 4. Preserve existing unusable legacy activity files without migrating or repairing them.
