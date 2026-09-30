@@ -17,6 +17,7 @@ import {
   createMechanicVisualConfig,
   type PresentationColors,
 } from "../themes/theme-resolver.js";
+import { activityJsonCacheKey } from "./activity-cache-key.js";
 
 const PROMPT_H   = 0.15;
 const PROGRESS_H = 0.15;
@@ -47,7 +48,10 @@ export class ActivityScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.json("activity", this.review ? `/staged/${this.activityId}.json` : `/activities/${this.activityId}.json`);
+    this.load.json(
+      activityJsonCacheKey(this.activityId),
+      this.review ? `/staged/${this.activityId}.json` : `/activities/${this.activityId}.json`
+    );
     queueApprovedSpriteLoads(
       (key) => this.textures.exists(key),
       (key, url) => this.load.image(key, url)
@@ -55,7 +59,7 @@ export class ActivityScene extends Phaser.Scene {
   }
 
   create() {
-    const raw = this.cache.json.get("activity") as unknown;
+    const raw = this.cache.json.get(activityJsonCacheKey(this.activityId)) as unknown;
 
     const parsedActivity = ActivityJSONSchema.safeParse(raw);
     if (!parsedActivity.success) {
