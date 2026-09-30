@@ -3,7 +3,7 @@
 **Last updated:** 2026-09-30
 **Active project checkout:** `/private/tmp/bloom-doc-review-source`
 **Branch:** `codex/fix-activity-switch-feedback`
-**GitHub:** PR #2 is merged. Ajay authorized the PR/push workflow; GitHub CLI is authenticated. The activity-switch and completion-flow follow-up is being prepared on this branch.
+**GitHub:** PR #2 is merged. PR #3 (`codex/fix-activity-switch-feedback`) is open for the activity-switch and completion-flow follow-up. Ajay authorized the PR/push workflow; GitHub CLI is authenticated.
 
 ## Project objective and current direction
 
@@ -55,5 +55,5 @@ The detailed continuation is in the implementation plan under **Phase 2: Runtime
 
 1. Open this checkout and branch, not the separate desktop checkout at `/Users/ajayrajendran/Documents/ChatGPT/Bloom` (that checkout did not contain this feature-branch work when checked).
 2. Read this checkpoint, `BLOOM_VISION.md`, `bloom-v1.1-mvp-spec.md`, both canonical architecture files, and the current activity-set spec and plan.
-3. Current follow-up: activity JSON loads must use activity-specific Phaser cache keys; completion must not ask for parent ratings and should celebrate briefly, record completion without a rating, then return to the activity list. The code is on `codex/fix-activity-switch-feedback`; push and open a PR against `main`. Let Ajay test the preview on iPad before merging it to production.
+3. Current follow-up: PR #3 uses activity-specific Phaser cache keys and removes in-app parent ratings. Completion celebrates briefly, records completion without a rating, then returns to the activity list. Have Ajay test its Vercel preview on iPad before merging to production.
 4. Preserve existing unusable legacy activity files without migrating or repairing them.
