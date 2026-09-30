@@ -32,10 +32,5 @@
     "openai": "^4.0.0",
     "phaser": "^3.80.0",
     "zod": "^3.23.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }
