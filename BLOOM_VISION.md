@@ -66,9 +66,9 @@ Build it like a 5-person company for the first 18 months regardless of long-term
 
 ## What V1 proves
 
-V1 is for one child (Nitara, 2–3) and exists to prove the foundational claims of the system: that pre-generated activities can be produced through an AI pipeline at quality, that the runtime delivers an interaction experience children actually enjoy, and that the team building it learns the AI craft required to scale it.
+The restart experiment is for one child aged 2–3 and tests two required claims in sequence: an AI-assisted factory can produce a coherent, attractive, reusable asset library; and activities built from that library with two mechanics can engage the child in actual play. The first build produced a positive interest signal—the child asked to play again—but inconsistent downloaded art weakened the experience. The restart addresses asset consistency first, then tests the activities.
 
-V1 deliberately defers everything that does not test these claims — selection, personalisation, story arcs, multi-format content, parent-facing surfaces, multi-user systems. These are V2+ concerns.
+Name-in-audio personalization is deferred. So are automated selection, story arcs, multi-format content, parent-facing surfaces, and multi-user systems. This experiment does not claim learning efficacy or long-term retention.
 
 ---
 

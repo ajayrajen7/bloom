@@ -1,0 +1,45 @@
+{
+  "batchId": "chatgpt-pilot-001",
+  "reviewedBy": "Ajay",
+  "reviewedAt": "2026-09-27T02:42:34Z",
+  "approvalBasis": "Ajay reviewed the four generated comparison candidates shown inline and said they were more than good enough for the pilot.",
+  "comparisonSummary": {
+    "selectedConditionForPilotCanonicals": "style-anchor",
+    "observations": [
+      "The apple-anchor-conditioned banana and carrot are recognizable and retain their own silhouettes; no obvious apple-shape copying was observed.",
+      "Both anchor-conditioned candidates pass the deterministic alpha and framing checks.",
+      "The text-only banana and carrot are visually acceptable to Ajay as comparison controls, but both touch the canvas bounds and have an opaque corner; retain these measurements as evidence and do not promote these files to runtime sprites.",
+      "The reference condition is the better pilot canonical path for this sample because it produced clean transparency and framing for both silhouettes and a surface treatment closer to the anchor. This is preliminary evidence from two subjects, not a general guarantee."
+    ]
+  },
+  "candidates": [
+    {
+      "id": "banana-text-only-001",
+      "referenceCondition": "text-only",
+      "decision": "approved",
+      "reviewerNotes": "Ajay approved its appearance for the pilot. Retained as the text-only comparison control. Automated checks flag an opaque top-left corner and subject touching the frame, so it is not a runtime promotion candidate.",
+      "reviewedAt": "2026-09-27T02:42:34Z"
+    },
+    {
+      "id": "banana-style-anchor-001",
+      "referenceCondition": "style-anchor",
+      "decision": "approved",
+      "reviewerNotes": "Ajay approved its appearance for the pilot. Passes alpha and framing checks and remains clearly recognizable as a banana. Selected as the pilot banana canonical.",
+      "reviewedAt": "2026-09-27T02:42:34Z"
+    },
+    {
+      "id": "carrot-text-only-001",
+      "referenceCondition": "text-only",
+      "decision": "approved",
+      "reviewerNotes": "Ajay approved its appearance for the pilot. Retained as the text-only comparison control. Automated checks flag an opaque bottom-left corner and subject touching the frame, so it is not a runtime promotion candidate.",
+      "reviewedAt": "2026-09-27T02:42:34Z"
+    },
+    {
+      "id": "carrot-style-anchor-001",
+      "referenceCondition": "style-anchor",
+      "decision": "approved",
+      "reviewerNotes": "Ajay approved its appearance for the pilot. Passes alpha and framing checks and remains clearly recognizable as a carrot. Selected as the pilot carrot canonical.",
+      "reviewedAt": "2026-09-27T02:42:34Z"
+    }
+  ]
+}

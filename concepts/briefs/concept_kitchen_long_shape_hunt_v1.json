@@ -1,0 +1,22 @@
+{
+  "id": "concept_kitchen_long_shape_hunt_v1",
+  "mechanicId": "tap-to-select",
+  "targetDivisionId": "language.receptive_language",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "high",
+  "themeHint": "familiar long-shaped kitchen produce",
+  "targetDurationSeconds": 45,
+  "notes": "Find the banana, carrot, and cucumber among six distinct produce pictures.",
+  "itemSprites": [
+    "banana-v1.png",
+    "carrot-v1.png",
+    "cucumber-v1.png",
+    "apple-red-v1.png",
+    "orange-v1.png",
+    "broccoli-v1.png"
+  ],
+  "targetSprites": []
+}

@@ -10,18 +10,16 @@ import {
   TapToSelectMechanic,
   type TapItemConfig,
 } from "../mechanics/tap-to-select.js";
+import { queueApprovedSpriteLoads, requireActivitySpriteTextures } from "../assets/sprite-registry.js";
+import {
+  resolveTheme,
+  resolvePresentationColors,
+  createMechanicVisualConfig,
+  type PresentationColors,
+} from "../themes/theme-resolver.js";
 
 const PROMPT_H   = 0.15;
 const PROGRESS_H = 0.15;
-
-const PALETTE = [0xe84040, 0xf5c842, 0x4a90d9, 0x50c878, 0xff8c00, 0xda70d6];
-
-const SPRITES = [
-  "apple","apple-basket","banana","banana-basket","barn","blue-ball","boot",
-  "cat","chicken","circle","coop","cow","dog","duck","fruit-basket",
-  "green-apple","horse","orange","orange-basket","pig","pond","red-apple",
-  "red-ball","sheep","shoe","sock","square","triangle","wicker-basket","yellow-ball",
-];
 
 export class ActivityScene extends Phaser.Scene {
   private activityId = "";
@@ -31,36 +29,56 @@ export class ActivityScene extends Phaser.Scene {
   private mechanic?: DragToTargetMechanic | TapToSelectMechanic;
   private progressDots: Phaser.GameObjects.Arc[] = [];
   private placedCount = 0;
+  private presentationColors?: PresentationColors;
+  private review = false;
 
   constructor() {
     super({ key: "ActivityScene" });
   }
 
-  init(data: { activityId: string }) {
+  init(data: { activityId: string; review?: boolean }) {
     this.activityId  = data.activityId ?? "act_dev_001";
     this.sessionId   = crypto.randomUUID();
     this.startedAt   = new Date().toISOString();
     this.placedCount = 0;
     this.progressDots = [];
+    this.presentationColors = undefined;
+    this.review = Boolean(data.review) && import.meta.env.DEV;
   }
 
   preload() {
-    this.load.json("activity", `/activities/${this.activityId}.json`);
-    SPRITES.forEach((name) => {
-      if (!this.textures.exists(name)) {
-        this.load.image(name, `/assets/sprites/${name}.png`);
-      }
-    });
+    this.load.json("activity", this.review ? `/staged/${this.activityId}.json` : `/activities/${this.activityId}.json`);
+    queueApprovedSpriteLoads(
+      (key) => this.textures.exists(key),
+      (key, url) => this.load.image(key, url)
+    );
   }
 
   create() {
     const raw = this.cache.json.get("activity") as unknown;
 
-    let activity;
+    const parsedActivity = ActivityJSONSchema.safeParse(raw);
+    if (!parsedActivity.success) {
+      const themeIssue = parsedActivity.error.issues.some((issue) => issue.path[0] === "themeId");
+      this.showError(themeIssue ? "Activity is missing a valid theme ID" : undefined);
+      return;
+    }
+    const activity = parsedActivity.data;
+
+    let colors: PresentationColors;
     try {
-      activity = ActivityJSONSchema.parse(raw);
-    } catch {
-      this.showError();
+      colors = resolvePresentationColors(resolveTheme(activity.themeId).presentation);
+    } catch (error) {
+      this.showError(error instanceof Error ? error.message : "Could not load activity theme");
+      return;
+    }
+    this.presentationColors = colors;
+    const mechanicVisuals = createMechanicVisualConfig(colors);
+
+    try {
+      requireActivitySpriteTextures(activity, (key) => this.textures.exists(key));
+    } catch (error) {
+      this.showError(error instanceof Error ? error.message : "Could not load activity sprites");
       return;
     }
 
@@ -69,23 +87,24 @@ export class ActivityScene extends Phaser.Scene {
     const playAreaH = height * (1 - PROMPT_H - PROGRESS_H);
 
     // ── Background ──────────────────────────────────────────────────────────
-    this.add.rectangle(width / 2, height / 2, width, height, 0x12122a);
+    this.add.rectangle(width / 2, height / 2, width, height, colors.backgroundFill);
 
     // ── Prompt area ─────────────────────────────────────────────────────────
     const promptY = playAreaY / 2;
-    this.add.rectangle(width / 2, promptY, width, height * PROMPT_H, 0x1e1e3a);
+    this.add.rectangle(width / 2, promptY, width, height * PROMPT_H, colors.promptPanelFill);
+    this.add.rectangle(width / 2, height * (1 - PROGRESS_H / 2), width, height * PROGRESS_H, colors.promptPanelFill);
     this.add
       .text(width / 2, promptY, activity.prompt.text, {
         fontFamily: "system-ui, sans-serif",
         fontSize: "30px",
-        color: "#ffffff",
+        color: colors.foregroundText,
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     // ── Dividers ────────────────────────────────────────────────────────────
     const g = this.add.graphics();
-    g.lineStyle(1, 0xffffff, 0.1);
+    g.lineStyle(1, colors.foregroundFill, 0.2);
     g.lineBetween(0, playAreaY, width, playAreaY);
     g.lineBetween(0, playAreaY + playAreaH, width, playAreaY + playAreaH);
 
@@ -104,7 +123,7 @@ export class ActivityScene extends Phaser.Scene {
     // ── Mechanic routing ──────────────────────────────────────────────────────
     if (activity.mechanicId === "drag-to-target") {
       const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{
-        id: string; label: string; assetRef?: string;
+        id: string; label: string; assetRef?: string; capacity?: number;
       }>;
       const rawItems = (activity.filledSlots["items"] ?? []) as Array<{
         id: string; targetId: string; label: string; assetRef?: string;
@@ -116,34 +135,32 @@ export class ActivityScene extends Phaser.Scene {
       const targetPositions = computeZonePositions(targetZone, rawTargets.length, playArea);
       const itemPositions   = computeZonePositions(itemZone,   rawItems.length,   playArea);
 
-      const targetColorMap = new Map<string, number>();
-      rawTargets.forEach((t, i) => targetColorMap.set(t.id, PALETTE[i % PALETTE.length]));
-
       const targets: TargetConfig[] = rawTargets.map((t, i) => ({
         id:       t.id,
         label:    t.label,
-        color:    PALETTE[i % PALETTE.length],
+        color:    colors.foregroundFill,
         x:        targetPositions[i].x,
         y:        targetPositions[i].y,
         assetRef: t.assetRef,
+        capacity: t.capacity,
       }));
 
       const items: ItemConfig[] = rawItems.map((item, i) => ({
         id:       item.id,
         targetId: item.targetId,
         label:    item.label,
-        color:    targetColorMap.get(item.targetId) ?? 0xffffff,
+        color:    colors.foregroundFill,
         x:        itemPositions[i].x,
         y:        itemPositions[i].y,
         assetRef: item.assetRef,
       }));
 
-      this.buildProgressDots(width, height, items.length);
+      this.buildProgressDots(width, height, items.length, colors.foregroundFill);
 
       this.mechanic = new DragToTargetMechanic(this, items, targets, {
         onItemPlaced: () => {
           this.placedCount++;
-          this.updateProgressDots();
+          this.updateProgressDots(colors.foregroundFill);
         },
         onItemError: () => this.flashPrompt(),
         onComplete:  () => {
@@ -152,10 +169,11 @@ export class ActivityScene extends Phaser.Scene {
               sessionId:  this.sessionId,
               activityId: this.activityId,
               startedAt:  this.startedAt,
+              themeId:    activity.themeId,
             });
           });
         },
-      });
+      }, mechanicVisuals);
     } else if (activity.mechanicId === "tap-to-select") {
       const correctItems = (activity.filledSlots["correctItems"] ?? []) as Array<{
         id: string; label: string; assetRef: string;
@@ -180,12 +198,12 @@ export class ActivityScene extends Phaser.Scene {
         isCorrect: item.isCorrect,
       }));
 
-      this.buildProgressDots(width, height, correctItems.length);
+      this.buildProgressDots(width, height, correctItems.length, colors.foregroundFill);
 
       this.mechanic = new TapToSelectMechanic(this, tapItems, {
         onCorrectTap: () => {
           this.placedCount++;
-          this.updateProgressDots();
+          this.updateProgressDots(colors.foregroundFill);
         },
         onIncorrectTap: () => this.flashPrompt(),
         onComplete: () => {
@@ -194,10 +212,11 @@ export class ActivityScene extends Phaser.Scene {
               sessionId:  this.sessionId,
               activityId: this.activityId,
               startedAt:  this.startedAt,
+              themeId:    activity.themeId,
             });
           });
         },
-      });
+      }, mechanicVisuals);
     } else {
       this.showError(`Unknown mechanic: ${activity.mechanicId}`);
     }
@@ -205,20 +224,20 @@ export class ActivityScene extends Phaser.Scene {
 
   // ── Progress dots ───────────────────────────────────────────────────────────
 
-  private buildProgressDots(width: number, height: number, count: number) {
+  private buildProgressDots(width: number, height: number, count: number, foregroundFill: number) {
     const r = 10;
     const gap = 32;
     const totalW = (count - 1) * gap;
     const startX = width / 2 - totalW / 2;
     const dotY   = height * (1 - PROGRESS_H / 2);
     for (let i = 0; i < count; i++) {
-      this.progressDots.push(this.add.circle(startX + i * gap, dotY, r, 0x444466));
+      this.progressDots.push(this.add.circle(startX + i * gap, dotY, r, foregroundFill, 0.2));
     }
   }
 
-  private updateProgressDots() {
+  private updateProgressDots(foregroundFill: number) {
     for (let i = 0; i < this.placedCount; i++) {
-      this.progressDots[i]?.setFillStyle(0x4a90d9);
+      this.progressDots[i]?.setFillStyle(foregroundFill, 1);
     }
   }
 
@@ -234,12 +253,12 @@ export class ActivityScene extends Phaser.Scene {
 
   private showError(msg = "Could not load activity\nTap to go back") {
     const { width, height } = this.scale;
-    this.add.rectangle(width / 2, height / 2, width, height, 0x12122a);
+    this.add.rectangle(width / 2, height / 2, width, height, this.presentationColors?.backgroundFill ?? 0x12122a);
     this.add
       .text(width / 2, height / 2, msg, {
         fontFamily: "system-ui, sans-serif",
         fontSize: "28px",
-        color: "#ef4444",
+        color: this.presentationColors?.foregroundText ?? "#ef4444",
         align: "center",
       })
       .setOrigin(0.5)

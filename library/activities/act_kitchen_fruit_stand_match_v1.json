@@ -1,0 +1,137 @@
+{
+  "id": "act_kitchen_fruit_stand_match_v1",
+  "conceptId": "concept_kitchen_fruit_stand_match_v1",
+  "mechanicId": "drag-to-target",
+  "themeId": "kitchen-v1",
+  "generatedAt": "2026-09-29T00:00:00.000Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple-red",
+        "targetId": "apple-red-target",
+        "label": "Red Apple",
+        "assetRef": "sprites/apple-red-v1.png"
+      },
+      {
+        "id": "apple-green",
+        "targetId": "apple-green-target",
+        "label": "Green Apple",
+        "assetRef": "sprites/apple-green-v1.png"
+      },
+      {
+        "id": "banana",
+        "targetId": "banana-target",
+        "label": "Banana",
+        "assetRef": "sprites/banana-v1.png"
+      },
+      {
+        "id": "orange",
+        "targetId": "orange-target",
+        "label": "Orange",
+        "assetRef": "sprites/orange-v1.png"
+      },
+      {
+        "id": "grapes",
+        "targetId": "grapes-target",
+        "label": "Grapes",
+        "assetRef": "sprites/grapes-v1.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "apple-red-target",
+        "label": "Red Apple",
+        "assetRef": "sprites/apple-red-v1.png"
+      },
+      {
+        "id": "apple-green-target",
+        "label": "Green Apple",
+        "assetRef": "sprites/apple-green-v1.png"
+      },
+      {
+        "id": "banana-target",
+        "label": "Banana",
+        "assetRef": "sprites/banana-v1.png"
+      },
+      {
+        "id": "orange-target",
+        "label": "Orange",
+        "assetRef": "sprites/orange-v1.png"
+      },
+      {
+        "id": "grapes-target",
+        "label": "Grapes",
+        "assetRef": "sprites/grapes-v1.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-six-pairs",
+    "layout": {
+      "id": "horizontal-six-pairs",
+      "description": "Five or six picture matches in separate horizontal target and item rows.",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "yFraction": 0.82,
+          "xPadFraction": 0.085,
+          "elementCount": {
+            "min": 5,
+            "max": 6
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 110
+          }
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "yFraction": 0.25,
+          "xPadFraction": 0.075,
+          "elementCount": {
+            "min": 5,
+            "max": 6
+          },
+          "elementSize": {
+            "min": 120,
+            "max": 140
+          }
+        }
+      }
+    },
+    "itemCount": 5,
+    "distractorCount": 0,
+    "visualSimilarity": "medium"
+  },
+  "prompt": {
+    "text": "Put each fruit on its matching picture.",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "medium",
+    "targetDurationSeconds": 60,
+    "reviewScore": 0,
+    "reviewerNotes": "Ajay approved this activity for the one-child iPad pilot on 2026-09-30.",
+    "humanApprovedAt": "2026-09-30T00:00:00.000Z",
+    "humanApprover": "ajay"
+  }
+}

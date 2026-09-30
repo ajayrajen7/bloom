@@ -1,0 +1,491 @@
+[
+  {
+    "id": "style-anchor-apple-v1",
+    "displayName": "Approved apple style anchor",
+    "category": "fruit",
+    "file": "sprites/apple-red-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "style-anchor-apple.v2",
+      "referenceCondition": "text-only",
+      "batchId": "style-anchor-001"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 49,
+        "y": 19,
+        "width": 1183,
+        "height": 1211
+      },
+      "centerOffset": {
+        "x": 13.5,
+        "y": -2.5
+      },
+      "occupancy": 0.9110323837722478,
+      "issues": []
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewerNotes": "Ajay approved this sample as the shared style anchor. Gameplay asset reuse will be assessed in the pilot."
+    },
+    "kind": "canonical"
+  },
+  {
+    "id": "banana-text-only-001",
+    "displayName": "Banana — text-only control",
+    "category": "fruit",
+    "file": "staging/chatgpt-pilot-001/banana-text-only.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "referenceCondition": "text-only",
+      "batchId": "chatgpt-pilot-001"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        false,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1230,
+        "height": 1227
+      },
+      "centerOffset": {
+        "x": -12,
+        "y": -13.5
+      },
+      "occupancy": 0.9597422220187267,
+      "issues": [
+        "non-transparent-corners",
+        "subject-too-close-to-edge"
+      ]
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T02:42:34Z",
+      "reviewerNotes": "Ajay approved the visible pilot candidates as more than good enough; retained as the text-only comparison control."
+    },
+    "kind": "canonical"
+  },
+  {
+    "id": "banana-style-anchor-001",
+    "displayName": "Banana — apple-anchor conditioned",
+    "category": "fruit",
+    "file": "sprites/banana-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-001"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 31,
+        "y": 21,
+        "width": 1205,
+        "height": 1175
+      },
+      "centerOffset": {
+        "x": 6.5,
+        "y": -18.5
+      },
+      "occupancy": 0.9003882949362677,
+      "issues": []
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T02:42:34Z",
+      "reviewerNotes": "Ajay approved the visible pilot candidates as more than good enough. Selected as the banana canonical for this pilot; the apple-like surface texture did not obscure banana identity."
+    },
+    "kind": "canonical"
+  },
+  {
+    "id": "carrot-text-only-001",
+    "displayName": "Carrot — text-only control",
+    "category": "vegetable",
+    "file": "staging/chatgpt-pilot-001/carrot-text-only.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "referenceCondition": "text-only",
+      "batchId": "chatgpt-pilot-001"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        false,
+        true
+      ],
+      "subjectBounds": {
+        "x": 0,
+        "y": 21,
+        "width": 1230,
+        "height": 1233
+      },
+      "centerOffset": {
+        "x": -12,
+        "y": 10.5
+      },
+      "occupancy": 0.9644353380188182,
+      "issues": [
+        "non-transparent-corners",
+        "subject-too-close-to-edge"
+      ]
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T02:42:34Z",
+      "reviewerNotes": "Ajay approved the visible pilot candidates as more than good enough; retained as the text-only comparison control."
+    },
+    "kind": "canonical"
+  },
+  {
+    "id": "carrot-style-anchor-001",
+    "displayName": "Carrot — apple-anchor conditioned",
+    "category": "vegetable",
+    "file": "sprites/carrot-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-001"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 49,
+        "y": 21,
+        "width": 1147,
+        "height": 1211
+      },
+      "centerOffset": {
+        "x": -4.5,
+        "y": -0.5
+      },
+      "occupancy": 0.8833086594985361,
+      "issues": []
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T02:42:34Z",
+      "reviewerNotes": "Ajay approved the visible pilot candidates as more than good enough. Selected as the carrot canonical for this pilot; the carrot's silhouette and identity remain distinct."
+    },
+    "kind": "canonical"
+  },
+  {
+    "id": "orange-style-anchor-002",
+    "displayName": "Orange — apple-anchor conditioned",
+    "category": "fruit",
+    "file": "sprites/orange-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "canonical",
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 49,
+        "y": 51,
+        "width": 1185,
+        "height": 1177
+      },
+      "centerOffset": {
+        "x": 14.5,
+        "y": 12.5
+      },
+      "occupancy": 0.8869512297490136,
+      "issues": []
+    }
+  },
+  {
+    "id": "grapes-style-anchor-002",
+    "displayName": "Grapes — apple-anchor conditioned",
+    "category": "fruit",
+    "file": "sprites/grapes-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "canonical",
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 49,
+        "y": 21,
+        "width": 1159,
+        "height": 1209
+      },
+      "centerOffset": {
+        "x": 1.5,
+        "y": -1.5
+      },
+      "occupancy": 0.8910758300710454,
+      "issues": []
+    }
+  },
+  {
+    "id": "tomato-style-anchor-002",
+    "displayName": "Tomato — apple-anchor conditioned",
+    "category": "vegetable",
+    "file": "sprites/tomato-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1-framing-v2",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "canonical",
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 33,
+        "y": 48,
+        "width": 1166,
+        "height": 1182
+      },
+      "centerOffset": {
+        "x": -11,
+        "y": 12
+      },
+      "occupancy": 0.8764375052463695,
+      "issues": []
+    }
+  },
+  {
+    "id": "cucumber-style-anchor-002",
+    "displayName": "Cucumber — apple-anchor conditioned",
+    "category": "vegetable",
+    "file": "sprites/cucumber-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1-framing-v3",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "canonical",
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 130,
+        "y": 52,
+        "width": 1062,
+        "height": 1146
+      },
+      "centerOffset": {
+        "x": 34,
+        "y": -2
+      },
+      "occupancy": 0.7739520615370528,
+      "issues": []
+    }
+  },
+  {
+    "id": "broccoli-style-anchor-002",
+    "displayName": "Broccoli — apple-anchor conditioned",
+    "category": "vegetable",
+    "file": "sprites/broccoli-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "object-sprite.v1-framing-v3",
+      "styleReferenceVersion": "style-anchor-v1",
+      "referenceCondition": "style-anchor",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "canonical",
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 111,
+        "y": 52,
+        "width": 1087,
+        "height": 1176
+      },
+      "centerOffset": {
+        "x": 27.5,
+        "y": 13
+      },
+      "occupancy": 0.8129087398792763,
+      "issues": []
+    }
+  },
+  {
+    "id": "apple-green-identity-variant-002",
+    "displayName": "Green apple — red-apple identity variant",
+    "category": "fruit",
+    "file": "sprites/apple-green-v1.png",
+    "generation": {
+      "surface": "chatgpt",
+      "model": "ChatGPT ImageGen",
+      "modelVersion": "unknown",
+      "promptVersion": "apple-color-variant.v1-framing-v2",
+      "referenceCondition": "identity-reference",
+      "batchId": "chatgpt-pilot-002"
+    },
+    "manualReview": {
+      "decision": "approved",
+      "reviewedAt": "2026-09-27T03:05:04Z",
+      "reviewerNotes": "Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge."
+    },
+    "kind": "variant",
+    "canonicalId": "style-anchor-apple-v1",
+    "attributes": {
+      "color": "green"
+    },
+    "metrics": {
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentCorners": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "subjectBounds": {
+        "x": 103,
+        "y": 21,
+        "width": 1091,
+        "height": 1183
+      },
+      "centerOffset": {
+        "x": 21.5,
+        "y": -14.5
+      },
+      "occupancy": 0.8207566727460961,
+      "issues": []
+    }
+  }
+]

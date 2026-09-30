@@ -11,6 +11,8 @@ import {
   type ActivityJSON,
 } from "shared/types.js";
 import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
+import { resolveThemeSpec } from "../../shared/theme-catalog.js";
+import { getLayoutVariant } from "../../mechanics/loader.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -39,7 +41,8 @@ export async function runGenerationPrompt(
   concept: ConceptBrief,
   division: Division,
   _mechanicSpec: MechanicSpec,
-  client: Anthropic
+  client: Anthropic,
+  themeId: string
 ): Promise<PromptResult> {
   const template = readFileSync(PROMPT_FILE, "utf-8");
 
@@ -52,7 +55,7 @@ export async function runGenerationPrompt(
   const distractorCount = DISTRACTOR_COUNTS[concept.difficulty] ?? 0;
 
   const filled = template
-    .replace("{{THEME_HINT}}", concept.themeHint)
+    .replace("{{THEME_HINT}}", concept.themeHint ?? "")
     .replace("{{DIVISION_NAME}}", division.name)
     .replace("{{DIFFICULTY}}", concept.difficulty)
     .replace("{{ITEM_COUNT}}", String(itemCount))
@@ -85,7 +88,7 @@ export async function runGenerationPrompt(
   }
 
   const llmOutput = LLMGenerationOutputSchema.parse(parsedJson);
-  const activity = assembleLLMOutput(llmOutput, concept, itemCount);
+  const activity = assembleLLMOutput(llmOutput, concept, itemCount, themeId);
 
   return {
     raw,
@@ -104,18 +107,24 @@ export async function runGenerationPrompt(
 export function assembleLLMOutput(
   llmOutput: LLMGenerationOutput,
   concept: ConceptBrief,
-  itemCount: number
+  itemCount: number,
+  themeId: string
 ): ActivityJSON {
+  resolveThemeSpec(themeId);
+  const layout = getLayoutVariant("drag-to-target", "horizontal-standard");
+  if (!layout) throw new Error('Layout "horizontal-standard" not found in drag-to-target mechanic spec');
   const id = `act_${Date.now()}_${randomUUID().slice(0, 6)}`;
 
   return ActivityJSONSchema.parse({
     id,
     conceptId: concept.id,
     mechanicId: "drag-to-target",
+    themeId,
     generatedAt: new Date().toISOString(),
     filledSlots: llmOutput.filledSlots,
     parameters: {
       layoutId: "horizontal-standard",
+      layout,
       itemCount,
       distractorCount: llmOutput.filledSlots.distractors.length,
       visualSimilarity: concept.difficulty,

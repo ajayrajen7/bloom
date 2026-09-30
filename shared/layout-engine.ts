@@ -82,10 +82,11 @@ function computeGrid(
   const cx      = areaX + (zone.centerFraction?.x ?? 0.5) * width;
   const cy      = areaY + (zone.centerFraction?.y ?? 0.5) * height;
   const gap     = (zone.gapFraction ?? 0.06) * width;
+  const rowGap  = zone.rowGapFraction === undefined ? gap : zone.rowGapFraction * height;
   const cell    = zone.elementSize.max;
 
   const totalW  = columns * cell + (columns - 1) * gap;
-  const totalH  = rows    * cell + (rows    - 1) * gap;
+  const totalH  = rows    * cell + (rows    - 1) * rowGap;
   const startX  = cx - totalW / 2 + cell / 2;
   const startY  = cy - totalH / 2 + cell / 2;
 
@@ -94,7 +95,7 @@ function computeGrid(
     for (let c = 0; c < columns && positions.length < count; c++) {
       positions.push({
         x: startX + c * (cell + gap),
-        y: startY + r * (cell + gap),
+        y: startY + r * (cell + rowGap),
       });
     }
   }

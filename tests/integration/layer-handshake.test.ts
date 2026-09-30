@@ -10,6 +10,13 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { getDivisionById, _resetCache as resetFramework } from "../../framework/loader.js";
 import { getConceptBrief, listConceptBriefs, _resetCache as resetConcepts } from "../../concepts/loader.js";
 import { getMechanicSpec, listMechanicSpecs, _resetCache as resetMechanics } from "../../mechanics/loader.js";
+import { readFileSync, readdirSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { ActivityIndexSchema, ActivityJSONSchema } from "../../shared/types.js";
+import { validateActivity } from "../../generation/pipeline/validate.js";
+
+const activitiesDir = join(dirname(fileURLToPath(import.meta.url)), "../../library/activities");
 
 beforeEach(() => {
   resetFramework();
@@ -79,5 +86,27 @@ describe("Full three-layer lookup", () => {
     const spec = getMechanicSpec("drag-to-target");
     expect(spec).toBeDefined();
     expect(spec!.id).toBe("drag-to-target");
+  });
+});
+
+describe("active activity publication handshake", () => {
+  it("indexes only valid activities with explicit human approval and excludes legacy files", () => {
+    const index = ActivityIndexSchema.parse(JSON.parse(readFileSync(join(activitiesDir, "index.json"), "utf8")));
+    const indexedIds = new Set(index.activities.map((entry) => entry.id));
+    const legacyIds: string[] = [];
+    for (const file of readdirSync(activitiesDir).filter((name) => name.endsWith(".json") && name !== "index.json")) {
+      const raw = JSON.parse(readFileSync(join(activitiesDir, file), "utf8"));
+      if (!ActivityJSONSchema.safeParse(raw).success) {
+        legacyIds.push(raw.id);
+        expect(indexedIds.has(raw.id)).toBe(false);
+        continue;
+      }
+      if (!indexedIds.has(raw.id)) continue;
+      expect(raw.metadata.humanApprovedAt).toBeTruthy();
+      expect(raw.metadata.humanApprover).toBeTruthy();
+      expect(raw.metadata.humanApprover).not.toBe("pipeline-auto");
+      expect(validateActivity(raw).passed).toBe(true);
+    }
+    expect(legacyIds.length).toBeGreaterThan(0);
   });
 });

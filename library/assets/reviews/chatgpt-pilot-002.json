@@ -1,0 +1,15 @@
+{
+  "batchId": "chatgpt-pilot-002",
+  "reviewedBy": "Ajay",
+  "reviewedAt": "2026-09-27T03:05:04Z",
+  "approvalBasis": "Ajay viewed the six newly generated pilot candidates inline, including the framing-corrected versions where needed, and replied ‘approved.’",
+  "candidates": [
+    { "id": "orange-style-anchor-002", "referenceCondition": "style-anchor", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot. Readable orange silhouette with clean transparency and safe framing.", "reviewedAt": "2026-09-27T03:05:04Z" },
+    { "id": "grapes-style-anchor-002", "referenceCondition": "style-anchor", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot. Recognizable grape cluster with clean transparency and safe framing.", "reviewedAt": "2026-09-27T03:05:04Z" },
+    { "id": "tomato-style-anchor-002", "referenceCondition": "style-anchor", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot after viewing the framing-corrected version. The corrected output passes transparent-corner and margin checks.", "reviewedAt": "2026-09-27T03:05:04Z" },
+    { "id": "cucumber-style-anchor-002", "referenceCondition": "style-anchor", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot after viewing the framing-corrected version. The final reduced version passes transparent-corner and margin checks.", "reviewedAt": "2026-09-27T03:05:04Z" },
+    { "id": "broccoli-style-anchor-002", "referenceCondition": "style-anchor", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot after viewing the framing-corrected version. The final reduced version passes transparent-corner and margin checks.", "reviewedAt": "2026-09-27T03:05:04Z" },
+    { "id": "apple-green-identity-variant-002", "referenceCondition": "identity-reference", "decision": "approved", "reviewerNotes": "Approved by Ajay for the pilot. Green color variant preserves the apple identity and passes transparent-corner and margin checks.", "reviewedAt": "2026-09-27T03:05:04Z" }
+  ],
+  "reviewTime": "not measured"
+}

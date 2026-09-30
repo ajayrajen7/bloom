@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import { runtimePublicationPlugin } from "./publication.js";
 
 export default defineConfig({
   root: ".",
-  // Serve library/ as static assets: /activities/*.json and /assets/**
-  publicDir: resolve(__dirname, "../library"),
+  publicDir: false,
+  plugins: [runtimePublicationPlugin()],
   resolve: {
     alias: {
       shared: resolve(__dirname, "../shared"),

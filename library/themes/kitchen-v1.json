@@ -1,0 +1,12 @@
+{
+  "id": "kitchen-v1",
+  "version": "1.0.0",
+  "name": "Kitchen",
+  "setting": "A calm home kitchen where children can explore familiar produce.",
+  "visualTreatment": "Warm ivory background, soft sage prompt panel, and deep green-gray text with clear space around produce sprites.",
+  "presentation": {
+    "backgroundColor": "#F6F2E8",
+    "promptPanelColor": "#DDE8D2",
+    "foregroundColor": "#26352A"
+  }
+}

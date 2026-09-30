@@ -1,0 +1,22 @@
+{
+  "id": "concept_kitchen_soup_chef_v1",
+  "mechanicId": "tap-to-select",
+  "targetDivisionId": "language.receptive_language",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "high",
+  "themeHint": "familiar kitchen soup ingredients",
+  "targetDurationSeconds": 45,
+  "notes": "Find the carrot, tomato, and broccoli among six distinct produce pictures.",
+  "itemSprites": [
+    "carrot-v1.png",
+    "tomato-v1.png",
+    "broccoli-v1.png",
+    "banana-v1.png",
+    "orange-v1.png",
+    "grapes-v1.png"
+  ],
+  "targetSprites": []
+}

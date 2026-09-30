@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: one transparent object sprite for a preschool tablet activity
+Primary request: Create exactly one familiar banana, immediately recognizable to a young child.
+Input images: Image 1 is the approved apple style anchor. Use it only for rendering style; do not copy its apple shape, leaf/stem arrangement, color, species, or exact composition.
+Subject: One complete ripe yellow banana, viewed from a natural three-quarter side view. Show one fruit only, with its entire curved body and both ends clearly visible. Use a believable, moderate natural curve and subtle peel texture. No bunch, no sticker, no face, no limbs, and no unrelated objects.
+Style/medium: Polished semi-realistic digital rendering with believable natural form and surface detail, smooth modeled shading, subtle texture, soft restrained highlights, and a crisp clean contour. It should not look painted: no visible brush strokes, watercolor, oil-paint texture, canvas grain, or sketch marks. Avoid photographic camera effects, plastic shine, and 3D rendering.
+Composition/framing: One object only, centered on a square canvas, naturally diagonal from upper left toward lower right. Keep the full silhouette visible with safe, balanced transparent margins. It should remain recognizable at approximately 180 × 180 pixels.
+Lighting/mood: Soft, even light with gentle shading that describes the form without a cast shadow; warm and friendly.
+Scene/backdrop: Isolated object on a genuinely transparent background.
+Text (verbatim): None.
+Constraints: Preserve the banana's natural form and yellow peel. No part may touch or cross the image edge. Keep texture subtle enough to read cleanly at tablet size.
+Avoid: Additional fruit, extra bananas, hands, props, scene, floor, shadow, background, simulated checkerboard, halo, frame, text, letters, labels, watermark, face, limbs, cropped edges, painterly strokes, canvas texture, excessive speckles, glossy plastic shine, photographic camera effects, or 3D appearance.

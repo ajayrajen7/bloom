@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: one transparent object sprite for a preschool tablet activity
+Primary request: Create exactly one familiar orange, immediately recognizable to a young child.
+Input images: Image 1 is the approved apple style anchor. Use it only for rendering style; do not copy its apple shape, leaf/stem arrangement, color, species, or exact composition.
+Subject: One complete ripe orange, seen from a natural three-quarter front view. Show one whole fruit only, with a round but naturally slightly irregular shape and finely dimpled orange peel. Include a tiny natural stem scar at the top. No leaf, cut half, slice, bunch, sticker, face, limbs, or unrelated objects.
+Style/medium: Polished semi-realistic digital rendering with believable natural form and surface detail, smooth modeled shading, subtle texture, soft restrained highlights, and a crisp clean contour. It should not look painted: no visible brush strokes, watercolor, oil-paint texture, canvas grain, or sketch marks. Avoid photographic camera effects, plastic shine, and 3D rendering.
+Composition/framing: One object only, upright and centered on a square canvas. Keep the full silhouette visible with safe, balanced transparent margins. It should remain recognizable at approximately 180 × 180 pixels.
+Lighting/mood: Soft, even light with gentle shading that describes the form without a cast shadow; warm and friendly.
+Scene/backdrop: Isolated object on a genuinely transparent background.
+Text (verbatim): None.
+Constraints: Preserve the orange's natural round form, orange color, and subtly textured peel. No part may touch or cross the image edge. Keep surface detail subtle enough to read cleanly at tablet size.
+Avoid: Additional produce, extra oranges, hands, props, scene, floor, shadow, background, simulated checkerboard, halo, frame, text, letters, labels, watermark, faces, limbs, cut fruit, cropped edges, painterly strokes, canvas texture, excessive speckles, glossy plastic shine, photographic camera effects, or 3D appearance.

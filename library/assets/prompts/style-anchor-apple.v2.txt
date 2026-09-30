@@ -1,0 +1,12 @@
+Use case: reusable game sprite
+Asset type: transparent object sprite for a preschool tablet activity
+Primary request: Create one familiar ripe red apple that is immediately recognizable to a young child. Use a natural, believable apple shape and realistic surface detail while keeping the image clean, warm, and friendly.
+Subject: One complete red apple with a short brown stem and one small fresh green leaf. No face, limbs, or other objects.
+Style/medium: A polished semi-realistic 2D digital illustration with natural proportions, smooth digitally rendered shading, subtle apple-skin speckles, and a small, soft highlight. Keep the contour crisp and simple enough to read clearly at tablet size. It should look digitally illustrated rather than painted: no visible brush strokes, watercolor or oil-paint texture, canvas grain, or sketch marks. Avoid a plastic or mirror-gloss finish, photorealistic camera effects, and 3D rendering.
+Composition/framing: One object only, upright and centered on a square canvas, shown from a slightly turned front view. Keep the full silhouette visible, with generous, even transparent margin. The apple should be large enough to read as a game sprite at tablet size.
+Lighting/mood: Soft, even studio lighting that shows the apple's rounded form without dramatic shadows; cheerful and calm.
+Color palette: Natural warm reds with restrained red-to-golden variation, a fresh green leaf, and a short brown stem.
+Scene/backdrop: Isolated object on a genuinely transparent background. No floor or cast shadow.
+Text (verbatim): None.
+Constraints: Preserve a clear silhouette and distinct separation between apple, leaf, and stem. No part may touch or cross the image edge. Keep surface detail subtle so the apple remains readable when scaled down.
+Avoid: Additional fruit, extra leaves, props, basket, table, ground plane, background, checkerboard pattern, frame, letters, labels, watermark, face, limbs, cropped edges, broad painterly strokes, canvas texture, excessive speckling, plastic shine, photorealistic camera effects, or 3D appearance.

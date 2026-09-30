@@ -1,8 +1,31 @@
 import { describe, it, expect } from "vitest";
 import { computeZonePositions, type PlayArea } from "./layout-engine.js";
 import type { ZoneSpec } from "./types.js";
+import { getLayoutVariant } from "../mechanics/loader.js";
 
 const PLAY_AREA: PlayArea = { x: 0, y: 115, width: 1024, height: 538 };
+
+describe("six-pair drag layout", () => {
+  it("fits six separate item sprites and target rings inside 1024×768", () => {
+    const layout = getLayoutVariant("drag-to-target", "horizontal-six-pairs");
+    expect(layout).toBeDefined();
+    const items = computeZonePositions(layout!.zones.item_zone!, 6, PLAY_AREA);
+    const targets = computeZonePositions(layout!.zones.target_zone!, 6, PLAY_AREA);
+    expect(items).toHaveLength(6);
+    expect(targets).toHaveLength(6);
+    for (const row of [{ points: items, radius: 55 }, { points: targets, radius: 70 }]) {
+      for (let i = 0; i < row.points.length; i++) {
+        expect(row.points[i]!.x - row.radius).toBeGreaterThanOrEqual(0);
+        expect(row.points[i]!.x + row.radius).toBeLessThanOrEqual(1024);
+        if (i > 0) expect(row.points[i]!.x - row.points[i - 1]!.x).toBeGreaterThanOrEqual(row.radius * 2);
+      }
+    }
+    for (const target of targets) {
+      expect(target.y - 70).toBeGreaterThan(PLAY_AREA.y);
+      expect(target.y + 70 + 20 + 27).toBeLessThan(items[0]!.y - 55);
+    }
+  });
+});
 
 function linearZone(
   axis: "horizontal" | "vertical",
@@ -124,6 +147,33 @@ describe("grid", () => {
     const positions = computeZonePositions(gridZone, 4, PLAY_AREA);
     const ys = new Set(positions.map((p) => Math.round(p.y)));
     expect(ys.size).toBe(2);
+  });
+
+  it("keeps the grid-2x3 sprites and labels inside the play area without row overlap", () => {
+    const layout = getLayoutVariant("tap-to-select", "grid-2x3");
+    expect(layout).toBeDefined();
+    const positions = computeZonePositions(layout!.zones.item_zone!, 6, PLAY_AREA);
+    expect(positions).toHaveLength(6);
+
+    const spriteRadius = 55;
+    const labelTopOffset = 69;
+    const labelLineHeight = 26;
+    const playAreaBottom = PLAY_AREA.y + PLAY_AREA.height;
+
+    for (const point of positions) {
+      expect(point.y - spriteRadius).toBeGreaterThanOrEqual(PLAY_AREA.y);
+      expect(point.y + spriteRadius).toBeLessThanOrEqual(playAreaBottom);
+      expect(point.y + labelTopOffset).toBeGreaterThanOrEqual(PLAY_AREA.y);
+      expect(point.y + labelTopOffset + labelLineHeight).toBeLessThanOrEqual(playAreaBottom);
+    }
+
+    for (let column = 0; column < 2; column++) {
+      for (let row = 0; row < 2; row++) {
+        const currentLabelBottom = positions[row * 2 + column]!.y + labelTopOffset + labelLineHeight;
+        const nextRowSpriteTop = positions[(row + 1) * 2 + column]!.y - spriteRadius;
+        expect(currentLabelBottom).toBeLessThanOrEqual(nextRowSpriteTop);
+      }
+    }
   });
 });
 

@@ -1,8 +1,14 @@
 import Phaser from "phaser";
 import { playSuccess, playError, playCelebration } from "../audio.js";
+import { requireLoadedSpriteTexture } from "../assets/sprite-registry.js";
+import type { MechanicVisualConfig } from "./visual-config.js";
 import {
-  isNearTarget,
   findMatchingTarget,
+  isInsideTarget,
+  planItemDrop,
+  BIN_WIDTH,
+  BIN_HEIGHT,
+  type DropPlan,
   SNAP_DISTANCE,
   ITEM_RADIUS,
   TARGET_RADIUS,
@@ -19,11 +25,6 @@ export interface DragToTargetCallbacks {
   onComplete: () => void;
 }
 
-function assetKey(assetRef: string | undefined): string | null {
-  if (!assetRef) return null;
-  return (assetRef.split("/").pop() ?? "").replace(".png", "");
-}
-
 // ── Phaser mechanic class ─────────────────────────────────────────────────────
 
 export class DragToTargetMechanic {
@@ -31,21 +32,25 @@ export class DragToTargetMechanic {
   private items: ItemConfig[];
   private targets: TargetConfig[];
   private callbacks: DragToTargetCallbacks;
+  private visuals: MechanicVisualConfig;
 
   private itemObjects = new Map<string, Phaser.GameObjects.Container>();
   private targetObjects = new Map<string, Phaser.GameObjects.Container>();
   private placedItems = new Set<string>();
+  private placedTargets = new Map<string, string>();
 
   constructor(
     scene: Phaser.Scene,
     items: ItemConfig[],
     targets: TargetConfig[],
-    callbacks: DragToTargetCallbacks
+    callbacks: DragToTargetCallbacks,
+    visuals: MechanicVisualConfig
   ) {
     this.scene = scene;
     this.items = items;
     this.targets = targets;
     this.callbacks = callbacks;
+    this.visuals = visuals;
 
     this.buildTargets();
     this.buildItems();
@@ -60,29 +65,33 @@ export class DragToTargetMechanic {
 
       // Drop zone ring
       const ring = this.scene.add.graphics();
-      ring.lineStyle(4, cfg.color, 0.5);
-      ring.strokeCircle(0, 0, TARGET_RADIUS);
-      ring.fillStyle(cfg.color, 0.12);
-      ring.fillCircle(0, 0, TARGET_RADIUS);
+      this.drawTarget(ring, cfg, false);
 
-      const key = assetKey(cfg.assetRef);
       const children: Phaser.GameObjects.GameObject[] = [ring];
 
-      if (key && this.scene.textures.exists(key)) {
+      if (cfg.assetRef) {
+        const key = requireLoadedSpriteTexture(cfg.assetRef, (textureKey) => this.scene.textures.exists(textureKey));
         const ghost = this.scene.add
-          .image(0, 0, key)
-          .setDisplaySize(TARGET_RADIUS * 1.6, TARGET_RADIUS * 1.6)
-          .setAlpha(0.35);
+          .image(0, cfg.capacity === 3 ? -58 : 0, key)
+          .setDisplaySize(cfg.capacity === 3 ? 70 : TARGET_RADIUS * 1.6, cfg.capacity === 3 ? 70 : TARGET_RADIUS * 1.6)
+          .setAlpha(cfg.capacity === 3 ? 0.9 : 0.35);
         children.push(ghost);
       }
 
-      const label = this.scene.add.text(0, TARGET_RADIUS + 20, cfg.label, {
+      const label = this.scene.add.text(0, cfg.capacity === 3 ? -12 : TARGET_RADIUS + 20, cfg.label, {
         fontFamily: "system-ui, sans-serif",
         fontSize: "22px",
-        color: "#ffffff",
-        alpha: 0.7,
-      }).setOrigin(0.5, 0);
+        color: this.visuals.labelColor,
+      }).setOrigin(0.5, 0).setAlpha(cfg.capacity === 3 ? 1 : 0.7);
       children.push(label);
+
+      if (cfg.capacity === 3) {
+        for (const offset of [-115, 0, 115]) {
+          const parking = this.scene.add.circle(offset, 48, 34, cfg.color, 0.15);
+          parking.setStrokeStyle(2, cfg.color, 0.45);
+          children.push(parking);
+        }
+      }
 
       container.add(children);
       container.setData("ring", ring);
@@ -96,25 +105,15 @@ export class DragToTargetMechanic {
     this.items.forEach((cfg) => {
       const container = this.scene.add.container(cfg.x, cfg.y);
 
-      const key = assetKey(cfg.assetRef);
-      let visual: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
-      if (key && this.scene.textures.exists(key)) {
-        visual = this.scene.add
-          .image(0, 0, key)
-          .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
-      } else {
-        const g = this.scene.add.graphics();
-        g.fillStyle(cfg.color, 1);
-        g.fillCircle(0, 0, ITEM_RADIUS);
-        g.fillStyle(0xffffff, 0.15);
-        g.fillCircle(-12, -14, 18);
-        visual = g;
-      }
+      const key = requireLoadedSpriteTexture(cfg.assetRef, (textureKey) => this.scene.textures.exists(textureKey));
+      const visual = this.scene.add
+        .image(0, 0, key)
+        .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
 
       const label = this.scene.add.text(0, ITEM_RADIUS + 14, cfg.label, {
         fontFamily: "system-ui, sans-serif",
         fontSize: "22px",
-        color: "#ffffff",
+        color: this.visuals.labelColor,
       }).setOrigin(0.5, 0);
 
       container.add([visual, label]);
@@ -173,13 +172,6 @@ export class DragToTargetMechanic {
         const itemId = obj.getData("itemId") as string | undefined;
         if (!itemId || this.placedItems.has(itemId)) return;
 
-        this.scene.tweens.add({
-          targets: obj,
-          scaleX: 1,
-          scaleY: 1,
-          duration: 80,
-        });
-
         this.clearTargetHighlights();
         this.resolveItemDrop(itemId, obj);
       }
@@ -189,16 +181,10 @@ export class DragToTargetMechanic {
   // ── Drop resolution ──────────────────────────────────────────────────────────
 
   private resolveItemDrop(itemId: string, obj: Phaser.GameObjects.Container) {
-    const correctTarget = findMatchingTarget(itemId, this.items, this.targets);
-    if (!correctTarget) return;
-
-    const targetObj = this.targetObjects.get(correctTarget.id);
-    if (!targetObj) return;
-
-    const nearCorrect = isNearTarget(obj.x, obj.y, correctTarget.x, correctTarget.y);
-
-    if (nearCorrect) {
-      this.snapToTarget(itemId, obj, targetObj, correctTarget);
+    const plan = planItemDrop(itemId, obj.x, obj.y, this.items, this.targets, this.placedTargets);
+    const targetObj = plan && this.targetObjects.get(plan.targetId);
+    if (plan && targetObj) {
+      this.snapToTarget(itemId, obj, targetObj, plan);
     } else {
       this.bounceBack(obj);
       this.callbacks.onItemError(itemId);
@@ -210,23 +196,30 @@ export class DragToTargetMechanic {
     itemId: string,
     obj: Phaser.GameObjects.Container,
     targetObj: Phaser.GameObjects.Container,
-    target: TargetConfig
+    plan: DropPlan
   ) {
     this.scene.input.setDraggable(obj, false);
     this.placedItems.add(itemId);
+    this.placedTargets.set(itemId, plan.targetId);
+    const matchedTarget = this.targets.find((target) => target.id === plan.targetId);
+    if (!matchedTarget?.capacity) {
+      // The target already carries the matching label. Hide the item label once
+      // the item is parked so the two labels do not overlap in the target row.
+      (obj.getAt(1) as Phaser.GameObjects.Text | undefined)?.setVisible(false);
+    }
 
     this.scene.tweens.add({
       targets: obj,
-      x: target.x,
-      y: target.y,
-      scaleX: 0.85,
-      scaleY: 0.85,
+      x: plan.position.x,
+      y: plan.position.y,
+      scaleX: plan.scale,
+      scaleY: plan.scale,
       duration: 180,
       ease: "Back.Out",
       onComplete: () => {
         this.pulseSuccess(obj, targetObj);
         playSuccess();
-        this.callbacks.onItemPlaced(itemId, target.id);
+        this.callbacks.onItemPlaced(itemId, plan.targetId);
 
         if (this.placedItems.size === this.items.length) {
           this.scene.time.delayedCall(400, () => {
@@ -263,22 +256,10 @@ export class DragToTargetMechanic {
       if (!obj) return;
       const ring = obj.getData("ring") as Phaser.GameObjects.Graphics;
       const isCorrect = correctTarget && t.id === correctTarget.id;
-      const isNear = isCorrect && isNearTarget(dragX, dragY, t.x, t.y);
+      const isNear = isCorrect && isInsideTarget(dragX, dragY, t);
 
       // Highlight correct target when near; dim everything else
-      if (isNear) {
-        ring.clear();
-        ring.lineStyle(5, t.color, 0.95);
-        ring.strokeCircle(0, 0, TARGET_RADIUS);
-        ring.fillStyle(t.color, 0.28);
-        ring.fillCircle(0, 0, TARGET_RADIUS);
-      } else {
-        ring.clear();
-        ring.lineStyle(4, t.color, 0.5);
-        ring.strokeCircle(0, 0, TARGET_RADIUS);
-        ring.fillStyle(t.color, 0.12);
-        ring.fillCircle(0, 0, TARGET_RADIUS);
-      }
+      this.drawTarget(ring, t, Boolean(isNear));
     });
   }
 
@@ -287,12 +268,21 @@ export class DragToTargetMechanic {
       const obj = this.targetObjects.get(t.id);
       if (!obj) return;
       const ring = obj.getData("ring") as Phaser.GameObjects.Graphics;
-      ring.clear();
-      ring.lineStyle(4, t.color, 0.5);
-      ring.strokeCircle(0, 0, TARGET_RADIUS);
-      ring.fillStyle(t.color, 0.12);
-      ring.fillCircle(0, 0, TARGET_RADIUS);
+      this.drawTarget(ring, t, false);
     });
+  }
+
+  private drawTarget(graphics: Phaser.GameObjects.Graphics, target: TargetConfig, highlighted: boolean) {
+    graphics.clear();
+    graphics.lineStyle(highlighted ? 5 : 4, target.color, highlighted ? 0.95 : 0.5);
+    graphics.fillStyle(target.color, highlighted ? 0.28 : 0.12);
+    if (target.capacity === 3) {
+      graphics.fillRoundedRect(-BIN_WIDTH / 2, -BIN_HEIGHT / 2, BIN_WIDTH, BIN_HEIGHT, 24);
+      graphics.strokeRoundedRect(-BIN_WIDTH / 2, -BIN_HEIGHT / 2, BIN_WIDTH, BIN_HEIGHT, 24);
+    } else {
+      graphics.strokeCircle(0, 0, TARGET_RADIUS);
+      graphics.fillCircle(0, 0, TARGET_RADIUS);
+    }
   }
 
   private pulseSuccess(
