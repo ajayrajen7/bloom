@@ -1,0 +1,115 @@
+{
+  "id": "act_pilot_kitchen_drag_v1",
+  "conceptId": "concept_pilot_kitchen_drag_v1",
+  "mechanicId": "drag-to-target",
+  "themeId": "kitchen-v1",
+  "generatedAt": "2026-09-29T02:06:43.431Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple",
+        "targetId": "apple_target",
+        "label": "Apple",
+        "assetRef": "sprites/apple-red-v1.png"
+      },
+      {
+        "id": "banana",
+        "targetId": "banana_target",
+        "label": "Banana",
+        "assetRef": "sprites/banana-v1.png"
+      },
+      {
+        "id": "orange",
+        "targetId": "orange_target",
+        "label": "Orange",
+        "assetRef": "sprites/orange-v1.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "apple_target",
+        "label": "Apple",
+        "assetRef": "sprites/apple-red-v1.png"
+      },
+      {
+        "id": "banana_target",
+        "label": "Banana",
+        "assetRef": "sprites/banana-v1.png"
+      },
+      {
+        "id": "orange_target",
+        "label": "Orange",
+        "assetRef": "sprites/orange-v1.png"
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-standard",
+    "layout": {
+      "id": "horizontal-standard",
+      "description": "Items in a horizontal row at the bottom of the play area, targets in a horizontal row above. Left-to-right order. Default orientation — best for 24-30 months.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 3,
+            "max": 5
+          },
+          "elementSize": {
+            "min": 80,
+            "max": 115
+          },
+          "yFraction": 0.8,
+          "xPadFraction": 0.1
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "elementCount": {
+            "min": 2,
+            "max": 4
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 140
+          },
+          "yFraction": 0.28,
+          "xPadFraction": 0.1
+        }
+      }
+    },
+    "itemCount": 3,
+    "distractorCount": 0,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Put each fruit on its picture.",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "low",
+    "targetDurationSeconds": 40,
+    "reviewScore": 0,
+    "reviewerNotes": "Visual review approved by Ajay; Ajay reported the drag interaction working on 2026-09-29.",
+    "humanApprovedAt": "2026-09-29T02:40:23.680Z",
+    "humanApprover": "ajay"
+  }
+}

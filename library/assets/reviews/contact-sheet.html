@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bloom asset review</title><style>
+body{font:16px system-ui,sans-serif;margin:0;background:#f4f1ec;color:#222}main{max-width:1200px;margin:auto;padding:24px}h1{margin-top:0}.notice{background:#fff5d7;padding:12px 16px;border-radius:8px}.candidate{background:white;border:1px solid #ddd;border-radius:12px;margin:20px 0;padding:20px}.candidate header{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}.candidate h2{margin:0}.candidate code{color:#555}.views{display:flex;gap:24px;align-items:start;flex-wrap:wrap}.views section{min-width:220px}.full-size{display:block;max-width:100%;max-height:480px;object-fit:contain;background:#f3f3f3}.play-size{width:180px;height:180px;display:grid;place-items:center;background:#e5e5e5;border:1px solid #aaa}.play-size img{width:100%;height:100%;object-fit:contain}.file-status.missing,.file-status.invalid{color:#a21818;font-weight:700}.placeholder{color:#a21818;padding:12px}details{margin-top:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f6f6;padding:12px}.decision{border-top:1px solid #ddd;padding-top:12px}
+</style></head><body><main><h1>Bloom asset review</h1>
+<p class="notice">Pending candidates need human review. Automated validation is evidence only and does not approve assets; prior manual decisions are preserved.</p>
+<article class="candidate" id="style-anchor-apple-v1">
+      <header><h2>Approved apple style anchor</h2><code>style-anchor-apple-v1</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/apple-red-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/apple-red-v1.png" alt="Full-size Approved apple style anchor"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/apple-red-v1.png" alt="Play-size Approved apple style anchor"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;style-anchor-apple.v2&quot;,
+    &quot;referenceCondition&quot;: &quot;text-only&quot;,
+    &quot;batchId&quot;: &quot;style-anchor-001&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 49,
+      &quot;y&quot;: 19,
+      &quot;width&quot;: 1183,
+      &quot;height&quot;: 1211
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 13.5,
+      &quot;y&quot;: -2.5
+    },
+    &quot;occupancy&quot;: 0.9110323837722478,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this sample as the shared style anchor. Gameplay asset reuse will be assessed in the pilot.</p>
+    </article>
+<article class="candidate" id="banana-text-only-001">
+      <header><h2>Banana — text-only control</h2><code>banana-text-only-001</code></header>
+      <p class="file-status">Validation: issues found</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../staging/chatgpt-pilot-001/banana-text-only.png" target="_blank" rel="noreferrer"><img class="full-size" src="../staging/chatgpt-pilot-001/banana-text-only.png" alt="Full-size Banana — text-only control"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../staging/chatgpt-pilot-001/banana-text-only.png" alt="Play-size Banana — text-only control"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;referenceCondition&quot;: &quot;text-only&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-001&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      false,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 0,
+      &quot;y&quot;: 0,
+      &quot;width&quot;: 1230,
+      &quot;height&quot;: 1227
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: -12,
+      &quot;y&quot;: -13.5
+    },
+    &quot;occupancy&quot;: 0.9597422220187267,
+    &quot;issues&quot;: [
+      &quot;non-transparent-corners&quot;,
+      &quot;subject-too-close-to-edge&quot;
+    ]
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved the visible pilot candidates as more than good enough; retained as the text-only comparison control.</p>
+    </article>
+<article class="candidate" id="banana-style-anchor-001">
+      <header><h2>Banana — apple-anchor conditioned</h2><code>banana-style-anchor-001</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/banana-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/banana-v1.png" alt="Full-size Banana — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/banana-v1.png" alt="Play-size Banana — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-001&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 31,
+      &quot;y&quot;: 21,
+      &quot;width&quot;: 1205,
+      &quot;height&quot;: 1175
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 6.5,
+      &quot;y&quot;: -18.5
+    },
+    &quot;occupancy&quot;: 0.9003882949362677,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved the visible pilot candidates as more than good enough. Selected as the banana canonical for this pilot; the apple-like surface texture did not obscure banana identity.</p>
+    </article>
+<article class="candidate" id="carrot-text-only-001">
+      <header><h2>Carrot — text-only control</h2><code>carrot-text-only-001</code></header>
+      <p class="file-status">Validation: issues found</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../staging/chatgpt-pilot-001/carrot-text-only.png" target="_blank" rel="noreferrer"><img class="full-size" src="../staging/chatgpt-pilot-001/carrot-text-only.png" alt="Full-size Carrot — text-only control"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../staging/chatgpt-pilot-001/carrot-text-only.png" alt="Play-size Carrot — text-only control"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;vegetable&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;referenceCondition&quot;: &quot;text-only&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-001&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      false,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 0,
+      &quot;y&quot;: 21,
+      &quot;width&quot;: 1230,
+      &quot;height&quot;: 1233
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: -12,
+      &quot;y&quot;: 10.5
+    },
+    &quot;occupancy&quot;: 0.9644353380188182,
+    &quot;issues&quot;: [
+      &quot;non-transparent-corners&quot;,
+      &quot;subject-too-close-to-edge&quot;
+    ]
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved the visible pilot candidates as more than good enough; retained as the text-only comparison control.</p>
+    </article>
+<article class="candidate" id="carrot-style-anchor-001">
+      <header><h2>Carrot — apple-anchor conditioned</h2><code>carrot-style-anchor-001</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/carrot-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/carrot-v1.png" alt="Full-size Carrot — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/carrot-v1.png" alt="Play-size Carrot — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;vegetable&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-001&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 49,
+      &quot;y&quot;: 21,
+      &quot;width&quot;: 1147,
+      &quot;height&quot;: 1211
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: -4.5,
+      &quot;y&quot;: -0.5
+    },
+    &quot;occupancy&quot;: 0.8833086594985361,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved the visible pilot candidates as more than good enough. Selected as the carrot canonical for this pilot; the carrot&#39;s silhouette and identity remain distinct.</p>
+    </article>
+<article class="candidate" id="orange-style-anchor-002">
+      <header><h2>Orange — apple-anchor conditioned</h2><code>orange-style-anchor-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/orange-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/orange-v1.png" alt="Full-size Orange — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/orange-v1.png" alt="Play-size Orange — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 49,
+      &quot;y&quot;: 51,
+      &quot;width&quot;: 1185,
+      &quot;height&quot;: 1177
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 14.5,
+      &quot;y&quot;: 12.5
+    },
+    &quot;occupancy&quot;: 0.8869512297490136,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+<article class="candidate" id="grapes-style-anchor-002">
+      <header><h2>Grapes — apple-anchor conditioned</h2><code>grapes-style-anchor-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/grapes-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/grapes-v1.png" alt="Full-size Grapes — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/grapes-v1.png" alt="Play-size Grapes — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 49,
+      &quot;y&quot;: 21,
+      &quot;width&quot;: 1159,
+      &quot;height&quot;: 1209
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 1.5,
+      &quot;y&quot;: -1.5
+    },
+    &quot;occupancy&quot;: 0.8910758300710454,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+<article class="candidate" id="tomato-style-anchor-002">
+      <header><h2>Tomato — apple-anchor conditioned</h2><code>tomato-style-anchor-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/tomato-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/tomato-v1.png" alt="Full-size Tomato — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/tomato-v1.png" alt="Play-size Tomato — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;vegetable&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1-framing-v2&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 33,
+      &quot;y&quot;: 48,
+      &quot;width&quot;: 1166,
+      &quot;height&quot;: 1182
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: -11,
+      &quot;y&quot;: 12
+    },
+    &quot;occupancy&quot;: 0.8764375052463695,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+<article class="candidate" id="cucumber-style-anchor-002">
+      <header><h2>Cucumber — apple-anchor conditioned</h2><code>cucumber-style-anchor-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/cucumber-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/cucumber-v1.png" alt="Full-size Cucumber — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/cucumber-v1.png" alt="Play-size Cucumber — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;vegetable&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1-framing-v3&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 130,
+      &quot;y&quot;: 52,
+      &quot;width&quot;: 1062,
+      &quot;height&quot;: 1146
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 34,
+      &quot;y&quot;: -2
+    },
+    &quot;occupancy&quot;: 0.7739520615370528,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+<article class="candidate" id="broccoli-style-anchor-002">
+      <header><h2>Broccoli — apple-anchor conditioned</h2><code>broccoli-style-anchor-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/broccoli-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/broccoli-v1.png" alt="Full-size Broccoli — apple-anchor conditioned"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/broccoli-v1.png" alt="Play-size Broccoli — apple-anchor conditioned"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;vegetable&quot;,
+  &quot;kind&quot;: &quot;canonical&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;object-sprite.v1-framing-v3&quot;,
+    &quot;styleReferenceVersion&quot;: &quot;style-anchor-v1&quot;,
+    &quot;referenceCondition&quot;: &quot;style-anchor&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 111,
+      &quot;y&quot;: 52,
+      &quot;width&quot;: 1087,
+      &quot;height&quot;: 1176
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 27.5,
+      &quot;y&quot;: 13
+    },
+    &quot;occupancy&quot;: 0.8129087398792763,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+<article class="candidate" id="apple-green-identity-variant-002">
+      <header><h2>Green apple — red-apple identity variant</h2><code>apple-green-identity-variant-002</code></header>
+      <p class="file-status">Validation: passed</p>
+      <div class="views"><section><h3>Full-size</h3><a href="../sprites/apple-green-v1.png" target="_blank" rel="noreferrer"><img class="full-size" src="../sprites/apple-green-v1.png" alt="Full-size Green apple — red-apple identity variant"></a></section>
+      <section><h3>Play-size preview (180 × 180)</h3><div class="play-size"><img src="../sprites/apple-green-v1.png" alt="Play-size Green apple — red-apple identity variant"></div></section></div>
+      <details><summary>Generation and validation details</summary><pre>{
+  &quot;category&quot;: &quot;fruit&quot;,
+  &quot;kind&quot;: &quot;variant&quot;,
+  &quot;generation&quot;: {
+    &quot;surface&quot;: &quot;chatgpt&quot;,
+    &quot;model&quot;: &quot;ChatGPT ImageGen&quot;,
+    &quot;modelVersion&quot;: &quot;unknown&quot;,
+    &quot;promptVersion&quot;: &quot;apple-color-variant.v1-framing-v2&quot;,
+    &quot;referenceCondition&quot;: &quot;identity-reference&quot;,
+    &quot;batchId&quot;: &quot;chatgpt-pilot-002&quot;
+  },
+  &quot;metrics&quot;: {
+    &quot;width&quot;: 1254,
+    &quot;height&quot;: 1254,
+    &quot;hasAlpha&quot;: true,
+    &quot;transparentCorners&quot;: [
+      true,
+      true,
+      true,
+      true
+    ],
+    &quot;subjectBounds&quot;: {
+      &quot;x&quot;: 103,
+      &quot;y&quot;: 21,
+      &quot;width&quot;: 1091,
+      &quot;height&quot;: 1183
+    },
+    &quot;centerOffset&quot;: {
+      &quot;x&quot;: 21.5,
+      &quot;y&quot;: -14.5
+    },
+    &quot;occupancy&quot;: 0.8207566727460961,
+    &quot;issues&quot;: []
+  },
+  &quot;validationError&quot;: null
+}</pre></details>
+      <p class="decision">Manual decision: <strong>Approved</strong></p><p class="reviewer-notes">Reviewer notes: Ajay approved this candidate for the pilot after viewing it inline. The approved framing-corrected version is used where the first output was too close to the canvas edge.</p>
+    </article>
+</main></body></html>

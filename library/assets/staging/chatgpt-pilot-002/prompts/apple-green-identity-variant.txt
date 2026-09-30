@@ -1,0 +1,11 @@
+Use case: precise-object-edit
+Asset type: transparent apple color variant for a preschool tablet activity
+Primary request: Edit Image 1, the approved red apple reference, to create one green apple color variant for the asset pilot.
+Input images: Image 1 is the red apple identity reference. Preserve it as the same apple.
+Subject: The same single whole apple, with the same natural silhouette, stem, leaf, orientation, surface texture, proportions, and framing as Image 1.
+Style/medium: Preserve Image 1's polished semi-realistic digital rendering, natural apple-skin detail, smooth shading, and restrained highlights.
+Composition/framing: Preserve the same centered square composition, size, transparent margins, and complete silhouette.
+Lighting/mood: Keep the same soft even lighting and mood.
+Scene/backdrop: Keep a genuinely transparent background.
+Constraints: Change only the apple peel color from red/yellow to a believable natural green apple color. Keep the leaf green and stem brown exactly as they are. Preserve the apple's identity and silhouette. Do not add or remove details.
+Avoid: Changing shape, leaf, stem, orientation, scale, texture, highlight placement, or background; extra objects; text; labels; face; limbs; shadows; halos; painterly strokes; photorealistic camera effects; or 3D appearance.

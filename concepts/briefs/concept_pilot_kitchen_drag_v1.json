@@ -1,0 +1,12 @@
+{
+  "id": "concept_pilot_kitchen_drag_v1",
+  "mechanicId": "drag-to-target",
+  "targetDivisionId": "fine_motor.pincer_grip",
+  "ageMonths": { "min": 24, "max": 36 },
+  "difficulty": "low",
+  "themeHint": "familiar kitchen fruit",
+  "targetDurationSeconds": 40,
+  "notes": "Drag red apple, banana, and orange to targets showing the same pictures.",
+  "itemSprites": ["apple-red-v1.png", "banana-v1.png", "orange-v1.png"],
+  "targetSprites": ["apple-red-v1.png", "banana-v1.png", "orange-v1.png"]
+}

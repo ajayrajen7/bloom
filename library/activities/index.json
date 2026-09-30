@@ -1,88 +1,123 @@
 {
   "activities": [
     {
-      "id": "act_1778805627916_7da554",
-      "conceptId": "concept_001",
+      "id": "act_pilot_kitchen_drag_v1",
+      "conceptId": "concept_pilot_kitchen_drag_v1",
       "mechanicId": "drag-to-target",
-      "prompt": "Put the fruits in the right basket!",
+      "prompt": "Put each fruit on its picture.",
       "difficulty": "low"
     },
     {
-      "id": "act_1778825695936_390bc0",
-      "conceptId": "concept_001",
-      "mechanicId": "drag-to-target",
-      "prompt": "Put each fruit in its basket!",
+      "id": "act_pilot_kitchen_tap_v1",
+      "conceptId": "concept_pilot_kitchen_tap_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the apple.",
       "difficulty": "low"
     },
     {
-      "id": "act_1778826178606_088db7",
-      "conceptId": "concept_005",
-      "mechanicId": "drag-to-target",
-      "prompt": "Match the shapes!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778828810983_a85e98",
-      "conceptId": "concept_002",
-      "mechanicId": "drag-to-target",
-      "prompt": "Help the animals find their homes!",
+      "id": "act_kitchen_apple_twins_v1",
+      "conceptId": "concept_kitchen_apple_twins_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find both apples.",
       "difficulty": "medium"
     },
     {
-      "id": "act_1778833226026_c65726",
-      "conceptId": "concept_003",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the dog!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778833454232_b8ed1d",
-      "conceptId": "concept_004",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the red one!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778835617425_a0f3b7",
-      "conceptId": "concept_003",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the dog!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778835633286_67f0be",
-      "conceptId": "concept_003",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the dog!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778835646257_84d94d",
-      "conceptId": "concept_003",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the dog!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778835657285_a28140",
-      "conceptId": "concept_004",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the red one!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_1778835667211_a8ce4f",
-      "conceptId": "concept_004",
-      "mechanicId": "tap-to-select",
-      "prompt": "Tap the red one!",
-      "difficulty": "low"
-    },
-    {
-      "id": "act_dev_001",
-      "conceptId": "concept_001",
+      "id": "act_kitchen_fruit_or_vegetable_sort_v1",
+      "conceptId": "concept_kitchen_fruit_or_vegetable_sort_v1",
       "mechanicId": "drag-to-target",
-      "prompt": "Sort the fruit!",
-      "difficulty": "low"
+      "prompt": "Put fruit with fruit and vegetables with vegetables.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_fruit_stand_match_v1",
+      "conceptId": "concept_kitchen_fruit_stand_match_v1",
+      "mechanicId": "drag-to-target",
+      "prompt": "Put each fruit on its matching picture.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_garden_basket_v1",
+      "conceptId": "concept_kitchen_garden_basket_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the carrot, broccoli, and cucumber.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_garden_harvest_match_v1",
+      "conceptId": "concept_kitchen_garden_harvest_match_v1",
+      "mechanicId": "drag-to-target",
+      "prompt": "Match each harvest to its picture.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_green_team_v1",
+      "conceptId": "concept_kitchen_green_team_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the green apple, cucumber, and broccoli.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_long_shape_hunt_v1",
+      "conceptId": "concept_kitchen_long_shape_hunt_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the banana, carrot, and cucumber.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_market_match_v1",
+      "conceptId": "concept_kitchen_market_match_v1",
+      "mechanicId": "drag-to-target",
+      "prompt": "Put each food on its matching picture.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_mixed_tray_scramble_v1",
+      "conceptId": "concept_kitchen_mixed_tray_scramble_v1",
+      "mechanicId": "drag-to-target",
+      "prompt": "Match each food to its picture.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_orange_team_v1",
+      "conceptId": "concept_kitchen_orange_team_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the orange and carrot.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_picnic_pack_v1",
+      "conceptId": "concept_kitchen_picnic_pack_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the red apple, banana, and orange.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_red_kitchen_hunt_v1",
+      "conceptId": "concept_kitchen_red_kitchen_hunt_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the red apple and tomato.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "act_kitchen_round_food_hunt_v1",
+      "conceptId": "concept_kitchen_round_food_hunt_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the red apple, orange, and tomato.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_smoothie_mix_v1",
+      "conceptId": "concept_kitchen_smoothie_mix_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the red apple, banana, and grapes.",
+      "difficulty": "high"
+    },
+    {
+      "id": "act_kitchen_soup_chef_v1",
+      "conceptId": "concept_kitchen_soup_chef_v1",
+      "mechanicId": "tap-to-select",
+      "prompt": "Find the carrot, tomato, and broccoli.",
+      "difficulty": "high"
     }
   ]
 }

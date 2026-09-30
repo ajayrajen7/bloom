@@ -138,17 +138,17 @@
 
 ## Scope Boundary
 
-Tasks 1–7 cover the asset-library pilot and do not modify mechanics or generate story art, backdrops, audio, profiles, personalization, or TTS. The continuation below records the runtime wiring and activity-observation plan; it remains unstarted until the mechanic pair is confirmed.
+Tasks 1–7 cover the completed asset-library pilot. The continuation below is historical scope context; the newer activity/theme plan at `docs/superpowers/plans/2026-09-28-activity-theme-implementation.md` is authoritative for implementation order and gates.
 
 ---
 
 ## Phase 2: Runtime asset handshake and two-mechanic pilot
 
-**Status:** Planned; not implemented. The new sprite files are promoted into the runtime asset directory, but the current Phaser preloader does not load their versioned names. User has deferred execution until the layer/activity contracts are reviewed. Ajay confirmed the existing `tap-to-select` and `drag-to-target` pair on 2026-09-27. The pilot tests these two interaction styles without adding a new mechanic implementation.
+**Status:** Planned; not implemented. The approved design is recorded in `docs/superpowers/specs/2026-09-28-activity-theme-contract-design.md`; implementation follows the approved `docs/superpowers/plans/2026-09-28-activity-theme-implementation.md`. Ajay selected a Kitchen theme with theme colors only; no backdrop image. Ajay confirmed the existing `tap-to-select` and `drag-to-target` pair on 2026-09-27.
 
-### Agreed layer boundaries (design direction; implementation deferred)
+### Approved layer boundaries (implementation deferred)
 
-Ajay agreed that the scalable design should keep these responsibilities distinct:
+Ajay approved keeping these responsibilities distinct:
 
 - **Concept:** age range, skill/experience goal, and difficulty; describes what the child is practicing.
 - **Mechanic:** interaction rules and feedback (`tap-to-select` or `drag-to-target` for this pilot).
@@ -157,7 +157,7 @@ Ajay agreed that the scalable design should keep these responsibilities distinct
 - **Activity composition:** binds the selected concept, mechanic, theme, and assets into one activity definition.
 - **Runtime:** resolves that definition, loads the theme and sprites, runs the mechanic, and records outcomes.
 
-The mechanic should receive resolved item/target data and callbacks; the activity/runtime layer supplies the theme. Use one explicitly selected theme across both pilot activities so the visual setting stays constant during the mechanic comparison. The user has deferred execution. Before implementation, define the activity/theme fields and review the design; do not treat this direction as an already existing code contract.
+The mechanic should receive resolved item/target data and callbacks; Activity Composition supplies an explicit `themeId`, and Runtime loads its theme treatment. Use the selected Kitchen theme with theme colors only across both pilot activities. Agree the produce subset and activity rules before authoring those activities.
 
 ### Current runtime contract and gap
 
@@ -177,15 +177,15 @@ The mechanic should receive resolved item/target data and callbacks; the activit
 - Modify: `library/assets/sprites/taxonomy.yaml`
 - Create tests alongside any extracted asset-reference helper (expected: `runtime/src/assets/sprite-registry.ts` and `runtime/src/assets/sprite-registry.test.ts`, unless existing runtime test conventions suggest a more suitable location)
 
-**Interface decision:** Keep this pilot incremental. Preserve the current activity `assetRef` format and the legacy preload behavior. Introduce one shared resolver for refs to texture keys/URLs so both mechanics use the same basename rule. Add the nine approved versioned names to the preload registry; do not load staged candidates or comparison controls. Do not make the provenance manifest a runtime API in this phase.
+**Interface decision:** Keep `assetRef` values relative to `library/assets/` and resolve them through one shared helper. The later approved activity/theme plan supersedes the legacy-preload compatibility language below: the pilot registry contains only approved versioned sprites, and old unusable activities/refs need not remain playable. Do not load staged candidates or comparison controls. Do not make the provenance manifest a runtime API.
 
 - [ ] **Step 1: Add failing resolver tests.** Cover `sprites/apple-red-v1.png` → texture key `apple-red-v1` and URL `/assets/sprites/apple-red-v1.png`; cover all nine approved runtime paths; reject unsupported suffixes, path traversal, and non-sprite directories.
-- [ ] **Step 2: Implement the shared sprite-reference resolver and registry.** Keep references relative to `library/assets/`; preserve existing legacy asset keys and make registered versioned assets discoverable by `ActivityScene.preload()`.
+- [ ] **Step 2: Implement the shared sprite-reference resolver and registry.** Keep references relative to `library/assets/`; register approved versioned assets for `ActivityScene.preload()`. Supporting old asset keys is out of scope.
 - [ ] **Step 3: Update both mechanics to use the shared texture-key resolver.** Keep their existing behavior for a missing texture, but ensure all registered versioned refs resolve to the loaded Phaser key.
 - [ ] **Step 4: Add regression checks for activity asset refs.** Verify each selected pilot ref resolves to an existing PNG and a key present in the runtime registry; verify staged controls cannot enter that runtime registry.
 - [ ] **Step 5: Register the eight canonical produce types and apple color variants in `taxonomy.yaml`.** Preserve existing taxonomy entries; test prompt formatting includes all eight new produce types and both new apple variants, with red and green grouped as one apple type.
 - [ ] **Step 6: Run `pnpm test`, `pnpm typecheck`, and `pnpm assets:validate -- library/assets/manifest.json`.** Expect the two documented staged text-only controls to remain the only full-manifest validation failures. Independently assert all nine runtime sprites and all runtime registry paths pass and resolve.
-- [ ] **Step 7: Run the runtime and open a pilot activity.** Verify network paths return the new PNGs, the Phaser texture keys exist before mechanic construction, sprites render instead of fallback circles, and existing legacy activity references still load.
+- [ ] **Step 7: Run the runtime and open a pilot activity.** Verify network paths return the new PNGs, Phaser texture keys exist before mechanic construction, and registered sprites render instead of fallback circles. Old activity refs are outside this pilot's support scope.
 
 ### Task 9: Build two reviewed activity examples
 
@@ -197,7 +197,7 @@ The mechanic should receive resolved item/target data and callbacks; the activit
 - Test: activity validation cases that exercise new asset refs for both mechanics
 
 - [x] **Step 1a: Confirm the mechanics.** Ajay selected the existing `tap-to-select` and `drag-to-target` pair.
-- [ ] **Step 1b: Select a small produce set and activity rules with Ajay.** Keep item assets fruit/vegetable-only; targets may use short text labels or existing neutral basket art where the mechanic needs targets.
+- [x] **Step 1b: Select a small produce set and activity rules with Ajay.** Ajay selected red apple, banana, orange, and carrot: tap to find the red apple among the four; drag red apple, banana, and orange to matching picture targets. Use only approved versioned sprites.
 - [ ] **Step 2: Draft one simple `tap-to-select` activity** if selected. Use familiar produce, a short clear prompt, a layout whose item count matches its mechanic constraints, and `assetRef` values from the approved versioned sprite set.
 - [ ] **Step 3: Draft one simple `drag-to-target` activity** if selected. Use a small number of items/targets, explicit item-to-target mappings, and existing layout constraints; keep its rule visually obvious for a first manual trial.
 - [ ] **Step 4: Validate each activity with `validateActivity` and `ActivityJSONSchema`.** Assert every referenced file exists, each ref is registered/preloaded, item/target IDs and counts satisfy the mechanic spec, and all category refs stay within the fruit/vegetable pilot set.
@@ -218,4 +218,4 @@ The mechanic should receive resolved item/target data and callbacks; the activit
 - Asset-library phase (Tasks 1–7) is complete locally on branch `codex/restart-doc-alignment` in `/private/tmp/bloom-doc-review-source`; not committed or pushed.
 - Current candidate and runtime sprite paths/decisions are in `library/assets/manifest.json`; review material is in `library/assets/reviews/`.
 - Last verified: 154 tests passed; typecheck passed; 9/9 runtime sprites passed. Full-manifest validation reports the two retained text-only controls only.
-- Start with Task 8. The mechanic pair is confirmed; agree the content subset/rules before Task 9 Step 1b. The runtime gap described above is real and still open.
+- The approved activity/theme contract is recorded in `docs/superpowers/specs/2026-09-28-activity-theme-contract-design.md`; review `docs/superpowers/plans/2026-09-28-activity-theme-implementation.md` before implementation. The mechanic pair is confirmed; agree the shared theme and content subset/rules before authoring activities. The runtime asset gap described above is real and still open.

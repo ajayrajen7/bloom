@@ -25,7 +25,7 @@ export const ConceptBriefSchema = z.object({
     max: z.number(),
   }),
   difficulty: z.enum(["low", "medium", "high"]),
-  themeHint: z.string(),
+  themeHint: z.string().optional(),
   targetDurationSeconds: z.number(),
   notes: z.string().optional(),
   itemSprites: z.array(z.string()).min(1),
@@ -80,6 +80,7 @@ export const ZoneSpecSchema = z.object({
   centerFraction: z.object({ x: z.number(), y: z.number() }).optional(),
   // Grid
   gapFraction: z.number().optional(),
+  rowGapFraction: z.number().optional(),
   // Random
   bounds: z.object({ xPadFraction: z.number(), yPadFraction: z.number() }).optional(),
 });
@@ -105,12 +106,38 @@ export const MechanicSpecSchema = z.object({
 });
 export type MechanicSpec = z.infer<typeof MechanicSpecSchema>;
 
+// ── Theme Layer ───────────────────────────────────────────────────────────────
+
+const ThemeIdSchema = z.string().regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*-v[1-9][0-9]*$/);
+const ThemeAssetRefSchema = z.string().regex(
+  /^(?:sprites|backgrounds|decorations)\/[a-z0-9]+(?:-[a-z0-9]+)*-v[1-9][0-9]*\.png$/
+);
+const HexColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+const NonBlankTextSchema = z.string().trim().min(1);
+
+export const ThemeSpecSchema = z.object({
+  id: ThemeIdSchema,
+  version: z.string().regex(/^[0-9]+\.[0-9]+\.[0-9]+$/),
+  name: NonBlankTextSchema,
+  setting: NonBlankTextSchema,
+  visualTreatment: NonBlankTextSchema,
+  presentation: z.object({
+    backgroundColor: HexColorSchema,
+    promptPanelColor: HexColorSchema,
+    foregroundColor: HexColorSchema,
+  }),
+  backgroundAssetRefs: z.array(ThemeAssetRefSchema).optional(),
+  decorationAssetRefs: z.array(ThemeAssetRefSchema).optional(),
+});
+export type ThemeSpec = z.infer<typeof ThemeSpecSchema>;
+
 // ── Generation Layer output / Runtime Layer input ────────────────────────────
 
 export const ActivityJSONSchema = z.object({
   id: z.string(),
   conceptId: z.string(),
   mechanicId: z.string(),
+  themeId: ThemeIdSchema,
   generatedAt: z.string().datetime(),
   filledSlots: z.record(z.unknown()),
   parameters: z.record(z.unknown()),

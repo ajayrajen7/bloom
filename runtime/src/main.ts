@@ -21,4 +21,13 @@ const config: Phaser.Types.Core.GameConfig = {
   parent: document.body,
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+if (import.meta.env.DEV) {
+  const reviewId = new URLSearchParams(window.location.search).get("reviewActivity");
+  if (reviewId && /^[A-Za-z0-9_-]+$/.test(reviewId)) {
+    game.events.once(Phaser.Core.Events.READY, () => {
+      game.scene.stop("SelectionScene");
+      game.scene.start("ActivityScene", { activityId: reviewId, review: true });
+    });
+  }
+}

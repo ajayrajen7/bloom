@@ -4,8 +4,12 @@ import { getConceptBrief, listConceptBriefs, _resetCache } from "./loader.js";
 beforeEach(() => _resetCache());
 
 describe("listConceptBriefs", () => {
-  it("loads all 5 hand-authored briefs", () => {
-    expect(listConceptBriefs()).toHaveLength(5);
+  it("keeps the original and pilot briefs available alongside staged activity concepts", () => {
+    const ids = listConceptBriefs().map((brief) => brief.id);
+    expect(ids).toEqual(expect.arrayContaining([
+      "concept_001", "concept_002", "concept_003", "concept_004", "concept_005",
+      "concept_pilot_kitchen_tap_v1", "concept_pilot_kitchen_drag_v1",
+    ]));
   });
 
   it("covers all 3 V1 divisions", () => {

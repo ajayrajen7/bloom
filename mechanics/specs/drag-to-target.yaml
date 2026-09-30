@@ -20,11 +20,12 @@ slotSchema:
   targets:
     type: array
     minLength: 2
-    maxLength: 4
+    maxLength: 6
     itemShape:
       id: string
       label: string           # short name (e.g. "apple basket")
       assetRef: string
+      capacity: number      # optional; category bins declare 3, matching targets omit it
   distractors:
     type: array
     minLength: 0
@@ -64,6 +65,38 @@ parameterSchema:
 # elementCount constraints must be satisfied by itemCount + distractorCount.
 
 layouts:
+  - id: "horizontal-six-pairs"
+    description: "Five or six picture matches in separate horizontal target and item rows."
+    zones:
+      item_zone:
+        arrangement: { type: linear, axis: horizontal, direction: left-to-right }
+        yFraction: 0.82
+        xPadFraction: 0.085
+        elementCount: { min: 5, max: 6 }
+        elementSize: { min: 100, max: 110 }
+      target_zone:
+        arrangement: { type: linear, axis: horizontal, direction: left-to-right }
+        yFraction: 0.25
+        xPadFraction: 0.075
+        elementCount: { min: 5, max: 6 }
+        elementSize: { min: 120, max: 140 }
+
+  - id: "horizontal-category-sort"
+    description: "Two wide category bins above a row of six draggable items."
+    zones:
+      item_zone:
+        arrangement: { type: linear, axis: horizontal, direction: left-to-right }
+        yFraction: 0.82
+        xPadFraction: 0.085
+        elementCount: { min: 6, max: 6 }
+        elementSize: { min: 100, max: 110 }
+      target_zone:
+        arrangement: { type: linear, axis: horizontal, direction: left-to-right }
+        yFraction: 0.36
+        xPadFraction: 0.28
+        elementCount: { min: 2, max: 2 }
+        elementSize: { min: 230, max: 230 }
+
   - id: "horizontal-standard"
     description: >
       Items in a horizontal row at the bottom of the play area, targets in a

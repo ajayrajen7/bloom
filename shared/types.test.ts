@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
 import {
   DivisionSchema,
   ConceptBriefSchema,
   MechanicSpecSchema,
+  ThemeSpecSchema,
   ActivityJSONSchema,
   SessionRecordSchema,
   RejectionReasonSchema,
@@ -67,6 +70,7 @@ const validActivityJSON = {
   id: "act_001",
   conceptId: "concept_001",
   mechanicId: "drag-to-target",
+  themeId: "kitchen-v1",
   generatedAt: "2026-05-08T10:00:00.000Z",
   filledSlots: { items: [], targets: [] },
   parameters: { itemCount: 3 },
@@ -86,6 +90,19 @@ const validActivityJSON = {
     targetDurationSeconds: 45,
     reviewScore: 0.92,
     reviewerNotes: "Age-appropriate, clear prompt, good contrast.",
+  },
+};
+
+const validThemeSpec = {
+  id: "kitchen-v1",
+  version: "1.0.0",
+  name: "Kitchen",
+  setting: "A calm home kitchen",
+  visualTreatment: "Simple, warm surfaces with clear contrast for produce sprites",
+  presentation: {
+    backgroundColor: "#F6F2E8",
+    promptPanelColor: "#DDE8D2",
+    foregroundColor: "#26352A",
   },
 };
 
@@ -142,6 +159,11 @@ describe("ConceptBriefSchema", () => {
     expect(result.secondaryDivisionId).toBe("cognitive.visual_discrimination");
   });
 
+  it("accepts a concept without a content theme hint", () => {
+    const { themeHint: _, ...withoutHint } = validConceptBrief;
+    expect(ConceptBriefSchema.parse(withoutHint).themeHint).toBeUndefined();
+  });
+
   it("rejects invalid difficulty value", () => {
     expect(() =>
       ConceptBriefSchema.parse({ ...validConceptBrief, difficulty: "extreme" })
@@ -175,6 +197,53 @@ describe("ConceptBriefSchema", () => {
   });
 });
 
+describe("ThemeSpecSchema", () => {
+  it("loads the selected Kitchen pilot theme with its approved palette", () => {
+    const path = fileURLToPath(new URL("../library/themes/kitchen-v1.json", import.meta.url));
+    const theme = ThemeSpecSchema.parse(JSON.parse(readFileSync(path, "utf-8")));
+    expect(theme.id).toBe("kitchen-v1");
+    expect(theme.presentation).toEqual({
+      backgroundColor: "#F6F2E8",
+      promptPanelColor: "#DDE8D2",
+      foregroundColor: "#26352A",
+    });
+    expect(theme.backgroundAssetRefs).toBeUndefined();
+  });
+
+  it("parses a versioned theme with structured presentation colors", () => {
+    expect(ThemeSpecSchema.parse(validThemeSpec)).toEqual(validThemeSpec);
+  });
+
+  it("allows safe versioned artwork references", () => {
+    const theme = ThemeSpecSchema.parse({
+      ...validThemeSpec,
+      backgroundAssetRefs: ["backgrounds/kitchen-wall-v1.png"],
+      decorationAssetRefs: ["decorations/kitchen-shelf-v1.png"],
+    });
+    expect(theme.backgroundAssetRefs).toEqual(["backgrounds/kitchen-wall-v1.png"]);
+    expect(theme.decorationAssetRefs).toEqual(["decorations/kitchen-shelf-v1.png"]);
+  });
+
+  it.each([
+    "../staging/kitchen-v1.png",
+    "/assets/backgrounds/kitchen-v1.png",
+    "backgrounds/../staging/kitchen-v1.png",
+    "staging/kitchen-v1.png",
+    "backgrounds/kitchen.png",
+    "backgrounds/kitchen-v1.jpg",
+    "backgrounds\\kitchen-v1.png",
+  ])("rejects unsafe or malformed artwork reference %s", (ref) => {
+    expect(ThemeSpecSchema.safeParse({ ...validThemeSpec, backgroundAssetRefs: [ref] }).success).toBe(false);
+  });
+
+  it("rejects blank identifiers, descriptions, and invalid colors", () => {
+    expect(ThemeSpecSchema.safeParse({ ...validThemeSpec, id: " " }).success).toBe(false);
+    expect(ThemeSpecSchema.safeParse({ ...validThemeSpec, setting: " " }).success).toBe(false);
+    expect(ThemeSpecSchema.safeParse({ ...validThemeSpec, visualTreatment: " " }).success).toBe(false);
+    expect(ThemeSpecSchema.safeParse({ ...validThemeSpec, presentation: { ...validThemeSpec.presentation, foregroundColor: "green" } }).success).toBe(false);
+  });
+});
+
 // ── MechanicSpec ─────────────────────────────────────────────────────────────
 
 describe("MechanicSpecSchema", () => {
@@ -202,6 +271,13 @@ describe("ActivityJSONSchema", () => {
     const result = ActivityJSONSchema.parse(validActivityJSON);
     expect(result.id).toBe("act_001");
     expect(result.metadata.reviewScore).toBe(0.92);
+  });
+
+  it("requires an explicit non-empty themeId", () => {
+    const { themeId: _, ...withoutTheme } = validActivityJSON;
+    expect(ActivityJSONSchema.safeParse(withoutTheme).success).toBe(false);
+    expect(ActivityJSONSchema.safeParse({ ...validActivityJSON, themeId: "" }).success).toBe(false);
+    expect(ActivityJSONSchema.safeParse({ ...validActivityJSON, themeId: " " }).success).toBe(false);
   });
 
   it("rejects non-datetime generatedAt", () => {

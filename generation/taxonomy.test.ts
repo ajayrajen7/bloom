@@ -21,6 +21,24 @@ describe("getSpriteInfo", () => {
   it("returns undefined for an unknown sprite", () => {
     expect(getSpriteInfo("nonexistent.png")).toBeUndefined();
   });
+
+  it("groups approved red and green apples under one canonical apple type", () => {
+    expect(getSpriteInfo("apple-red-v1.png")).toEqual({ sprite: "apple-red-v1.png", category: "fruits", type: "apple" });
+    expect(getSpriteInfo("apple-green-v1.png")).toEqual({ sprite: "apple-green-v1.png", category: "fruits", type: "apple" });
+    expect(sameType("sprites/apple-red-v1.png", "sprites/apple-green-v1.png")).toBe(true);
+  });
+
+  it.each([
+    ["banana-v1.png", "fruits", "banana"],
+    ["grapes-v1.png", "fruits", "grapes"],
+    ["orange-v1.png", "fruits", "orange"],
+    ["broccoli-v1.png", "vegetables", "broccoli"],
+    ["carrot-v1.png", "vegetables", "carrot"],
+    ["cucumber-v1.png", "vegetables", "cucumber"],
+    ["tomato-v1.png", "vegetables", "tomato"],
+  ])("indexes approved produce %s as %s/%s", (sprite, category, type) => {
+    expect(getSpriteInfo(sprite)).toEqual({ sprite, category, type });
+  });
 });
 
 describe("sameType", () => {
@@ -75,6 +93,20 @@ describe("formatTaxonomyForPrompt", () => {
 });
 
 describe("formatFilteredTaxonomyForPrompt", () => {
+  it("includes every approved produce type and both apple variants", () => {
+    const approved = [
+      "apple-red-v1.png", "apple-green-v1.png", "banana-v1.png", "broccoli-v1.png",
+      "carrot-v1.png", "cucumber-v1.png", "grapes-v1.png", "orange-v1.png", "tomato-v1.png",
+    ];
+    const output = formatFilteredTaxonomyForPrompt(approved);
+    expect(output).toContain("FRUITS");
+    expect(output).toContain("VEGETABLES");
+    expect(output).toMatch(/apple:.*apple-red-v1\.png.*apple-green-v1\.png/);
+    for (const sprite of approved) expect(output).toContain(`sprites/${sprite}`);
+    expect(output).not.toContain("banana-text-only.png");
+    expect(output).not.toContain("carrot-text-only.png");
+  });
+
   it("includes only categories represented in the sprite list", () => {
     const output = formatFilteredTaxonomyForPrompt(["apple.png", "banana.png", "apple-basket.png"]);
     expect(output).toContain("FRUITS");
@@ -131,7 +163,7 @@ describe("getAllSprites", () => {
     expect(sprites).toContain("sprites/cat.png");
   });
 
-  it("returns 30 sprites matching the library", () => {
-    expect(getAllSprites()).toHaveLength(30);
+  it("includes the existing library plus nine approved pilot sprites", () => {
+    expect(getAllSprites()).toHaveLength(39);
   });
 });

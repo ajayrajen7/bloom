@@ -15,10 +15,26 @@ fruits:
     - apple.png
     - red-apple.png
     - green-apple.png
+    - apple-red-v1.png
+    - apple-green-v1.png
   banana:
     - banana.png
+    - banana-v1.png
+  grapes:
+    - grapes-v1.png
   orange:
     - orange.png
+    - orange-v1.png
+
+vegetables:
+  broccoli:
+    - broccoli-v1.png
+  carrot:
+    - carrot-v1.png
+  cucumber:
+    - cucumber-v1.png
+  tomato:
+    - tomato-v1.png
 
 animals:
   cat:

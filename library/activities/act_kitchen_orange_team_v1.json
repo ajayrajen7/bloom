@@ -1,0 +1,97 @@
+{
+  "id": "act_kitchen_orange_team_v1",
+  "conceptId": "concept_kitchen_orange_team_v1",
+  "mechanicId": "tap-to-select",
+  "themeId": "kitchen-v1",
+  "generatedAt": "2026-09-29T00:00:00.000Z",
+  "filledSlots": {
+    "correctItems": [
+      {
+        "id": "orange",
+        "label": "Orange",
+        "assetRef": "sprites/orange-v1.png"
+      },
+      {
+        "id": "carrot",
+        "label": "Carrot",
+        "assetRef": "sprites/carrot-v1.png"
+      }
+    ],
+    "distractors": [
+      {
+        "id": "red-apple",
+        "label": "Red apple",
+        "assetRef": "sprites/apple-red-v1.png"
+      },
+      {
+        "id": "green-apple",
+        "label": "Green apple",
+        "assetRef": "sprites/apple-green-v1.png"
+      },
+      {
+        "id": "cucumber",
+        "label": "Cucumber",
+        "assetRef": "sprites/cucumber-v1.png"
+      },
+      {
+        "id": "broccoli",
+        "label": "Broccoli",
+        "assetRef": "sprites/broccoli-v1.png"
+      }
+    ]
+  },
+  "parameters": {
+    "layoutId": "grid-3x2",
+    "layout": {
+      "id": "grid-3x2",
+      "description": "3 columns, 2 rows \u2014 6 items total. Wider layout than 2x3. Good when items are visually distinct and spread is desirable.\n",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "grid",
+            "columns": 3,
+            "rows": 2
+          },
+          "centerFraction": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "elementCount": {
+            "min": 6,
+            "max": 6
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 135
+          },
+          "gapFraction": 0.05
+        }
+      }
+    },
+    "correctCount": 2,
+    "distractorCount": 4,
+    "visualSimilarity": "low"
+  },
+  "prompt": {
+    "text": "Find the orange and carrot.",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "language.receptive_language",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "medium",
+    "targetDurationSeconds": 45,
+    "reviewScore": 0,
+    "reviewerNotes": "Ajay approved this activity for the one-child iPad pilot on 2026-09-30.",
+    "humanApprovedAt": "2026-09-30T00:00:00.000Z",
+    "humanApprover": "ajay"
+  }
+}

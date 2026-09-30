@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { playSuccess, playError, playCelebration } from "../audio.js";
+import { requireLoadedSpriteTexture } from "../assets/sprite-registry.js";
+import type { MechanicVisualConfig } from "./visual-config.js";
 import {
   isTapCorrect,
   isActivityComplete,
@@ -17,15 +19,11 @@ export interface TapToSelectCallbacks {
   onComplete: () => void;
 }
 
-function assetKey(assetRef: string | undefined): string | null {
-  if (!assetRef) return null;
-  return (assetRef.split("/").pop() ?? "").replace(".png", "");
-}
-
 export class TapToSelectMechanic {
   private scene: Phaser.Scene;
   private items: TapItemConfig[];
   private callbacks: TapToSelectCallbacks;
+  private visuals: MechanicVisualConfig;
 
   private itemObjects = new Map<string, Phaser.GameObjects.Container>();
   private tappedCorrect = new Set<string>();
@@ -33,11 +31,13 @@ export class TapToSelectMechanic {
   constructor(
     scene: Phaser.Scene,
     items: TapItemConfig[],
-    callbacks: TapToSelectCallbacks
+    callbacks: TapToSelectCallbacks,
+    visuals: MechanicVisualConfig
   ) {
     this.scene = scene;
     this.items = items;
     this.callbacks = callbacks;
+    this.visuals = visuals;
 
     this.buildItems();
   }
@@ -46,28 +46,17 @@ export class TapToSelectMechanic {
     this.items.forEach((cfg) => {
       const container = this.scene.add.container(cfg.x, cfg.y);
 
-      const key = assetKey(cfg.assetRef);
-      let img: Phaser.GameObjects.Image | null = null;
-
-      if (key && this.scene.textures.exists(key)) {
-        img = this.scene.add
-          .image(0, 0, key)
-          .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
-        container.add(img);
-      } else {
-        const circle = this.scene.add.graphics();
-        circle.fillStyle(0x4a90d9, 1);
-        circle.fillCircle(0, 0, ITEM_RADIUS);
-        circle.fillStyle(0xffffff, 0.15);
-        circle.fillCircle(-12, -14, 18);
-        container.add(circle);
-      }
+      const key = requireLoadedSpriteTexture(cfg.assetRef, (textureKey) => this.scene.textures.exists(textureKey));
+      const img = this.scene.add
+        .image(0, 0, key)
+        .setDisplaySize(ITEM_RADIUS * 2, ITEM_RADIUS * 2);
+      container.add(img);
 
       const label = this.scene.add
         .text(0, ITEM_RADIUS + 14, cfg.label, {
           fontFamily: "system-ui, sans-serif",
           fontSize: "22px",
-          color: "#ffffff",
+          color: this.visuals.labelColor,
         })
         .setOrigin(0.5, 0);
 
@@ -111,7 +100,7 @@ export class TapToSelectMechanic {
 
   private pulseCorrect(container: Phaser.GameObjects.Container) {
     const img = container.getData("img") as Phaser.GameObjects.Image | null;
-    if (img) img.setTint(0x50c878);
+    if (img) img.setTint(this.visuals.feedbackColor);
 
     this.scene.tweens.add({
       targets: container,

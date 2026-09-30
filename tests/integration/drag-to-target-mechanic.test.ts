@@ -5,6 +5,8 @@ import {
   SNAP_DISTANCE,
   ITEM_RADIUS,
   TARGET_RADIUS,
+  getTargetParkingPositions,
+  planItemDrop,
   type ItemConfig,
   type TargetConfig,
 } from "../../runtime/src/mechanics/drag-to-target-logic.js";
@@ -33,6 +35,46 @@ describe("isNearTarget", () => {
 
   it("snap distance is large enough for a 2-year-old hand (≥60pt)", () => {
     expect(SNAP_DISTANCE).toBeGreaterThanOrEqual(60);
+  });
+});
+
+describe("category bin parking", () => {
+  const bins: TargetConfig[] = [
+    { id: "fruit", label: "Fruit", color: 0, x: 284, y: 300, capacity: 3 },
+    { id: "vegetables", label: "Vegetables", color: 0, x: 740, y: 300, capacity: 3 },
+  ];
+  const fruitItems: ItemConfig[] = ["apple", "banana", "grapes", "fourth"].map(id =>
+    ({ id, targetId: "fruit", label: id, color: 0, x: 100, y: 550 }));
+
+  it("assigns three distinct, stable visible spaces in a bin", () => {
+    const slots = getTargetParkingPositions(bins[0]!);
+    expect(slots).toEqual(getTargetParkingPositions(bins[0]!));
+    expect(slots).toHaveLength(3);
+    expect(new Set(slots.map(slot => slot.x)).size).toBe(3);
+    for (const slot of slots) {
+      expect(slot.x).toBeGreaterThan(74);
+      expect(slot.x).toBeLessThan(494);
+      expect(slot.y).toBeGreaterThan(300);
+    }
+  });
+
+  it("parks once per item and refuses a fourth placement", () => {
+    const placed = new Map<string, string>();
+    const positions = getTargetParkingPositions(bins[0]!);
+    for (const [index, id] of ["apple", "banana", "grapes"].entries()) {
+      const decision = planItemDrop(id, 284, 330, fruitItems, bins, placed);
+      expect(decision).toEqual({ targetId: "fruit", position: positions[index], scale: expect.any(Number) });
+      placed.set(id, "fruit");
+    }
+    expect(planItemDrop("fourth", 284, 330, fruitItems, bins, placed)).toBeUndefined();
+    expect(planItemDrop("apple", 284, 330, fruitItems, bins, placed)).toBeUndefined();
+  });
+
+  it("rejects wrong-bin and outside-bin drops without changing progress", () => {
+    const placed = new Map<string, string>();
+    expect(planItemDrop("apple", 740, 330, fruitItems, bins, placed)).toBeUndefined();
+    expect(planItemDrop("apple", 512, 550, fruitItems, bins, placed)).toBeUndefined();
+    expect(placed.size).toBe(0);
   });
 });
 

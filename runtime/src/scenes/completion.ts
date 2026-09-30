@@ -1,15 +1,17 @@
 import Phaser from "phaser";
 import { playTap } from "../audio.js";
 import { buildSessionRecord, appendSession } from "../telemetry.js";
+import { resolveTheme, resolvePresentationColors, type PresentationColors } from "../themes/theme-resolver.js";
 
 interface CompletionData {
   sessionId: string;
   activityId: string;
   startedAt: string;
+  themeId: string;
 }
 
 export class CompletionScene extends Phaser.Scene {
-  private completionData: CompletionData = { sessionId: "", activityId: "", startedAt: "" };
+  private completionData: CompletionData = { sessionId: "", activityId: "", startedAt: "", themeId: "" };
   private rated = false;
 
   constructor() {
@@ -23,16 +25,23 @@ export class CompletionScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
+    let colors: PresentationColors;
+    try {
+      colors = resolvePresentationColors(resolveTheme(this.completionData.themeId).presentation);
+    } catch (error) {
+      this.showError(error instanceof Error ? error.message : "Could not load activity theme");
+      return;
+    }
 
-    this.add.rectangle(width / 2, height / 2, width, height, 0x12122a);
+    this.add.rectangle(width / 2, height / 2, width, height, colors.backgroundFill);
 
-    this.spawnStars(width, height);
+    this.spawnStars(width, height, colors);
 
     const msg = this.add
       .text(width / 2, height * 0.38, "Well done! 🎉", {
         fontFamily: "system-ui, sans-serif",
         fontSize: "64px",
-        color: "#ffffff",
+        color: colors.foregroundText,
         fontStyle: "bold",
       })
       .setOrigin(0.5)
@@ -45,30 +54,31 @@ export class CompletionScene extends Phaser.Scene {
         .text(width / 2, height * 0.56, "How did it go?", {
           fontFamily: "system-ui, sans-serif",
           fontSize: "26px",
-          color: "#aaaacc",
+          color: colors.foregroundText,
         })
         .setOrigin(0.5);
-      this.buildRatingButtons(width, height);
+      this.buildRatingButtons(width, height, colors);
     });
   }
 
-  private buildRatingButtons(width: number, height: number) {
-    const ratings: Array<{ label: string; color: number; y: number; value: "loved" | "fine" | "bailed" }> = [
-      { label: "😍  Loved it",    color: 0x4caf50, y: height * 0.70, value: "loved"  },
-      { label: "😐  It was fine", color: 0x2196f3, y: height * 0.82, value: "fine"   },
-      { label: "🚶  We bailed",   color: 0x9e9e9e, y: height * 0.94, value: "bailed" },
+  private buildRatingButtons(width: number, height: number, colors: PresentationColors) {
+    const ratings: Array<{ label: string; y: number; value: "loved" | "fine" | "bailed" }> = [
+      { label: "😍  Loved it",    y: height * 0.70, value: "loved"  },
+      { label: "😐  It was fine", y: height * 0.82, value: "fine"   },
+      { label: "🚶  We bailed",   y: height * 0.94, value: "bailed" },
     ];
 
-    ratings.forEach(({ label, color, y, value }) => {
+    ratings.forEach(({ label, y, value }) => {
       const bg = this.add
-        .rectangle(width / 2, y, 320, 56, color, 0.85)
+        .rectangle(width / 2, y, 320, 56, colors.promptPanelFill, 1)
+        .setStrokeStyle(2, colors.foregroundFill)
         .setInteractive({ useHandCursor: true });
 
       this.add
         .text(width / 2, y, label, {
           fontFamily: "system-ui, sans-serif",
           fontSize: "26px",
-          color: "#ffffff",
+          color: colors.foregroundText,
         })
         .setOrigin(0.5);
 
@@ -91,8 +101,8 @@ export class CompletionScene extends Phaser.Scene {
     appendSession(record, localStorage);
   }
 
-  private spawnStars(width: number, height: number) {
-    const colors = [0xffd700, 0xff69b4, 0x00cfff, 0xff8c00, 0xadffd4];
+  private spawnStars(width: number, height: number, presentation: PresentationColors) {
+    const colors = [presentation.promptPanelFill, presentation.foregroundFill];
     for (let i = 0; i < 18; i++) {
       const x = Phaser.Math.Between(60, width - 60);
       const y = Phaser.Math.Between(60, height - 60);
@@ -106,5 +116,16 @@ export class CompletionScene extends Phaser.Scene {
         },
       });
     }
+  }
+
+  private showError(message: string) {
+    const { width, height } = this.scale;
+    this.add.rectangle(width / 2, height / 2, width, height, 0x12122a);
+    this.add.text(width / 2, height / 2, message, {
+      fontFamily: "system-ui, sans-serif",
+      fontSize: "28px",
+      color: "#ef4444",
+      align: "center",
+    }).setOrigin(0.5);
   }
 }

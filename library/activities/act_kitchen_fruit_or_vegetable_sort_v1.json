@@ -1,0 +1,130 @@
+{
+  "id": "act_kitchen_fruit_or_vegetable_sort_v1",
+  "conceptId": "concept_kitchen_fruit_or_vegetable_sort_v1",
+  "mechanicId": "drag-to-target",
+  "themeId": "kitchen-v1",
+  "generatedAt": "2026-09-29T00:00:00.000Z",
+  "filledSlots": {
+    "items": [
+      {
+        "id": "apple-green",
+        "targetId": "fruit",
+        "label": "Green Apple",
+        "assetRef": "sprites/apple-green-v1.png"
+      },
+      {
+        "id": "banana",
+        "targetId": "fruit",
+        "label": "Banana",
+        "assetRef": "sprites/banana-v1.png"
+      },
+      {
+        "id": "grapes",
+        "targetId": "fruit",
+        "label": "Grapes",
+        "assetRef": "sprites/grapes-v1.png"
+      },
+      {
+        "id": "cucumber",
+        "targetId": "vegetables",
+        "label": "Cucumber",
+        "assetRef": "sprites/cucumber-v1.png"
+      },
+      {
+        "id": "tomato",
+        "targetId": "vegetables",
+        "label": "Tomato",
+        "assetRef": "sprites/tomato-v1.png"
+      },
+      {
+        "id": "broccoli",
+        "targetId": "vegetables",
+        "label": "Broccoli",
+        "assetRef": "sprites/broccoli-v1.png"
+      }
+    ],
+    "targets": [
+      {
+        "id": "fruit",
+        "label": "Fruit",
+        "assetRef": "sprites/apple-red-v1.png",
+        "capacity": 3
+      },
+      {
+        "id": "vegetables",
+        "label": "Vegetables",
+        "assetRef": "sprites/carrot-v1.png",
+        "capacity": 3
+      }
+    ],
+    "distractors": []
+  },
+  "parameters": {
+    "layoutId": "horizontal-category-sort",
+    "layout": {
+      "id": "horizontal-category-sort",
+      "description": "Two wide category bins above a row of six draggable items.",
+      "zones": {
+        "item_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "yFraction": 0.82,
+          "xPadFraction": 0.085,
+          "elementCount": {
+            "min": 6,
+            "max": 6
+          },
+          "elementSize": {
+            "min": 100,
+            "max": 110
+          }
+        },
+        "target_zone": {
+          "arrangement": {
+            "type": "linear",
+            "axis": "horizontal",
+            "direction": "left-to-right"
+          },
+          "yFraction": 0.36,
+          "xPadFraction": 0.28,
+          "elementCount": {
+            "min": 2,
+            "max": 2
+          },
+          "elementSize": {
+            "min": 230,
+            "max": 230
+          }
+        }
+      }
+    },
+    "itemCount": 6,
+    "distractorCount": 0,
+    "visualSimilarity": "medium"
+  },
+  "prompt": {
+    "text": "Put fruit with fruit and vegetables with vegetables.",
+    "audioRef": "audio/prompts/PLACEHOLDER.mp3"
+  },
+  "audioRefs": {
+    "successSfx": "audio/sfx/success_bright.mp3",
+    "errorSfx": "audio/sfx/try_again.mp3",
+    "completionSfx": "audio/sfx/celebration.mp3"
+  },
+  "metadata": {
+    "targetDivisionId": "fine_motor.pincer_grip",
+    "ageMonths": {
+      "min": 24,
+      "max": 36
+    },
+    "difficulty": "medium",
+    "targetDurationSeconds": 60,
+    "reviewScore": 0,
+    "reviewerNotes": "Ajay approved this activity for the one-child iPad pilot on 2026-09-30.",
+    "humanApprovedAt": "2026-09-30T00:00:00.000Z",
+    "humanApprover": "ajay"
+  }
+}

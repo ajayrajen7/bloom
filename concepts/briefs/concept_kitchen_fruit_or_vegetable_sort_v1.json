@@ -1,0 +1,25 @@
+{
+  "id": "concept_kitchen_fruit_or_vegetable_sort_v1",
+  "mechanicId": "drag-to-target",
+  "targetDivisionId": "fine_motor.pincer_grip",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "sort familiar kitchen produce into fruit and vegetable bins",
+  "targetDurationSeconds": 60,
+  "notes": "Sort green apple, banana, and grapes into the apple-marked Fruit bin; sort cucumber, tomato, and broccoli into the carrot-marked Vegetables bin.",
+  "itemSprites": [
+    "apple-green-v1.png",
+    "banana-v1.png",
+    "grapes-v1.png",
+    "cucumber-v1.png",
+    "tomato-v1.png",
+    "broccoli-v1.png"
+  ],
+  "targetSprites": [
+    "apple-red-v1.png",
+    "carrot-v1.png"
+  ]
+}

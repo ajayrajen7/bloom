@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: one transparent object sprite for a preschool tablet activity
+Primary request: Create exactly one recognizable, familiar fruit or vegetable: [SUBJECT].
+Input images: If provided, Image 1 is the approved apple style anchor and is for rendering style only. Do not copy the apple, its silhouette, leaf/stem arrangement, color, or species-specific details into the requested subject.
+Subject: [SUBJECT DETAILS]. Show the complete object with its natural, recognizable proportions and structure. No face, limbs, or unrelated objects.
+Style/medium: Follow the style anchor's polished digitally rendered look: believable natural form and surface, smooth modeled shading, subtle natural texture, soft restrained highlights, and a crisp clean contour. It should not look painted (no brush strokes, watercolor, oil-paint texture, canvas grain, or sketch marks), photographic, plastic, or 3D.
+Composition/framing: One object only, upright or naturally oriented and centered on a square canvas. Show the full silhouette with safe, balanced transparent margins. Keep the subject recognizable at approximately 180 × 180 pixels.
+Lighting/mood: Soft, even light with gentle shading that describes the form without a cast shadow.
+Scene/backdrop: Isolated object on a genuinely transparent background.
+Text (verbatim): None.
+Constraints: Use the reference for rendering style only; follow the text for object identity. Preserve the requested produce's natural species-specific shape and color. No part may touch or cross the image edge. Do not add texture detail that becomes noisy at tablet size.
+Avoid: Additional produce, props, scene, floor, shadow, background, simulated checkerboard, halo, frame, text, letters, labels, watermark, faces, limbs, cropped edges, painterly strokes, canvas texture, excessive speckles, plastic shine, photographic camera effects, or 3D appearance.

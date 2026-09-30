@@ -1,8 +1,11 @@
 import { existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { ActivityJSONSchema, type ActivityJSON, type ConceptBrief } from "shared/types.js";
+import { ActivityJSONSchema, LayoutVariantSchema, type ActivityJSON, type ConceptBrief } from "../../shared/types.js";
+import { resolveThemeSpec, requireSupportedThemeArtwork } from "../../shared/theme-catalog.js";
+import { approvedRuntimeVisualRefs } from "../assets/approved-runtime.js";
 import { getMechanicSpec } from "../../mechanics/loader.js";
+import { resolveSpriteRef } from "../../runtime/src/assets/sprite-registry.js";
 import { sameType } from "../taxonomy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -13,7 +16,7 @@ export interface ValidationResult {
   errors: string[];
 }
 
-export function validateActivity(raw: unknown, concept?: ConceptBrief): ValidationResult {
+export function validateActivity(raw: unknown, concept?: ConceptBrief, assetsDir = ASSETS_DIR): ValidationResult {
   const errors: string[] = [];
 
   // ── Schema validation ──────────────────────────────────────────────────────
@@ -27,6 +30,30 @@ export function validateActivity(raw: unknown, concept?: ConceptBrief): Validati
 
   const activity = parsed.data;
 
+  try {
+    requireSupportedThemeArtwork(resolveThemeSpec(activity.themeId));
+  } catch (error) {
+    errors.push(`theme: ${(error as Error).message}`);
+  }
+
+  const slotKeys = activity.mechanicId === "drag-to-target"
+    ? ["items", "targets", "distractors"]
+    : activity.mechanicId === "tap-to-select"
+    ? ["correctItems", "distractors"]
+    : [];
+  for (const key of slotKeys) {
+    const slots = activity.filledSlots[key];
+    if (!Array.isArray(slots) || slots.some((slot) => !slot || typeof slot !== "object" || Array.isArray(slot))) {
+      errors.push(`slot: ${key} must be an array of filled slot objects`);
+    }
+  }
+  if (errors.some((error) => error.startsWith("slot: "))) return { passed: false, errors };
+  for (const key of slotKeys.filter((key) => key !== "targets")) {
+    for (const slot of activity.filledSlots[key] as Array<{ id?: string; assetRef?: string }>) {
+      if (!slot.assetRef) errors.push(`slot: ${key} "${slot.id ?? "?"}" is missing sprite assetRef`);
+    }
+  }
+
   // ── Layout ID ──────────────────────────────────────────────────────────────
   const layoutId = activity.parameters["layoutId"] as string | undefined;
   if (!layoutId) {
@@ -36,10 +63,15 @@ export function validateActivity(raw: unknown, concept?: ConceptBrief): Validati
     if (!spec) {
       errors.push(`params: unknown mechanicId "${activity.mechanicId}"`);
     } else {
-      const layoutExists = spec.layouts.some((l) => l.id === layoutId);
-      if (!layoutExists) {
+      const expectedLayout = spec.layouts.find((l) => l.id === layoutId);
+      if (!expectedLayout) {
         const valid = spec.layouts.map((l) => l.id).join(", ");
         errors.push(`params: layoutId "${layoutId}" is not defined in mechanic spec — valid: ${valid}`);
+      } else {
+        const inline = LayoutVariantSchema.safeParse(activity.parameters["layout"]);
+        if (!inline.success || JSON.stringify(inline.data) !== JSON.stringify(expectedLayout)) {
+          errors.push(`params: inlined layout must match mechanic spec layoutId "${layoutId}"`);
+        }
       }
     }
   }
@@ -57,13 +89,27 @@ export function validateActivity(raw: unknown, concept?: ConceptBrief): Validati
     errors.push(`prompt: text is ${wordCount} words — must be under 12`);
   }
 
-  // ── Asset reference existence ──────────────────────────────────────────────
+  // ── Approved sprite references and file presence ──────────────────────────
+  let approvedRefs: Set<string>;
+  try {
+    approvedRefs = approvedRuntimeVisualRefs(assetsDir);
+  } catch (error) {
+    errors.push(`asset: manifest unavailable or invalid: ${(error as Error).message}`);
+    return { passed: false, errors };
+  }
   const allAssetRefs = collectAssetRefs(activity);
   for (const ref of allAssetRefs) {
-    if (ref.startsWith("audio/sfx/")) continue;
-    if (ref.includes("PLACEHOLDER"))  continue;
+    try {
+      resolveSpriteRef(ref);
+    } catch (error) {
+      errors.push(`asset: ${(error as Error).message}`);
+      continue;
+    }
 
-    const fullPath = join(ASSETS_DIR, ref);
+    if (!approvedRefs.has(ref)) {
+      errors.push(`asset: ${ref} lacks an approved canonical manifest record`);
+    }
+    const fullPath = join(assetsDir, ref);
     if (!existsSync(fullPath)) {
       errors.push(`asset: referenced file not found: library/assets/${ref}`);
     }
@@ -77,7 +123,7 @@ function validateDragToTarget(
   concept: ConceptBrief | undefined,
   errors: string[]
 ) {
-  const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{ id: string }>;
+  const rawTargets = (activity.filledSlots["targets"] ?? []) as Array<{ id: string; capacity?: number; assetRef?: string }>;
   const targetIds  = new Set(rawTargets.map((t) => t.id));
   const items      = (activity.filledSlots["items"] ?? []) as Array<{ id: string; targetId: string }>;
   const distractors = (activity.filledSlots["distractors"] ?? []) as Array<{ id: string; assetRef?: string }>;
@@ -85,6 +131,33 @@ function validateDragToTarget(
   for (const item of items) {
     if (!targetIds.has(item.targetId)) {
       errors.push(`slot: item "${item.id}" has targetId "${item.targetId}" which does not exist in targets`);
+    }
+  }
+
+  const layoutId = activity.parameters["layoutId"];
+  if (layoutId === "horizontal-six-pairs") {
+    if (rawTargets.length !== items.length || rawTargets.some((target) => target.capacity !== undefined) ||
+        new Set(items.map((item) => item.targetId)).size !== items.length) {
+      errors.push("slot: one-to-one matching requires one unique target per item with no capacity");
+    }
+    const pictureRefs = (items as Array<{ assetRef?: string }>).map((item) => item.assetRef).filter(Boolean);
+    if (new Set(pictureRefs).size !== pictureRefs.length) {
+      errors.push("slot: duplicate matching picture across separate pairs");
+    }
+    const targetById = new Map(rawTargets.map((target) => [target.id, target]));
+    for (const item of items as Array<{ id: string; targetId: string; assetRef?: string }>) {
+      const target = targetById.get(item.targetId);
+      if (target && target.assetRef !== item.assetRef) errors.push(`slot: item "${item.id}" must match its target picture`);
+    }
+  }
+  if (layoutId === "horizontal-category-sort") {
+    if (rawTargets.length !== 2 || rawTargets.some((target) => target.capacity !== 3)) {
+      errors.push("slot: category sort requires exactly two bins with capacity 3");
+    }
+    for (const target of rawTargets) {
+      if (items.filter((item) => item.targetId === target.id).length !== 3) {
+        errors.push(`slot: bin "${target.id}" requires exactly 3 mapped items`);
+      }
     }
   }
 
@@ -139,7 +212,7 @@ function validateDragToTarget(
 
   const distractorCount = distractors.length;
   if (difficulty === "low"    && distractorCount !== 0) errors.push(`params: low difficulty expects 0 distractors, got ${distractorCount}`);
-  if (difficulty === "medium" && distractorCount !== 1) errors.push(`params: medium difficulty expects 1 distractor, got ${distractorCount}`);
+  if (difficulty === "medium" && distractorCount !== 0) errors.push(`params: medium difficulty expects 0 distractors, got ${distractorCount}`);
   if (difficulty === "high"   && distractorCount !== 2) errors.push(`params: high difficulty expects 2 distractors, got ${distractorCount}`);
 }
 
@@ -186,13 +259,13 @@ function collectAssetRefs(activity: ActivityJSON): string[] {
 
   const slotKeys = ["items", "targets", "distractors", "correctItems"];
   for (const key of slotKeys) {
-    const slots = (activity.filledSlots[key] ?? []) as Array<{ assetRef?: string }>;
+    const slots = Array.isArray(activity.filledSlots[key])
+      ? activity.filledSlots[key] as Array<{ assetRef?: string }>
+      : [];
     for (const slot of slots) {
       if (slot.assetRef) refs.push(slot.assetRef);
     }
   }
-
-  if (activity.prompt.audioRef) refs.push(activity.prompt.audioRef);
 
   return refs;
 }

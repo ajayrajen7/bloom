@@ -9,42 +9,18 @@ import {
   type RejectionReason,
 } from "shared/types.js";
 import { getMechanicSpec } from "../../mechanics/loader.js";
+import { getConceptBrief } from "../../concepts/loader.js";
+import { validateActivity } from "./validate.js";
 import { STAGED_DIR } from "./stage.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ACTIVITIES_DIR = join(__dirname, "../../library/activities");
 const REJECTED_DIR   = join(__dirname, "../../library/rejected");
 
-export function approveActivityDirect(activity: ActivityJSON): ActivityJSON {
-  mkdirSync(ACTIVITIES_DIR, { recursive: true });
-
-  const approvedPath = join(ACTIVITIES_DIR, `${activity.id}.json`);
-
-  const layoutId = activity.parameters["layoutId"] as string | undefined;
-  const mechSpec = getMechanicSpec(activity.mechanicId);
-  const layoutVariant = mechSpec?.layouts.find((l) => l.id === layoutId);
-
-  const approved: ActivityJSON = {
-    ...activity,
-    parameters: {
-      ...activity.parameters,
-      ...(layoutVariant ? { layout: layoutVariant } : {}),
-    },
-    metadata: {
-      ...activity.metadata,
-      humanApprovedAt: new Date().toISOString(),
-      humanApprover: "pipeline-auto",
-    },
-  };
-
-  writeFileSync(approvedPath, JSON.stringify(approved, null, 2) + "\n");
-  regenerateActivityIndex();
-
-  console.log(`✓ Auto-approved: library/activities/${activity.id}.json`);
-  return approved;
-}
-
 export function approveActivity(activityId: string, approver: string): ActivityJSON {
+  const namedApprover = approver.trim();
+  if (!namedApprover || namedApprover === "pipeline-auto") throw new Error("A named human approver is required");
+  if (!/^[A-Za-z0-9_-]+$/.test(activityId)) throw new Error("Invalid activity ID");
   mkdirSync(ACTIVITIES_DIR, { recursive: true });
 
   const stagedPath   = join(STAGED_DIR, `${activityId}.json`);
@@ -52,6 +28,9 @@ export function approveActivity(activityId: string, approver: string): ActivityJ
 
   const raw = readFileSync(stagedPath, "utf-8");
   const activity = ActivityJSONSchema.parse(JSON.parse(raw));
+  if (activity.id !== activityId) throw new Error("Staged activity ID does not match its filename");
+  const concept = getConceptBrief(activity.conceptId);
+  if (!concept) throw new Error(`Unknown concept ID: ${activity.conceptId}`);
 
   // Inline the selected layout variant so the runtime is self-contained.
   const layoutId  = activity.parameters["layoutId"] as string | undefined;
@@ -67,9 +46,12 @@ export function approveActivity(activityId: string, approver: string): ActivityJ
     metadata: {
       ...activity.metadata,
       humanApprovedAt: new Date().toISOString(),
-      humanApprover: approver,
+      humanApprover: namedApprover,
     },
   };
+
+  const validation = validateActivity(approved, concept);
+  if (!validation.passed) throw new Error(`Activity cannot be approved: ${validation.errors.join("; ")}`);
 
   writeFileSync(approvedPath, JSON.stringify(approved, null, 2) + "\n");
   renameSync(stagedPath, stagedPath.replace(".json", ".approved.json"));
@@ -105,32 +87,55 @@ export function rejectActivity(
   return rejection;
 }
 
-function regenerateActivityIndex() {
-  const files = readdirSync(ACTIVITIES_DIR)
+export function buildApprovedIndex(
+  candidates: unknown[],
+  conceptLookup: (id: string) => ReturnType<typeof getConceptBrief> = getConceptBrief
+) {
+  const entries = [];
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    const parsed = ActivityJSONSchema.safeParse(candidate);
+    if (!parsed.success) continue;
+    const activity = parsed.data;
+    const approval = activity.metadata;
+    if (!approval.humanApprovedAt || !approval.humanApprover?.trim() || approval.humanApprover.trim() === "pipeline-auto") continue;
+    const concept = conceptLookup(activity.conceptId);
+    if (!/^[A-Za-z0-9_-]+$/.test(activity.id) || !concept) continue;
+    if (seen.has(activity.id) || !validateActivity(activity, concept).passed) continue;
+    seen.add(activity.id);
+    entries.push({
+      id: activity.id,
+      conceptId: activity.conceptId,
+      mechanicId: activity.mechanicId,
+      prompt: activity.prompt.text,
+      difficulty: activity.metadata.difficulty,
+    });
+  }
+  return ActivityIndexSchema.parse({ activities: entries });
+}
+
+export function regenerateActivityIndex(
+  activitiesDir = ACTIVITIES_DIR,
+  conceptLookup: (id: string) => ReturnType<typeof getConceptBrief> = getConceptBrief
+) {
+  const files = readdirSync(activitiesDir)
     .filter((f) => f.endsWith(".json") && !f.endsWith(".approved.json") && f !== "index.json")
     .sort();
 
-  const entries = [];
+  const candidates: unknown[] = [];
   for (const file of files) {
     try {
-      const raw = JSON.parse(readFileSync(join(ACTIVITIES_DIR, file), "utf-8"));
-      const activity = ActivityJSONSchema.parse(raw);
-      entries.push({
-        id:         activity.id,
-        conceptId:  activity.conceptId,
-        mechanicId: activity.mechanicId,
-        prompt:     activity.prompt.text,
-        difficulty: activity.metadata.difficulty,
-      });
+      const raw = JSON.parse(readFileSync(join(activitiesDir, file), "utf-8"));
+      if (raw.id === file.slice(0, -".json".length)) candidates.push(raw);
     } catch {
       // skip malformed files
     }
   }
 
-  const index = ActivityIndexSchema.parse({ activities: entries });
+  const index = buildApprovedIndex(candidates, conceptLookup);
   writeFileSync(
-    join(ACTIVITIES_DIR, "index.json"),
+    join(activitiesDir, "index.json"),
     JSON.stringify(index, null, 2) + "\n"
   );
-  console.log(`  index.json updated (${entries.length} activities)`);
+  console.log(`  index.json updated (${index.activities.length} activities)`);
 }

@@ -12,6 +12,7 @@ import {
 } from "shared/types.js";
 import { getLayoutVariant } from "../../mechanics/loader.js";
 import { formatFilteredTaxonomyForPrompt } from "../taxonomy.js";
+import { resolveThemeSpec } from "../../shared/theme-catalog.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,7 +38,8 @@ export interface TapToSelectPromptResult {
 export async function runTapToSelectPrompt(
   concept: ConceptBrief,
   division: Division,
-  client: Anthropic
+  client: Anthropic,
+  themeId: string
 ): Promise<TapToSelectPromptResult> {
   const template = readFileSync(PROMPT_FILE, "utf-8");
 
@@ -49,7 +51,7 @@ export async function runTapToSelectPrompt(
   const distractorCount = DISTRACTOR_COUNTS[concept.difficulty] ?? 3;
 
   const filled = template
-    .replace("{{THEME_HINT}}", concept.themeHint)
+    .replace("{{THEME_HINT}}", concept.themeHint ?? "")
     .replace("{{DIVISION_NAME}}", division.name)
     .replace("{{DIFFICULTY}}", concept.difficulty)
     .replace("{{CORRECT_COUNT}}", String(correctCount))
@@ -78,7 +80,7 @@ export async function runTapToSelectPrompt(
   }
 
   const llmOutput = LLMTapToSelectOutputSchema.parse(parsedJson);
-  const activity = assembleTapToSelectOutput(llmOutput, concept, correctCount, distractorCount);
+  const activity = assembleTapToSelectOutput(llmOutput, concept, correctCount, distractorCount, themeId);
 
   return {
     raw,
@@ -96,8 +98,10 @@ export function assembleTapToSelectOutput(
   llmOutput: LLMTapToSelectOutput,
   concept: ConceptBrief,
   correctCount: number,
-  distractorCount: number
+  distractorCount: number,
+  themeId: string
 ): ActivityJSON {
+  resolveThemeSpec(themeId);
   const id = `act_${Date.now()}_${randomUUID().slice(0, 6)}`;
   const layoutId = LAYOUT_IDS[concept.difficulty] ?? "grid-2x2";
   const layout = getLayoutVariant("tap-to-select", layoutId);
@@ -110,6 +114,7 @@ export function assembleTapToSelectOutput(
     id,
     conceptId: concept.id,
     mechanicId: "tap-to-select",
+    themeId,
     generatedAt: new Date().toISOString(),
     filledSlots: llmOutput.filledSlots,
     parameters: {

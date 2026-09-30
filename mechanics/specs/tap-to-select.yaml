@@ -56,6 +56,7 @@ parameterSchema:
 # centerFraction is relative to the play area (between prompt and progress bars).
 # radiusFraction (circular) is relative to the play area width.
 # gapFraction (grid) is the gap between cells as a fraction of play area width.
+# rowGapFraction (grid) optionally sets vertical row spacing as a fraction of play area height.
 # elementSize values are in Phaser game units (canvas is 1024x768).
 
 layouts:
@@ -88,6 +89,7 @@ layouts:
         elementCount: { min: 6, max: 6 }
         elementSize: { min: 110, max: 145 }
         gapFraction: 0.06
+        rowGapFraction: 0.05
 
   - id: "grid-3x2"
     description: >

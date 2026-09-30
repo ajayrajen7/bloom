@@ -33,7 +33,7 @@ Factory keep-rate, generation cost, and human minutes are supporting measures. T
 
 Create assets with an image-generation model. Do not assemble the library by downloading unrelated internet assets.
 
-Start with familiar everyday objects across the candidate families the parent identified: fruits, vegetables, utensils, and animals. There is no fixed 90–100 asset target. Begin with the smallest useful pilot that can demonstrate consistency across objects and support the two activity prototypes; expand only after reviewing that pilot.
+The first approved asset pilot is limited to fruits and vegetables, with nine approved versioned sprites already reviewed. Generate with ChatGPT ImageGen only; do not add a provider comparison. There is no fixed asset target. Expand only after reviewing the pilot library.
 
 The registry should represent a canonical object and its intentional variants. Candidate variant dimensions include color and size. Keep the object identity distinct from the way the runtime renders it. Whether size variants should be separate generated images or a render-time scale setting remains an open decision; do not generate duplicate size assets by default without testing whether they add value.
 
@@ -41,12 +41,12 @@ The asset workflow should:
 
 - establish a concise style guide and reusable visual reference before batch generation;
 - generate object sprites as separate, transparent assets, with scene backdrops maintained as separate assets;
-- use sheet generation for within-sheet consistency and reference conditioning across sheets;
+- use the approved individual-sprite workflow with the style reference and reference conditioning;
 - normalize slicing, transparency, canvas/framing, and palette where appropriate;
 - record object, variant, model, prompt/reference, and normalization information in `manifest.json`;
 - review a contact sheet before assets enter the approved library.
 
-The canonical architecture names Recraft v4 as the primary generation model and GPT Image 2 as a comparison arm. Keep that comparison bounded to the pilot; do not expand model comparisons before the style and asset criteria are clear.
+Record the ChatGPT generation surface and any model/version information it exposes. If the underlying model is not identified, record it as unknown.
 
 **Asset review checks:**
 
@@ -62,7 +62,7 @@ Set a practical visual acceptance bar before generating the pilot. Track keep-ra
 
 ### Phase 2 — Use the library in two mechanics
 
-Use the same approved asset library in the two V1.1 mechanics named by the canonical architecture: `tap-one` and `find-all`. Drag-to-target remains parked for this experiment.
+Use the same approved asset library in the already confirmed V1.1 mechanics: `tap-to-select` and `drag-to-target`. Keep one explicit theme shared across both activities.
 
 Create at least one manually reviewable activity for each mechanic. The selected objects and variants should exercise more than one asset family without making the activity content itself too complicated to assess. Keep the content and mechanic code deterministic; AI generates semantic content and visual assets, never gameplay code.
 
@@ -78,8 +78,8 @@ The experiment is qualitative and small. Do not present one child’s sessions a
 
 - A reusable, AI-generated asset library for familiar everyday objects.
 - Canonical objects plus deliberately defined variants.
-- A style-reference, sheet-generation, normalization, manifest, and human-curation workflow.
-- The `tap-one` and `find-all` mechanics from the canonical architecture.
+- A style-reference, normalization, manifest, and human-curation workflow for individual sprites.
+- The `tap-to-select` and `drag-to-target` mechanics.
 - Representative activities using the approved assets.
 - Manual review of both rendered activities and manual observation of child use.
 - Existing local session capture and brief parent notes where useful.
@@ -107,10 +107,12 @@ If asset quality passes but activities do not, keep the library and revise conte
 
 ## 8. Open decisions to resolve before execution
 
-- The concrete visual style guide and reference image for the pilot.
-- Pilot object list and the minimum set needed to exercise both mechanics.
-- The visual acceptance bar for consistency, recognition, and keep-rate.
-- Which variants are separately generated images and which are render-time parameters, especially size.
-- The exact activity prompts/content and manual observation sheet.
+- The manual observation sheet and session procedure.
+
+The approved style reference, asset review criteria, mechanic pair, shared Kitchen theme (theme colors only, no backdrop), and pilot object/activity choices are settled. Use `themeId` explicitly in each composed activity; do not infer the theme from a concept or mechanic. The pilot uses red apple, banana, orange, and carrot: tap to find the red apple among those four, and drag red apple, banana, and orange to matching picture targets.
 
 These decisions should be resolved in the design discussion before implementation begins.
+
+## 9. Follow-up decision — 15 activities for iPad QA
+
+On 2026-09-30 Ajay approved the 15 additional Kitchen produce activities for the one-child iPad pilot. The production index contains the two original pilots plus those 15 activities. This approval does not claim child enjoyment or learning efficacy; those remain to be observed. The existing two mechanics, Kitchen theme, and approved sprites are unchanged.

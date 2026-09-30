@@ -1,0 +1,29 @@
+{
+  "id": "concept_kitchen_mixed_tray_scramble_v1",
+  "mechanicId": "drag-to-target",
+  "targetDivisionId": "fine_motor.pincer_grip",
+  "ageMonths": {
+    "min": 24,
+    "max": 36
+  },
+  "difficulty": "medium",
+  "themeHint": "familiar mixed produce picture matching with shuffled targets",
+  "targetDurationSeconds": 60,
+  "notes": "Drag red apple, green apple, banana, grapes, tomato, and broccoli to their matching pictures, whose order differs from the foods.",
+  "itemSprites": [
+    "apple-red-v1.png",
+    "apple-green-v1.png",
+    "banana-v1.png",
+    "grapes-v1.png",
+    "tomato-v1.png",
+    "broccoli-v1.png"
+  ],
+  "targetSprites": [
+    "tomato-v1.png",
+    "broccoli-v1.png",
+    "apple-red-v1.png",
+    "banana-v1.png",
+    "grapes-v1.png",
+    "apple-green-v1.png"
+  ]
+}

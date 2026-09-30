@@ -1,6 +1,6 @@
 # Bloom Activity and Theme Contract
 
-**Status:** Proposed for Ajay's review; implementation is gated on written-spec approval.
+**Status:** Approved by Ajay on 2026-09-28; product-code implementation is gated on review of the implementation plan.
 **Date:** 2026-09-28
 **Scope:** Reconcile the agreed activity-composition diagram with Bloom's canonical architecture and define the V1.1 activity/theme handoff.
 
@@ -25,11 +25,11 @@ The pilot uses the already approved asset set and a shared theme across the two 
 
 The separate blocks are useful contract boundaries; they do not require each to be a separately deployed service. A5 is the authoring/catalog view. A8 is the approved, versioned publication store. A7 remains between composition and publication even though the simplified diagram omits it. B1 Pack Builder and C1/C2/C5 personalization and selection systems remain outside V1.1.
 
-## 3. Proposed contracts
+## 3. Approved contracts
 
 ### Concept
 
-The concept identifies the age range, skill goal, difficulty, and allowed content/mechanic constraints. It constrains composition but does not own or select the theme. A free-text content hint, if retained for compatibility, is not a theme identifier.
+The concept identifies the age range, skill goal, difficulty, and allowed content/mechanic constraints. It constrains composition but does not own or select the theme. A free-text content hint, if retained, is not a theme identifier.
 
 ### Mechanic
 
@@ -46,6 +46,11 @@ interface ThemeSpec {
   name: string;
   setting: string;
   visualTreatment: string;
+  presentation: {
+    backgroundColor: string;
+    promptPanelColor: string;
+    foregroundColor: string;
+  };
   backgroundAssetRefs?: string[];
   decorationAssetRefs?: string[];
 }
@@ -69,7 +74,7 @@ C3 loads the approved activity and referenced assets, applies the theme's visual
 
 ## 4. V1.1 decisions to carry into the reconciled scope
 
-The canonical V1.1 files currently specify `tap-one` and `find-all`, park drag, and name Recraft v4 plus GPT Image 2 for the asset-model comparison. Later user-approved decisions recorded in the restart checkpoint and phase-two plan specify `tap-to-select` plus `drag-to-target` and ChatGPT ImageGen only. This design recommends keeping the canonical layer boundaries while updating the V1.1 scope to the later approved pilot decisions. The older V1.1 scope text and diagram labels must be reconciled after this design is approved and before implementation begins.
+The canonical V1.1 files formerly specified `tap-one` and `find-all`, parked drag, and named Recraft v4 plus GPT Image 2 for an asset-model comparison. Later user-approved decisions recorded in the restart checkpoint and phase-two plan specify `tap-to-select` plus `drag-to-target` and ChatGPT ImageGen only. Ajay approved keeping the canonical layer boundaries while updating the V1.1 scope to these later pilot decisions. The V1.1 scope text and canonical diagram labels have been reconciled accordingly.
 
 The current fruit/vegetable library is the deliberately bounded first asset family for that pilot. Additional utensils and animals are not prerequisites for the activity/theme interface.
 
@@ -91,6 +96,6 @@ The current fruit/vegetable library is the deliberately bounded first asset fami
 - Building a general story-arc engine, theme marketplace, Pack Builder, child profile, personalization, automated selection, or remote analytics.
 - Changing the asset approval process or generating new assets.
 
-## 7. Review gate
+## 7. Approval and implementation gate
 
-This document is a proposed design. Review and approve it before creating the implementation plan. After approval, reconcile `bloom-v1.1-mvp-spec.md` and the V1.1 scope in the canonical architecture/diagram to the later approved mechanic and provider decisions, then plan implementation. No product code is authorized by this proposal alone.
+Ajay approved this design on 2026-09-28. The implementation plan records the new pilot schema, asset resolution, runtime theme rendering, validation, and activity review. Existing unusable activities are outside the implementation scope. Product-code work begins only after Ajay reviews that plan and chooses the execution approach. No product code is authorized by this design alone.

@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: reusable transparent object sprite for a preschool tablet activity
+Primary request: Create one friendly, familiar ripe red apple as a polished 2D illustration. It should feel warm and appealing to a young child while staying immediately recognizable as an everyday apple.
+Subject: One complete red apple with a short brown stem and one small green leaf. No face or limbs.
+Style/medium: Simple, softly rounded 2D children's illustration; clean smooth outer contour; restrained, even shading and a small soft highlight; modest natural detail; no photorealism, no 3D rendering, no sketch texture.
+Composition/framing: One object only, upright and centered, shown from a slightly turned front view. Keep the full silhouette visible with generous, even transparent margin. Make the apple large enough to read as a game sprite at tablet size.
+Lighting/mood: Soft, even studio-like illumination; cheerful and calm.
+Color palette: Clear warm red apple, small fresh green leaf, short brown stem; natural but child-friendly colors.
+Scene/backdrop: None. Output the isolated object on a genuinely transparent background.
+Text (verbatim): None.
+Constraints: Preserve a simple silhouette and clear separation between apple, leaf, and stem. No object may touch or cross the image edge. No cast shadow or colored halo outside the apple.
+Avoid: Additional fruit, extra leaves, props, baskets, table, ground plane, background, checkerboard pattern, outline frame, letters, labels, watermark, face, limbs, cropped edges, strong gradients, tiny surface details, photorealism, or 3D appearance.
