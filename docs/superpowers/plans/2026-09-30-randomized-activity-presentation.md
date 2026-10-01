@@ -137,8 +137,8 @@ git commit -m "feat: randomize matching pair positions"
 - Test: `tests/integration/randomized-activity-presentation.test.ts`
 - Verify: full existing test/build/typecheck commands; no new activity JSON is expected.
 
-- [ ] **Step 1: Add a library-wide seed sweep** for all currently indexed approved activities, confirming layout bounds, unique item positions, correct-to-target mappings, and seed reproducibility.
-- [ ] **Step 2: Run the full automated checks.**
+- [x] **Step 1: Add a library-wide seed sweep** for all currently indexed approved activities, confirming layout bounds, unique item positions, correct-to-target mappings, and seed reproducibility.
+- [x] **Step 2: Run the full automated checks.**
 
 Run: `pnpm test && pnpm typecheck && pnpm build && git diff --check`
 
