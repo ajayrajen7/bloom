@@ -8,12 +8,21 @@ import { ActivityScene } from "../../runtime/src/scenes/activity.js";
 
 vi.mock("phaser", () => ({ default: { Scene: class Scene {} } }));
 
-const captured = vi.hoisted(() => ({ tapConfigs: [] as unknown[] }));
+const captured = vi.hoisted(() => ({ tapConfigs: [] as unknown[], dragConfigs: [] as unknown[] }));
 
 vi.mock("../../runtime/src/mechanics/tap-to-select.js", () => ({
   TapToSelectMechanic: class {
     constructor(_scene: unknown, items: unknown[]) {
       captured.tapConfigs.push(items);
+    }
+    destroy() {}
+  },
+}));
+
+vi.mock("../../runtime/src/mechanics/drag-to-target.js", () => ({
+  DragToTargetMechanic: class {
+    constructor(_scene: unknown, items: unknown[], targets: unknown[]) {
+      captured.dragConfigs.push({ items, targets });
     }
     destroy() {}
   },
@@ -101,4 +110,101 @@ describe("randomized activity presentation", () => {
 
     expect(tapActivityIds.length).toBeGreaterThan(0);
   });
+
+  it("presents every indexed one-to-one match in separate horizontal slots", () => {
+    const index = JSON.parse(readFileSync(join(root, "library/activities/index.json"), "utf8")) as {
+      activities: Array<{ id: string }>;
+    };
+    const matchingActivityIds: string[] = [];
+
+    for (const entry of index.activities) {
+      const activity = ActivityJSONSchema.parse(JSON.parse(
+        readFileSync(join(root, "library/activities", `${entry.id}.json`), "utf8"),
+      ));
+      if (activity.mechanicId !== "drag-to-target") continue;
+
+      const rawTargets = (activity.filledSlots.targets ?? []) as Array<{ id: string }>;
+      const rawItems = (activity.filledSlots.items ?? []) as Array<{ id: string; targetId: string }>;
+      const referencesPerTarget = rawTargets.map((target) => rawItems.filter((item) => item.targetId === target.id).length);
+      const isOneToOne = rawTargets.length === rawItems.length
+        && new Set(rawItems.map(({ targetId }) => targetId)).size === rawItems.length
+        && referencesPerTarget.every((count) => count === 1);
+      if (!isOneToOne) continue;
+      matchingActivityIds.push(activity.id);
+
+      const layout = LayoutVariantSchema.parse(activity.parameters.layout);
+      const playArea = { x: 0, y: 768 * 0.15, width: 1024, height: 768 * 0.70 };
+      const expectedTargetPositions = computeZonePositions(getZone(layout, "target_zone"), rawTargets.length, playArea);
+      const expectedItemPositions = computeZonePositions(getZone(layout, "item_zone"), rawItems.length, playArea);
+      captured.dragConfigs.length = 0;
+      const scene = createRuntimeHarness(activity);
+      scene.init({ activityId: activity.id });
+      scene.create();
+
+      expect(captured.dragConfigs, activity.id).toHaveLength(1);
+      const { items, targets } = captured.dragConfigs[0] as {
+        items: Array<{ id: string; targetId: string; x: number; y: number }>;
+        targets: Array<{ id: string; x: number; y: number }>;
+      };
+      expect(targets.map(({ id }) => id).sort(), activity.id)
+        .toEqual(rawTargets.map(({ id }) => id).sort());
+      expect(items.map(({ id, targetId }) => [id, targetId]).sort(), activity.id)
+        .toEqual(rawItems.map(({ id, targetId }) => [id, targetId]).sort());
+      expect(new Set(targets.map(({ x, y }) => `${x},${y}`)).size, activity.id).toBe(rawTargets.length);
+      expect(new Set(items.map(({ x, y }) => `${x},${y}`)).size, activity.id).toBe(rawItems.length);
+      expect(targets.map(({ x, y }) => `${x},${y}`).sort(), activity.id)
+        .toEqual(expectedTargetPositions.map(({ x, y }) => `${x},${y}`).sort());
+      expect(items.map(({ x, y }) => `${x},${y}`).sort(), activity.id)
+        .toEqual(expectedItemPositions.map(({ x, y }) => `${x},${y}`).sort());
+
+      const targetRanks = horizontalRanks(targets);
+      const itemRanks = horizontalRanks(items);
+      const targetSlotById = new Map(targets.map((target, slot) => [target.id, targetRanks[slot]!]));
+      items.forEach((item, slot) => {
+        expect(itemRanks[slot], `${activity.id}: ${item.id} start slot`)
+          .not.toBe(targetSlotById.get(item.targetId));
+      });
+    }
+
+    expect(matchingActivityIds.length).toBeGreaterThan(0);
+  });
+
+  it("preserves many-to-one category mappings and unique starts", () => {
+    const index = JSON.parse(readFileSync(join(root, "library/activities/index.json"), "utf8")) as {
+      activities: Array<{ id: string }>;
+    };
+    const categoryActivities: string[] = [];
+
+    for (const entry of index.activities) {
+      const activity = ActivityJSONSchema.parse(JSON.parse(
+        readFileSync(join(root, "library/activities", `${entry.id}.json`), "utf8"),
+      ));
+      if (activity.mechanicId !== "drag-to-target") continue;
+
+      const rawTargets = (activity.filledSlots.targets ?? []) as Array<{ id: string }>;
+      const rawItems = (activity.filledSlots.items ?? []) as Array<{ id: string; targetId: string }>;
+      if (rawItems.length === rawTargets.length) continue;
+      categoryActivities.push(activity.id);
+
+      captured.dragConfigs.length = 0;
+      const scene = createRuntimeHarness(activity);
+      scene.init({ activityId: activity.id });
+      scene.create();
+      expect(captured.dragConfigs, activity.id).toHaveLength(1);
+      const { items } = captured.dragConfigs[0] as {
+        items: Array<{ id: string; targetId: string; x: number; y: number }>;
+      };
+      expect(items.map(({ id, targetId }) => [id, targetId]).sort(), activity.id)
+        .toEqual(rawItems.map(({ id, targetId }) => [id, targetId]).sort());
+      expect(new Set(items.map(({ x, y }) => `${x},${y}`)).size, activity.id).toBe(rawItems.length);
+    }
+
+    expect(categoryActivities.length).toBeGreaterThan(0);
+  });
 });
+
+function horizontalRanks(points: Array<{ x: number }>): number[] {
+  const columns = [...new Set(points.map(({ x }) => x))].sort((a, b) => a - b);
+  const rankByX = new Map(columns.map((x, rank) => [x, rank]));
+  return points.map(({ x }) => rankByX.get(x)!);
+}

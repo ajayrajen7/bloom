@@ -17,7 +17,7 @@ import {
   createMechanicVisualConfig,
   type PresentationColors,
 } from "../themes/theme-resolver.js";
-import { arrangeTapChoices } from "../presentation/randomized-arrangement.js";
+import { arrangeDragRows, arrangeTapChoices } from "../presentation/randomized-arrangement.js";
 import { activityJsonCacheKey } from "./activity-cache-key.js";
 
 const PROMPT_H   = 0.15;
@@ -139,24 +139,31 @@ export class ActivityScene extends Phaser.Scene {
 
       const targetPositions = computeZonePositions(targetZone, rawTargets.length, playArea);
       const itemPositions   = computeZonePositions(itemZone,   rawItems.length,   playArea);
+      const arrangedRows = arrangeDragRows(
+        rawTargets,
+        targetPositions,
+        rawItems,
+        itemPositions,
+        this.sessionId,
+      );
 
-      const targets: TargetConfig[] = rawTargets.map((t, i) => ({
-        id:       t.id,
-        label:    t.label,
+      const targets: TargetConfig[] = arrangedRows.targets.map((target) => ({
+        id:       target.id,
+        label:    target.label,
         color:    colors.foregroundFill,
-        x:        targetPositions[i].x,
-        y:        targetPositions[i].y,
-        assetRef: t.assetRef,
-        capacity: t.capacity,
+        x:        target.position.x,
+        y:        target.position.y,
+        assetRef: target.assetRef,
+        capacity: target.capacity,
       }));
 
-      const items: ItemConfig[] = rawItems.map((item, i) => ({
+      const items: ItemConfig[] = arrangedRows.items.map((item) => ({
         id:       item.id,
         targetId: item.targetId,
         label:    item.label,
         color:    colors.foregroundFill,
-        x:        itemPositions[i].x,
-        y:        itemPositions[i].y,
+        x:        item.position.x,
+        y:        item.position.y,
         assetRef: item.assetRef,
       }));
 

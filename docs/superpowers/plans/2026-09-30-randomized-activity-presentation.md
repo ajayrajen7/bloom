@@ -114,17 +114,17 @@ git commit -m "feat: randomize find activity choices"
 - Keep item `targetId` unchanged; position target and item rows independently using `this.sessionId`.
 - For each one-to-one item, use its matching target's logical slot index to verify its start slot differs from the target slot. Do not match on array index or sprite label.
 
-- [ ] **Step 1: Add a failing integration assertion** named `presents every indexed one-to-one match in separate horizontal slots`; assert all items and targets remain present, every item retains its `targetId`, and no pair shares the same horizontal slot.
+- [x] **Step 1: Add a failing integration assertion** named `presents every indexed one-to-one match in separate horizontal slots`; assert all items and targets remain present, every item retains its `targetId`, and no pair shares the same horizontal slot.
 - [x] **Step 2: Run the focused integration test and verify it fails** because the current runtime maps both authored arrays in their original sequence.
-- [ ] **Step 3: Wire `arrangeDragRows` into `ActivityScene`** after computing the two position arrays; build target and item configs from the returned records and positions.
-- [ ] **Step 4: Verify many-to-one category sort behavior**: all six items retain their declared two-bin mapping and occupy unique starts; category bins do not get one-to-one derangement constraints.
-- [ ] **Step 5: Run the focused integration test and verify all drag cases pass.**
+- [x] **Step 3: Wire `arrangeDragRows` into `ActivityScene`** after computing the two position arrays; build target and item configs from the returned records and positions.
+- [x] **Step 4: Verify many-to-one category sort behavior**: all six items retain their declared two-bin mapping and occupy unique starts; category bins do not get one-to-one derangement constraints.
+- [x] **Step 5: Run the focused integration test and verify all drag cases pass.**
 
 Run: `pnpm exec vitest run tests/integration/randomized-activity-presentation.test.ts tests/integration/staged-activity-fruit-stand-match.test.ts tests/integration/staged-activity-garden-harvest-match.test.ts tests/integration/staged-activity-market-match.test.ts tests/integration/staged-activity-fruit-or-vegetable-sort.test.ts`
 
 Expected: PASS for matching, existing wrong-drop behavior, completion, and category sorting.
 
-- [ ] **Step 6: Commit the drag matching presentation and integration assertions.**
+- [x] **Step 6: Commit the drag matching presentation and integration assertions.**
 
 ```bash
 git add runtime/src/scenes/activity.ts tests/integration/randomized-activity-presentation.test.ts
