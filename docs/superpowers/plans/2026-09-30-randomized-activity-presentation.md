@@ -149,4 +149,4 @@ Expected: all tests and type checks pass, production build succeeds, and the dif
 
 ## Resume Handoff
 
-Implementation Tasks 1–3 and automated Task 4 verification are committed on `codex/randomized-activity-presentation`, based on `origin/main` at `67ac251` (merged PR #3). Physical iPad verification in Task 4 Steps 3–4 remains pending; complete it before preparing the PR. Do not change activity JSON to hand-code item positions.
+Implementation Tasks 1–3 and automated Task 4 verification are committed on `codex/randomized-activity-presentation`, based on `origin/main` at `67ac251` (merged PR #3). Physical iPad verification in Task 4 Step 3 remains pending; complete it before treating the pilot presentation as fully verified. PR #4 has been opened. Do not change activity JSON to hand-code item positions.
