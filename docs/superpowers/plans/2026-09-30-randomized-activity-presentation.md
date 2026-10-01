@@ -149,4 +149,4 @@ Expected: all tests and type checks pass, production build succeeds, and the dif
 
 ## Resume Handoff
 
-This is the next Bloom implementation task. Start from the latest default branch containing merged PR #3. Do not change activity JSON to hand-code item positions. Execute Tasks 1–4 in order; they share one presentation helper and one runtime integration point. Implementation has not started as of this plan's creation.
+Implementation Tasks 1–3 and automated Task 4 verification are committed on `codex/randomized-activity-presentation`, based on `origin/main` at `67ac251` (merged PR #3). Physical iPad verification in Task 4 Steps 3–4 remains pending; complete it before preparing the PR. Do not change activity JSON to hand-code item positions.
