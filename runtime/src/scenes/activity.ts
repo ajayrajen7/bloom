@@ -17,6 +17,7 @@ import {
   createMechanicVisualConfig,
   type PresentationColors,
 } from "../themes/theme-resolver.js";
+import { arrangeTapChoices } from "../presentation/randomized-arrangement.js";
 import { activityJsonCacheKey } from "./activity-cache-key.js";
 
 const PROMPT_H   = 0.15;
@@ -192,13 +193,14 @@ export class ActivityScene extends Phaser.Scene {
         ...distractors.map((d) => ({ ...d, isCorrect: false as const })),
       ];
       const itemPositions = computeZonePositions(itemZone, allItems.length, playArea);
+      const arrangedItems = arrangeTapChoices(allItems, itemPositions, this.sessionId);
 
-      const tapItems: TapItemConfig[] = allItems.map((item, i) => ({
+      const tapItems: TapItemConfig[] = arrangedItems.map((item) => ({
         id:        item.id,
         label:     item.label,
         assetRef:  item.assetRef,
-        x:         itemPositions[i].x,
-        y:         itemPositions[i].y,
+        x:         item.position.x,
+        y:         item.position.y,
         isCorrect: item.isCorrect,
       }));
 

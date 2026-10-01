@@ -82,21 +82,21 @@ git commit -m "feat: add seeded activity presentation arrangements"
 - `ActivityScene.sessionId` is created once in `init()` for each attempt and is the arrangement seed.
 - Build each `TapItemConfig` from the arranged item and its returned `position`; preserve `isCorrect` without using presentation order to infer answers.
 
-- [ ] **Step 1: Add a failing runtime integration test** named `presents every indexed tap activity with all choices and unchanged correctness`; assert each indexed activity preserves its correct/distractor IDs, assigns each item one position, and never presents all correct choices in the leading `correctCount` slots when distractors exist.
-- [ ] **Step 2: Run the focused integration test and verify it fails** because the runtime still maps the concatenated correct-then-distractor array directly to positions.
+- [x] **Step 1: Add a failing runtime integration test** named `presents every indexed tap activity with all choices and unchanged correctness`; assert each indexed activity preserves its correct/distractor IDs, assigns each item one position, and never presents all correct choices in the leading `correctCount` slots when distractors exist.
+- [x] **Step 2: Run the focused integration test and verify it fails** because the runtime still maps the concatenated correct-then-distractor array directly to positions.
 
 Run: `pnpm exec vitest run tests/integration/randomized-activity-presentation.test.ts`
 
 Expected: FAIL on the current unrandomized tap presentation.
 
-- [ ] **Step 3: Wire `arrangeTapChoices` into `ActivityScene`** after `computeZonePositions`; pass `this.sessionId` and construct the mechanic's tap configs from arranged output.
-- [ ] **Step 4: Run the focused integration test and verify it passes** for every active indexed tap activity, including one-correct, two-correct, and three-correct rounds.
+- [x] **Step 3: Wire `arrangeTapChoices` into `ActivityScene`** after `computeZonePositions`; pass `this.sessionId` and construct the mechanic's tap configs from arranged output.
+- [x] **Step 4: Run the focused integration test and verify it passes** for every active indexed tap activity, including one-correct, two-correct, and three-correct rounds.
 
 Run: `pnpm exec vitest run tests/integration/randomized-activity-presentation.test.ts`
 
 Expected: PASS with unchanged correctness and no target set in the leading prefix.
 
-- [ ] **Step 5: Commit the tap-to-select runtime wiring and integration test.**
+- [x] **Step 5: Commit the tap-to-select runtime wiring and integration test.**
 
 ```bash
 git add runtime/src/scenes/activity.ts tests/integration/randomized-activity-presentation.test.ts
@@ -115,7 +115,7 @@ git commit -m "feat: randomize find activity choices"
 - For each one-to-one item, use its matching target's logical slot index to verify its start slot differs from the target slot. Do not match on array index or sprite label.
 
 - [ ] **Step 1: Add a failing integration assertion** named `presents every indexed one-to-one match in separate horizontal slots`; assert all items and targets remain present, every item retains its `targetId`, and no pair shares the same horizontal slot.
-- [ ] **Step 2: Run the focused integration test and verify it fails** because the current runtime maps both authored arrays in their original sequence.
+- [x] **Step 2: Run the focused integration test and verify it fails** because the current runtime maps both authored arrays in their original sequence.
 - [ ] **Step 3: Wire `arrangeDragRows` into `ActivityScene`** after computing the two position arrays; build target and item configs from the returned records and positions.
 - [ ] **Step 4: Verify many-to-one category sort behavior**: all six items retain their declared two-bin mapping and occupy unique starts; category bins do not get one-to-one derangement constraints.
 - [ ] **Step 5: Run the focused integration test and verify all drag cases pass.**
