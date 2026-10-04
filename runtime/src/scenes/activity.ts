@@ -18,6 +18,7 @@ import {
   createMechanicVisualConfig,
   type PresentationColors,
 } from "../themes/theme-resolver.js";
+import { arrangeDragRows, arrangeTapChoices } from "../presentation/randomized-arrangement.js";
 import { activityJsonCacheKey } from "./activity-cache-key.js";
 import { promptAudioUrl, type RuntimeVoiceoverConfig } from "../voiceover.js";
 
@@ -262,24 +263,31 @@ export class ActivityScene extends Phaser.Scene {
 
       const targetPositions = computeZonePositions(targetZone, rawTargets.length, playArea);
       const itemPositions   = computeZonePositions(itemZone,   rawItems.length,   playArea);
+      const arrangedRows = arrangeDragRows(
+        rawTargets,
+        targetPositions,
+        rawItems,
+        itemPositions,
+        this.sessionId,
+      );
 
-      const targets: TargetConfig[] = rawTargets.map((t, i) => ({
-        id:       t.id,
-        label:    t.label,
+      const targets: TargetConfig[] = arrangedRows.targets.map((target) => ({
+        id:       target.id,
+        label:    target.label,
         color:    colors.foregroundFill,
-        x:        targetPositions[i].x,
-        y:        targetPositions[i].y,
-        assetRef: t.assetRef,
-        capacity: t.capacity,
+        x:        target.position.x,
+        y:        target.position.y,
+        assetRef: target.assetRef,
+        capacity: target.capacity,
       }));
 
-      const items: ItemConfig[] = rawItems.map((item, i) => ({
+      const items: ItemConfig[] = arrangedRows.items.map((item) => ({
         id:       item.id,
         targetId: item.targetId,
         label:    item.label,
         color:    colors.foregroundFill,
-        x:        itemPositions[i].x,
-        y:        itemPositions[i].y,
+        x:        item.position.x,
+        y:        item.position.y,
         assetRef: item.assetRef,
       }));
 
@@ -318,13 +326,14 @@ export class ActivityScene extends Phaser.Scene {
         ...distractors.map((d) => ({ ...d, isCorrect: false as const })),
       ];
       const itemPositions = computeZonePositions(itemZone, allItems.length, playArea);
+      const arrangedItems = arrangeTapChoices(allItems, itemPositions, this.sessionId);
 
-      const tapItems: TapItemConfig[] = allItems.map((item, i) => ({
+      const tapItems: TapItemConfig[] = arrangedItems.map((item) => ({
         id:        item.id,
         label:     item.label,
         assetRef:  item.assetRef,
-        x:         itemPositions[i].x,
-        y:         itemPositions[i].y,
+        x:         item.position.x,
+        y:         item.position.y,
         isCorrect: item.isCorrect,
       }));
 
