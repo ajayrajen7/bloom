@@ -19,39 +19,62 @@ const pilotConcept: ConceptBrief = {
 };
 const pilotConceptLookup = (id: string) => id === pilotConcept.id ? pilotConcept : undefined;
 
+function createLibraryFixture() {
+  const libraryDir = mkdtempSync(join(tmpdir(), "bloom-allowlist-"));
+  mkdirSync(join(libraryDir, "activities"));
+  mkdirSync(join(libraryDir, "themes"));
+  mkdirSync(join(libraryDir, "assets/sprites"), { recursive: true });
+  copyFileSync(join(root, "library/themes/kitchen-v1.json"), join(libraryDir, "themes/kitchen-v1.json"));
+  const manifestPath = join(libraryDir, "assets/manifest.json");
+  copyFileSync(join(root, "library/assets/manifest.json"), manifestPath);
+  for (const ref of APPROVED_SPRITE_REFS) {
+    symlinkSync(join(root, "library/assets", ref), join(libraryDir, "assets", ref));
+  }
+
+  const activity = {
+    id: "approved_pilot", conceptId: "concept_001", mechanicId: "drag-to-target", themeId: "kitchen-v1",
+    generatedAt: "2026-09-29T00:00:00.000Z",
+    filledSlots: {
+      items: [
+        { id: "apple", targetId: "fruit", assetRef: "sprites/apple-red-v1.png" },
+        { id: "banana", targetId: "fruit", assetRef: "sprites/banana-v1.png" },
+        { id: "orange", targetId: "fruit", assetRef: "sprites/orange-v1.png" },
+      ],
+      targets: [{ id: "fruit", label: "Fruit" }], distractors: [],
+    },
+    parameters: { layoutId: "horizontal-standard", layout: getLayoutVariant("drag-to-target", "horizontal-standard"), itemCount: 3, distractorCount: 0 },
+    prompt: { text: "Put fruit here!", audioRef: "audio/prompts/PLACEHOLDER.mp3" },
+    audioRefs: { successSfx: "audio/sfx/success_bright.mp3", errorSfx: "audio/sfx/try_again.mp3", completionSfx: "audio/sfx/celebration.mp3" },
+    metadata: { targetDivisionId: "fine_motor.pincer_grip", ageMonths: { min: 24, max: 36 }, difficulty: "low", targetDurationSeconds: 40, reviewScore: 0.95, reviewerNotes: "Reviewed", humanApprovedAt: "2026-09-29T00:00:00.000Z", humanApprover: "ajay" },
+  };
+  writeFileSync(join(libraryDir, "activities/approved_pilot.json"), JSON.stringify(activity));
+  writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
+    { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
+  ] }));
+
+  const activePackId = "fixture-v1";
+  const packDir = join(libraryDir, "assets/audio/voice-packs", activePackId);
+  const promptPath = join(packDir, "prompts/approved_pilot.m4a");
+  const completionPath = join(packDir, "well-done.m4a");
+  mkdirSync(dirname(promptPath), { recursive: true });
+  writeFileSync(join(libraryDir, "assets/audio/voiceover.json"), JSON.stringify({ activePackId }));
+  writeFileSync(join(libraryDir, "assets/audio/voiceover-scripts.json"), JSON.stringify({
+    completionText: "Well done!",
+    prompts: { approved_pilot: "Put three fruits on their matching pictures." },
+  }));
+  writeFileSync(promptPath, Buffer.from("fixture prompt audio"));
+  writeFileSync(completionPath, Buffer.from("fixture completion audio"));
+  const inactive = join(libraryDir, "assets/audio/voice-packs/unused/prompts/unused.m4a");
+  mkdirSync(dirname(inactive), { recursive: true });
+  writeFileSync(inactive, Buffer.from("inactive voice pack"));
+
+  return { libraryDir, activity, manifestPath, promptPath, completionPath, inactive };
+}
+
 describe("runtime publication boundary", () => {
   it("includes a referenced theme only for a valid human-approved indexed activity", () => {
-    const libraryDir = mkdtempSync(join(tmpdir(), "bloom-allowlist-"));
+    const { libraryDir, activity, manifestPath } = createLibraryFixture();
     try {
-      mkdirSync(join(libraryDir, "activities"));
-      mkdirSync(join(libraryDir, "themes"));
-      mkdirSync(join(libraryDir, "assets/sprites"), { recursive: true });
-      copyFileSync(join(root, "library/themes/kitchen-v1.json"), join(libraryDir, "themes/kitchen-v1.json"));
-      const manifestPath = join(libraryDir, "assets/manifest.json");
-      copyFileSync(join(root, "library/assets/manifest.json"), manifestPath);
-      for (const ref of APPROVED_SPRITE_REFS) {
-        symlinkSync(join(root, "library/assets", ref), join(libraryDir, "assets", ref));
-      }
-      const activity = {
-        id: "approved_pilot", conceptId: "concept_001", mechanicId: "drag-to-target", themeId: "kitchen-v1",
-        generatedAt: "2026-09-29T00:00:00.000Z",
-        filledSlots: {
-          items: [
-            { id: "apple", targetId: "fruit", assetRef: "sprites/apple-red-v1.png" },
-            { id: "banana", targetId: "fruit", assetRef: "sprites/banana-v1.png" },
-            { id: "orange", targetId: "fruit", assetRef: "sprites/orange-v1.png" },
-          ],
-          targets: [{ id: "fruit", label: "Fruit" }], distractors: [],
-        },
-        parameters: { layoutId: "horizontal-standard", layout: getLayoutVariant("drag-to-target", "horizontal-standard"), itemCount: 3, distractorCount: 0 },
-        prompt: { text: "Put fruit here!", audioRef: "audio/prompts/PLACEHOLDER.mp3" },
-        audioRefs: { successSfx: "audio/sfx/success_bright.mp3", errorSfx: "audio/sfx/try_again.mp3", completionSfx: "audio/sfx/celebration.mp3" },
-        metadata: { targetDivisionId: "fine_motor.pincer_grip", ageMonths: { min: 24, max: 36 }, difficulty: "low", targetDurationSeconds: 40, reviewScore: 0.95, reviewerNotes: "Reviewed", humanApprovedAt: "2026-09-29T00:00:00.000Z", humanApprover: "ajay" },
-      };
-      writeFileSync(join(libraryDir, "activities/approved_pilot.json"), JSON.stringify(activity));
-      writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
-        { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
-      ] }));
       expect(() => collectRuntimeFiles(libraryDir)).toThrow("outside the concept");
       const files = collectRuntimeFiles(libraryDir, pilotConceptLookup);
       expect([...files.keys()]).toContain("/themes/kitchen-v1.json");
@@ -86,6 +109,76 @@ describe("runtime publication boundary", () => {
     } finally {
       rmSync(libraryDir, { recursive: true, force: true });
     }
+  });
+
+  it("publication exposes only a complete selected voice pack", () => {
+    const ids = JSON.parse(readFileSync(join(root, "library/activities/index.json"), "utf8")).activities.map(
+      (entry: { id: string }) => entry.id
+    );
+    const files = collectRuntimeFiles();
+    const expectedAudioPaths = [
+      ...ids.map((id: string) => `/assets/audio/voice-packs/pilot-v1/prompts/${id}.m4a`),
+      "/assets/audio/voice-packs/pilot-v1/well-done.m4a",
+    ];
+
+    for (const path of expectedAudioPaths) expect(files.has(path), path).toBe(true);
+    expect([...files.keys()].filter((path) => path.includes("/voice-packs/")).sort()).toEqual(expectedAudioPaths.sort());
+    expect(files.has("/library/assets/audio/voiceover-scripts.json")).toBe(false);
+    expect(files.has("/assets/audio/voice-packs/pilot-v1/manifest.json")).toBe(false);
+    const runtimeConfig = files.get("/voiceover.json");
+    expect(Buffer.isBuffer(runtimeConfig)).toBe(true);
+    if (!Buffer.isBuffer(runtimeConfig)) return;
+    const config = JSON.parse(runtimeConfig.toString("utf8"));
+    expect(config.activePackId).toBe("pilot-v1");
+    expect(config.promptPathPattern).toBe("/assets/audio/voice-packs/{packId}/prompts/{activityId}.m4a");
+    expect(config.completionPathPattern).toBe("/assets/audio/voice-packs/{packId}/well-done.m4a");
+    expect(Object.keys(config.promptScripts).sort()).toEqual(ids.sort());
+  });
+
+  it("publication does not include a different voice pack", () => {
+    const fixture = createLibraryFixture();
+    try {
+      const files = collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup);
+      expect(files.has("/assets/audio/voice-packs/fixture-v1/prompts/approved_pilot.m4a")).toBe(true);
+      expect(files.has("/assets/audio/voice-packs/fixture-v1/well-done.m4a")).toBe(true);
+      expect([...files.keys()].some((path) => path.includes("/voice-packs/unused/"))).toBe(false);
+      expect(files.has("/assets/audio/voice-packs/unused/prompts/unused.m4a")).toBe(false);
+    } finally {
+      rmSync(fixture.libraryDir, { recursive: true, force: true });
+    }
+  });
+
+  it("publication rejects incomplete or unsafe voice pack configuration", () => {
+    const fixture = createLibraryFixture();
+    const configPath = join(fixture.libraryDir, "assets/audio/voiceover.json");
+    const writeConfig = (activePackId: string) => writeFileSync(configPath, JSON.stringify({ activePackId }));
+    try {
+      writeConfig("../outside");
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("Invalid active voice pack ID");
+
+      writeConfig("PLACEHOLDER.mp3");
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("Invalid active voice pack ID");
+
+      writeConfig("fixture-v1");
+      rmSync(fixture.promptPath);
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("approved_pilot.m4a");
+
+      writeFileSync(fixture.promptPath, Buffer.alloc(0));
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("approved_pilot.m4a");
+
+      writeFileSync(fixture.promptPath, Buffer.from("fixture prompt audio"));
+      rmSync(fixture.completionPath);
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("well-done.m4a");
+    } finally {
+      rmSync(fixture.libraryDir, { recursive: true, force: true });
+    }
+  });
+
+  it("publication serves selected narration with audio/mp4", () => {
+    const promptPath = "/assets/audio/voice-packs/pilot-v1/prompts/act_pilot_kitchen_tap_v1.m4a";
+    const completionPath = "/assets/audio/voice-packs/pilot-v1/well-done.m4a";
+    expect(runtimeAssetResponse(promptPath)?.contentType).toBe("audio/mp4");
+    expect(runtimeAssetResponse(completionPath)?.contentType).toBe("audio/mp4");
   });
 
   it("builds only the active index and registered runtime assets", async () => {
