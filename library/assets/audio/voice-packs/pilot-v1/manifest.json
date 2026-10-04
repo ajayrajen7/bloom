@@ -116,7 +116,16 @@
     {
       "kind": "completion",
       "text": "Well done!",
-      "path": "audio/voice-packs/pilot-v1/well-done.m4a"
+      "path": "audio/voice-packs/pilot-v1/well-done.m4a",
+      "sourceVoice": {
+        "name": "Flo",
+        "locale": "en_US",
+        "rate": "macOS say default"
+      },
+      "generationTool": {
+        "speech": "macOS say -v Flo",
+        "container": "M4A/LPCM 16-bit big-endian mono 22050 Hz"
+      }
     }
   ]
 }
