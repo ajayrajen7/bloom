@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import Phaser from "phaser";
 import { ActivityJSONSchema, LayoutVariantSchema } from "shared/types.js";
 import { computeZonePositions, getZone, type PlayArea } from "shared/layout-engine.js";
@@ -18,6 +19,7 @@ import {
   type PresentationColors,
 } from "../themes/theme-resolver.js";
 import { activityJsonCacheKey } from "./activity-cache-key.js";
+import { promptAudioUrl, type RuntimeVoiceoverConfig } from "../voiceover.js";
 
 const PROMPT_H   = 0.15;
 const PROGRESS_H = 0.15;
@@ -32,12 +34,20 @@ export class ActivityScene extends Phaser.Scene {
   private placedCount = 0;
   private presentationColors?: PresentationColors;
   private review = false;
+  private activity?: import("shared/types.js").ActivityJSON;
+  private voiceover?: RuntimeVoiceoverConfig;
+  private promptLoadFailed = false;
+  private boardBuilt = false;
+  private boardObjects: Array<Phaser.GameObjects.GameObject & { setVisible(visible: boolean): unknown }> = [];
+  private instructionObjects: Phaser.GameObjects.GameObject[] = [];
+  private promptSound?: Phaser.Sound.BaseSound;
+  private instructionCaption = "";
 
   constructor() {
     super({ key: "ActivityScene" });
   }
 
-  init(data: { activityId: string; review?: boolean }) {
+  init(data: { activityId: string; review?: boolean; voiceover?: RuntimeVoiceoverConfig }) {
     this.activityId  = data.activityId ?? "act_dev_001";
     this.sessionId   = crypto.randomUUID();
     this.startedAt   = new Date().toISOString();
@@ -45,6 +55,13 @@ export class ActivityScene extends Phaser.Scene {
     this.progressDots = [];
     this.presentationColors = undefined;
     this.review = Boolean(data.review) && import.meta.env.DEV;
+    this.voiceover = data.voiceover;
+    this.activity = undefined;
+    this.promptLoadFailed = false;
+    this.boardBuilt = false;
+    this.boardObjects = [];
+    this.instructionObjects = [];
+    this.promptSound = undefined;
   }
 
   preload() {
@@ -52,6 +69,10 @@ export class ActivityScene extends Phaser.Scene {
       activityJsonCacheKey(this.activityId),
       this.review ? `/staged/${this.activityId}.json` : `/activities/${this.activityId}.json`
     );
+    if (!this.review && this.voiceover?.promptScripts[this.activityId]) {
+      this.load.audio(this.promptSoundKey(), promptAudioUrl(this.voiceover.activePackId, this.activityId));
+      this.load.on("loaderror", this.onPromptLoadError, this);
+    }
     queueApprovedSpriteLoads(
       (key) => this.textures.exists(key),
       (key, url) => this.load.image(key, url)
@@ -77,7 +98,7 @@ export class ActivityScene extends Phaser.Scene {
       return;
     }
     this.presentationColors = colors;
-    const mechanicVisuals = createMechanicVisualConfig(colors);
+    this.activity = activity;
 
     try {
       requireActivitySpriteTextures(activity, (key) => this.textures.exists(key));
@@ -86,6 +107,23 @@ export class ActivityScene extends Phaser.Scene {
       return;
     }
 
+    if (this.review) {
+      this.buildBoard(activity, colors);
+      return;
+    }
+    this.instructionCaption = this.voiceover?.promptScripts[this.activityId] ?? activity.prompt.text;
+    if (this.promptLoadFailed || !this.voiceover || !this.voiceover.promptScripts[this.activityId]) {
+      this.showInstructionScreen(colors, false, true);
+      return;
+    }
+    this.showInstructionScreen(colors, false, false);
+    this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
+  }
+
+  private buildBoard(activity: import("shared/types.js").ActivityJSON, colors: PresentationColors) {
+    if (this.boardBuilt) return;
+    this.boardBuilt = true;
+    const mechanicVisuals = createMechanicVisualConfig(colors);
     const { width, height } = this.scale;
     const playAreaY = height * PROMPT_H;
     const playAreaH = height * (1 - PROMPT_H - PROGRESS_H);
@@ -224,6 +262,141 @@ export class ActivityScene extends Phaser.Scene {
     } else {
       this.showError(`Unknown mechanic: ${activity.mechanicId}`);
     }
+
+    this.boardObjects = [...this.children.list] as typeof this.boardObjects;
+    this.addReplayControl(colors);
+  }
+
+  private promptSoundKey() { return `voiceover-prompt-${this.activityId}`; }
+
+  private onPromptLoadError(file: { key?: string }) {
+    if (file?.key === this.promptSoundKey()) this.promptLoadFailed = true;
+  }
+
+  private playPrompt(onComplete: () => void, onFailure: () => void) {
+    if (!this.cache.audio.exists(this.promptSoundKey())) {
+      onFailure();
+      return;
+    }
+    try {
+      const sound = this.sound.add(this.promptSoundKey());
+      this.promptSound = sound;
+      let settled = false;
+      const finish = (callback: () => void) => {
+        if (settled) return;
+        settled = true;
+        sound.destroy();
+        if (this.promptSound === sound) this.promptSound = undefined;
+        callback();
+      };
+      sound.once("complete", () => finish(onComplete));
+      sound.once("playerror", () => finish(onFailure));
+      sound.once("error", () => finish(onFailure));
+      if (!sound.play()) finish(onFailure);
+    } catch {
+      onFailure();
+    }
+  }
+
+  private trackInstructionObject<T extends Phaser.GameObjects.GameObject>(object: T): T {
+    this.instructionObjects.push(object);
+    return object;
+  }
+
+  private clearInstructionScreen() {
+    for (const object of this.instructionObjects) object.destroy();
+    this.instructionObjects = [];
+  }
+
+  private showInstructionScreen(colors: PresentationColors, replay: boolean, failed: boolean) {
+    this.clearInstructionScreen();
+    const { width, height } = this.scale;
+    const depth = 1000;
+    this.trackInstructionObject(this.add.rectangle(width / 2, height / 2, width, height, colors.backgroundFill).setDepth(depth));
+    this.trackInstructionObject(this.add.text(width / 2, height * 0.32, this.instructionCaption, {
+      fontFamily: "system-ui, sans-serif", fontSize: "34px", color: colors.foregroundText,
+      fontStyle: "bold", align: "center", wordWrap: { width: width * 0.82 },
+    }).setOrigin(0.5).setDepth(depth + 1));
+
+    if (failed) {
+      this.trackInstructionObject(this.add.text(width / 2, height * 0.53, "Voice isn’t ready yet", {
+        fontFamily: "system-ui, sans-serif", fontSize: "24px", color: colors.foregroundText, align: "center",
+      }).setOrigin(0.5).setDepth(depth + 1));
+      this.addInstructionButton(width / 2, height * 0.68, "Try voice again", colors, () => {
+        this.retryPrompt(colors);
+      });
+      this.addInstructionButton(width / 2, height * 0.82, "Start activity", colors, () => this.startActivity());
+    } else {
+      const speaker = this.trackInstructionObject(this.add.text(width / 2, height * 0.57, "🔊", {
+        fontFamily: "system-ui, sans-serif", fontSize: "96px", color: colors.foregroundText,
+      }).setOrigin(0.5).setDepth(depth + 1));
+      this.tweens.add({ targets: speaker, scaleX: 1.06, scaleY: 1.06, duration: 750, yoyo: true, repeat: -1 });
+      this.trackInstructionObject(this.add.text(width / 2, height * 0.73, replay ? "Listening again…" : "Getting ready…", {
+        fontFamily: "system-ui, sans-serif", fontSize: "24px", color: colors.foregroundText,
+      }).setOrigin(0.5).setDepth(depth + 1));
+      const spinner = this.trackInstructionObject(this.add.text(width / 2, height * 0.82, "⟳", {
+        fontFamily: "system-ui, sans-serif", fontSize: "28px", color: colors.foregroundText,
+      }).setOrigin(0.5).setDepth(depth + 1));
+      this.tweens.add({ targets: spinner, angle: 360, duration: 900, repeat: -1 });
+      if (replay) {
+        this.trackInstructionObject(this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0)
+          .setInteractive().setDepth(depth - 1));
+      }
+    }
+  }
+
+  private addInstructionButton(x: number, y: number, label: string, colors: PresentationColors, callback: () => void) {
+    const button = this.trackInstructionObject(this.add.rectangle(x, y, 360, 82, colors.promptPanelFill)
+      .setStrokeStyle(2, colors.foregroundFill).setInteractive().setDepth(1002));
+    button.on("pointerup", callback);
+    this.trackInstructionObject(this.add.text(x, y, label, {
+      fontFamily: "system-ui, sans-serif", fontSize: "26px", color: colors.foregroundText, fontStyle: "bold",
+    }).setOrigin(0.5).setDepth(1003));
+  }
+
+  private startActivity() {
+    if (!this.activity || !this.presentationColors) return;
+    this.clearInstructionScreen();
+    this.buildBoard(this.activity, this.presentationColors);
+  }
+
+  private retryPrompt(colors: PresentationColors) {
+    if (!this.voiceover?.promptScripts[this.activityId]) {
+      this.showInstructionScreen(colors, false, true);
+      return;
+    }
+    this.showInstructionScreen(colors, false, false);
+    if (this.cache.audio.exists(this.promptSoundKey())) {
+      this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
+      return;
+    }
+    this.load.audio(this.promptSoundKey(), promptAudioUrl(this.voiceover.activePackId, this.activityId));
+    this.load.once(`filecomplete-audio-${this.promptSoundKey()}`, () => {
+      this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
+    });
+    this.load.once("loaderror", (file: { key?: string }) => {
+      if (file?.key === this.promptSoundKey()) this.showInstructionScreen(colors, false, true);
+    });
+    this.load.start();
+  }
+
+  private addReplayControl(colors: PresentationColors) {
+    const { width } = this.scale;
+    const button = this.add.rectangle(width - 54, 54, 76, 76, colors.promptPanelFill)
+      .setStrokeStyle(2, colors.foregroundFill).setDepth(100).setInteractive();
+    this.add.text(width - 54, 54, "🔊", { fontFamily: "system-ui, sans-serif", fontSize: "38px", color: colors.foregroundText })
+      .setOrigin(0.5).setDepth(101);
+    button.on("pointerup", () => {
+      if (!this.voiceover || !this.activity) return;
+      this.boardObjects.forEach((object) => object.setVisible(false));
+      this.showInstructionScreen(colors, true, false);
+      this.playPrompt(() => this.finishReplay(), () => this.finishReplay());
+    });
+  }
+
+  private finishReplay() {
+    this.clearInstructionScreen();
+    this.boardObjects.forEach((object) => object.setVisible(true));
   }
 
   // ── Progress dots ───────────────────────────────────────────────────────────

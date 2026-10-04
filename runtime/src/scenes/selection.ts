@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { ActivityIndexSchema } from "shared/types.js";
 import { playTap } from "../audio.js";
+import type { RuntimeVoiceoverConfig } from "../voiceover.js";
 
 const CARD_W = 760;
 const CARD_H = 130;
@@ -26,6 +27,7 @@ export class SelectionScene extends Phaser.Scene {
 
   preload() {
     this.load.json("activity-index", "/activities/index.json");
+    this.load.json("voiceover-config", "/voiceover.json");
   }
 
   create() {
@@ -185,8 +187,10 @@ export class SelectionScene extends Phaser.Scene {
     bg.on("pointerdown", () => bg.setFillStyle(0x162030));
     bg.on("pointerup",   () => {
       if (this.scrolling) return;
+      (this.sound as unknown as { unlock?: () => void }).unlock?.();
       playTap();
-      this.scene.start("ActivityScene", { activityId: entry.id });
+      const voiceover = this.cache.json.get("voiceover-config") as RuntimeVoiceoverConfig | undefined;
+      this.scene.start("ActivityScene", { activityId: entry.id, voiceover });
     });
   }
 
