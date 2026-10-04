@@ -68,6 +68,12 @@ Create at least one manually reviewable activity for each mechanic. The selected
 
 Review each rendered activity before child testing. Check object legibility, layout/crowding, visual distinction at the chosen difficulty, and whether the activity instructions match the interaction.
 
+### Narrated instructions and completion
+
+V1.1 includes a pre-generated spoken instruction for every indexed pilot activity and one shared “Well done!” completion clip. The instruction plays on a full-screen themed view before the activity board appears; if audio fails, an adult can retry it or start the activity after reading the caption. A speaker control replays the original instruction during play without resetting progress. Completion speaks “Well done!” once, keeps the celebration visible for at least two seconds and until speech ends, then returns to the prior position in the activity list. The detailed screen and failure behavior is in the [approved voice-over design](docs/superpowers/specs/2026-10-02-activity-voiceover-design.md).
+
+This is authored, pre-generated audio in the existing content path. V1.1 does not synthesize speech at runtime. Remaining-item/count guidance, wrong-answer narration, and inactivity prompts remain out of scope; browser/device speech synthesis is a later experiment.
+
 ### Phase 3 — Manually observe actual play
 
 Test the activities on the target tablet with a parent nearby. Capture brief observations about whether the child understands the task, engages with it, encounters confusing or frustrating moments, and asks to replay or continue. Completion, abandonment, and adult assistance are useful context. Session length alone is not a success measure.
@@ -83,6 +89,7 @@ The experiment is qualitative and small. Do not present one child’s sessions a
 - A style-reference, normalization, manifest, and human-curation workflow for individual sprites.
 - The `tap-to-select` and `drag-to-target` mechanics.
 - Representative activities using the approved assets.
+- Pre-generated spoken instructions for the 17 indexed activities, instruction replay, and one shared spoken completion phrase.
 - Manual review of both rendered activities and manual observation of child use.
 - Existing local session capture and brief parent notes where useful.
 
@@ -93,10 +100,10 @@ The experiment is qualitative and small. Do not present one child’s sessions a
 - Selection Engine or automated activity recommendations.
 - Story arcs, recurring characters, and a full Story/Theme Engine.
 - Parent dashboard, accounts, multi-child support, remote analytics, billing, and distribution expansion.
+- Runtime speech synthesis, including use of the device's installed voice; this remains a later experiment.
+- Remaining-item/count guidance, wrong-answer narration, and inactivity narration.
 - A fixed library-volume target such as 15–20 activities or 90–100 assets.
 - Claims that the product improves development or learning.
-
-Generic activity instructions or existing sound effects may be used if already available, but personalized TTS is not required for this experiment.
 
 ## 7. Decision criteria
 

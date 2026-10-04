@@ -49,7 +49,7 @@ function createLibraryFixture() {
   };
   writeFileSync(join(libraryDir, "activities/approved_pilot.json"), JSON.stringify(activity));
   writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
-    { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
+    { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, themeId: activity.themeId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
   ] }));
 
   const activePackId = "fixture-v1";
@@ -99,11 +99,18 @@ describe("runtime publication boundary", () => {
       writeFileSync(join(libraryDir, "themes/kitchen-v1.json"), JSON.stringify(theme));
       expect(() => collectRuntimeFiles(libraryDir, pilotConceptLookup)).toThrow("theme artwork");
       copyFileSync(join(root, "library/themes/kitchen-v1.json"), join(libraryDir, "themes/kitchen-v1.json"));
+      writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
+        { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, themeId: "picnic-v1", prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
+      ] }));
+      expect(() => collectRuntimeFiles(libraryDir, pilotConceptLookup)).toThrow("Indexed activity metadata mismatch");
+      writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
+        { id: activity.id, conceptId: activity.conceptId, mechanicId: activity.mechanicId, themeId: activity.themeId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
+      ] }));
       writeFileSync(join(libraryDir, "activities/approved_pilot.json"), JSON.stringify({ ...activity, metadata: { ...activity.metadata, humanApprover: "pipeline-auto" } }));
       expect(() => collectRuntimeFiles(libraryDir, pilotConceptLookup)).toThrow("no explicit human approval");
       writeFileSync(join(libraryDir, "activities/approved_pilot.json"), JSON.stringify({ ...activity, conceptId: "missing_concept" }));
       writeFileSync(join(libraryDir, "activities/index.json"), JSON.stringify({ activities: [
-        { id: activity.id, conceptId: "missing_concept", mechanicId: activity.mechanicId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
+        { id: activity.id, conceptId: "missing_concept", mechanicId: activity.mechanicId, themeId: activity.themeId, prompt: activity.prompt.text, difficulty: activity.metadata.difficulty },
       ] }));
       expect(() => collectRuntimeFiles(libraryDir, pilotConceptLookup)).toThrow("Unknown concept ID");
     } finally {
@@ -133,6 +140,8 @@ describe("runtime publication boundary", () => {
     expect(config.promptPathPattern).toBe("/assets/audio/voice-packs/{packId}/prompts/{activityId}.m4a");
     expect(config.completionPathPattern).toBe("/assets/audio/voice-packs/{packId}/well-done.m4a");
     expect(Object.keys(config.promptScripts).sort()).toEqual(ids.sort());
+    const authoredScripts = JSON.parse(readFileSync(join(root, "library/assets/audio/voiceover-scripts.json"), "utf8"));
+    expect(config.promptScripts).toEqual(authoredScripts.prompts);
   });
 
   it("publication does not include a different voice pack", () => {
@@ -153,6 +162,9 @@ describe("runtime publication boundary", () => {
     const configPath = join(fixture.libraryDir, "assets/audio/voiceover.json");
     const writeConfig = (activePackId: string) => writeFileSync(configPath, JSON.stringify({ activePackId }));
     try {
+      writeFileSync(configPath, JSON.stringify({}));
+      expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("Invalid active voice pack ID");
+
       writeConfig("../outside");
       expect(() => collectRuntimeFiles(fixture.libraryDir, pilotConceptLookup)).toThrow("Invalid active voice pack ID");
 

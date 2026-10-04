@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { ActivityIndexSchema } from "shared/types.js";
 import { playTap } from "../audio.js";
-import type { RuntimeVoiceoverConfig } from "../voiceover.js";
+import { parseRuntimeVoiceoverConfig, type RuntimeVoiceoverConfig } from "../voiceover.js";
 
 const CARD_W = 760;
 const CARD_H = 130;
@@ -33,7 +33,7 @@ export class SelectionScene extends Phaser.Scene {
   create(data: { scrollY?: number } = {}) {
     const { width, height } = this.scale;
 
-    let entries: Array<{ id: string; prompt: string; difficulty: string }> = [];
+    let entries: Array<{ id: string; prompt: string; difficulty: string; themeId: string }> = [];
     try {
       const raw = this.cache.json.get("activity-index") as unknown;
       entries = ActivityIndexSchema.parse(raw).activities;
@@ -148,7 +148,7 @@ export class SelectionScene extends Phaser.Scene {
   private buildCard(
     cx: number,
     cy: number,
-    entry: { id: string; prompt: string; difficulty: string }
+    entry: { id: string; prompt: string; difficulty: string; themeId: string }
   ) {
     const bg = this.add
       .rectangle(cx, cy, CARD_W, CARD_H, 0x1e2a3a, 1)
@@ -191,9 +191,12 @@ export class SelectionScene extends Phaser.Scene {
       if (this.scrolling) return;
       (this.sound as unknown as { unlock?: () => void }).unlock?.();
       playTap();
-      const voiceover = this.cache.json.get("voiceover-config") as RuntimeVoiceoverConfig | undefined;
+      let voiceover: RuntimeVoiceoverConfig | undefined;
+      try { voiceover = parseRuntimeVoiceoverConfig(this.cache.json.get("voiceover-config")); }
+      catch { voiceover = undefined; }
       this.scene.start("ActivityScene", {
         activityId: entry.id,
+        themeId: entry.themeId,
         voiceover,
         selectionScrollY: this.cameras.main.scrollY,
       });

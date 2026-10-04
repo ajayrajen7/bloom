@@ -96,7 +96,7 @@ export function collectRuntimeFiles(
     const activityPath = join(libraryDir, "activities", `${entry.id}.json`);
     const activity = ActivityJSONSchema.parse(JSON.parse(readFileSync(activityPath, "utf8")));
     if (activity.id !== entry.id || activity.conceptId !== entry.conceptId ||
-        activity.mechanicId !== entry.mechanicId || activity.prompt.text !== entry.prompt ||
+        activity.mechanicId !== entry.mechanicId || activity.themeId !== entry.themeId || activity.prompt.text !== entry.prompt ||
         activity.metadata.difficulty !== entry.difficulty) {
       throw new Error(`Indexed activity metadata mismatch: ${entry.id}`);
     }

@@ -124,7 +124,7 @@ function createActivityScene(activityId: string) {
     promptPathPattern: configPathPattern,
     completionPathPattern: completionPathPattern,
   };
-  scene.init({ activityId, voiceover: config });
+  scene.init({ activityId, themeId: activity.themeId, voiceover: config });
   scene.preload();
   return { scene, labels, events, children, soundEvents, loaderEvents, sound, audioCache, load: (scene as any).load, preloadError: (key: string) => preloadErrorHandler?.call(scene, { key }) };
 }
@@ -136,13 +136,23 @@ describe("activity instruction and replay states", () => {
   it("keeps the board hidden until narration ends, then replays without rebuilding mechanic state", () => {
     mechanics.drag.mockClear();
     const activityId = "act_pilot_kitchen_drag_v1";
-    const { scene, labels, events, children, soundEvents } = createActivityScene(activityId);
+    const { scene, labels, events, children, soundEvents, loaderEvents, sound } = createActivityScene(activityId);
+    expect((scene as any).load.json).not.toHaveBeenCalled();
     scene.create();
 
     expect(labels).toContain("Find the matching things.");
     expect(labels).toContain("Getting ready…");
     expect(mechanics.drag).not.toHaveBeenCalled();
+    expect(sound.play).not.toHaveBeenCalled();
+    loaderEvents.get(`filecomplete-json-${activityJsonCacheKey(activityId)}`)?.();
+    expect(sound.play).not.toHaveBeenCalled();
+    loaderEvents.get(`filecomplete-audio-voiceover-prompt-${activityId}`)?.();
+    expect(sound.play).toHaveBeenCalledOnce();
+    expect(mechanics.drag).not.toHaveBeenCalled();
     soundEvents.get("complete")?.();
+    expect(mechanics.drag).not.toHaveBeenCalled();
+    loaderEvents.get("complete")?.();
+    expect(sound.play).toHaveBeenCalledOnce();
     expect(mechanics.drag).toHaveBeenCalledOnce();
 
     const originalSessionId = (scene as any).sessionId;
@@ -164,8 +174,9 @@ describe("activity instruction and replay states", () => {
     mechanics.tap.mockClear();
     const activityId = "act_pilot_kitchen_tap_v1";
     const harness = createActivityScene(activityId);
-    harness.preloadError(`voiceover-prompt-${activityId}`);
     harness.scene.create();
+    harness.preloadError(`voiceover-prompt-${activityId}`);
+    harness.loaderEvents.get("complete")?.();
 
     expect(harness.labels).toContain("Try voice again");
     expect(harness.labels).toContain("Start activity");
@@ -174,13 +185,30 @@ describe("activity instruction and replay states", () => {
     expect(mechanics.tap).toHaveBeenCalledOnce();
   });
 
+  it("offers adult-led start when initial playback is rejected", () => {
+    mechanics.tap.mockClear();
+    const activityId = "act_pilot_kitchen_tap_v1";
+    const harness = createActivityScene(activityId);
+    harness.scene.create();
+    harness.loaderEvents.get(`filecomplete-json-${activityJsonCacheKey(activityId)}`)?.();
+    harness.loaderEvents.get(`filecomplete-audio-voiceover-prompt-${activityId}`)?.();
+    harness.soundEvents.get("playerror")?.();
+    expect(harness.labels).toContain("Try voice again");
+    expect(harness.labels).toContain("Start activity");
+    expect(mechanics.tap).not.toHaveBeenCalled();
+    harness.events.get("pointerup-1")?.();
+    harness.loaderEvents.get("complete")?.();
+    expect(mechanics.tap).toHaveBeenCalledOnce();
+  });
+
   it("retries the same prompt asset after an initial load failure", () => {
     mechanics.drag.mockClear();
     const activityId = "act_pilot_kitchen_drag_v1";
     const harness = createActivityScene(activityId);
     harness.audioCache.available = false;
-    harness.preloadError(`voiceover-prompt-${activityId}`);
     harness.scene.create();
+    harness.preloadError(`voiceover-prompt-${activityId}`);
+    harness.loaderEvents.get("complete")?.();
     harness.events.get("pointerup-0")?.();
     expect(harness.load.audio).toHaveBeenCalledTimes(2);
     expect(harness.load.audio.mock.calls[0]).toEqual(harness.load.audio.mock.calls[1]);
@@ -194,6 +222,7 @@ describe("activity instruction and replay states", () => {
     mechanics.tap.mockClear();
     const harness = createActivityScene("act_pilot_kitchen_tap_v1");
     harness.scene.create();
+    harness.loaderEvents.get("complete")?.();
     harness.soundEvents.get("complete")?.();
     const boardObjects = [...(harness.scene as any).boardObjects];
     const sessionId = (harness.scene as any).sessionId;
@@ -208,6 +237,7 @@ describe("activity instruction and replay states", () => {
     mechanics.drag.mockClear();
     const harness = createActivityScene("act_pilot_kitchen_drag_v1");
     harness.scene.create();
+    harness.loaderEvents.get("complete")?.();
     harness.soundEvents.get("complete")?.();
     const boardObjects = [...(harness.scene as any).boardObjects];
     harness.events.get("pointerup-0")?.();

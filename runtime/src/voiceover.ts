@@ -25,10 +25,10 @@ export function completionAudioUrl(packId: string): string {
   return COMPLETION_PATTERN.replace("{packId}", packId);
 }
 
-function isRuntimeVoiceoverConfig(value: unknown): value is RuntimeVoiceoverConfig {
-  if (!value || typeof value !== "object") return false;
+export function parseRuntimeVoiceoverConfig(value: unknown): RuntimeVoiceoverConfig {
+  if (!value || typeof value !== "object") throw new Error("Invalid voiceover configuration");
   const config = value as Partial<RuntimeVoiceoverConfig>;
-  return typeof config.activePackId === "string"
+  const valid = typeof config.activePackId === "string"
     && SAFE_PACK_ID.test(config.activePackId)
     && !!config.promptScripts
     && typeof config.promptScripts === "object"
@@ -36,12 +36,13 @@ function isRuntimeVoiceoverConfig(value: unknown): value is RuntimeVoiceoverConf
     && Object.entries(config.promptScripts).every(([id, text]) => SAFE_ID.test(id) && typeof text === "string" && !!text.trim())
     && config.promptPathPattern === PROMPT_PATTERN
     && config.completionPathPattern === COMPLETION_PATTERN;
+  if (!valid) throw new Error("Invalid voiceover configuration");
+  return value as RuntimeVoiceoverConfig;
 }
 
 export async function loadRuntimeVoiceoverConfig(fetcher: typeof fetch = fetch): Promise<RuntimeVoiceoverConfig> {
   const response = await fetcher("/voiceover.json");
   if (!response.ok) throw new Error("Could not load voiceover configuration");
   const data: unknown = await response.json();
-  if (!isRuntimeVoiceoverConfig(data)) throw new Error("Invalid voiceover configuration");
-  return data;
+  return parseRuntimeVoiceoverConfig(data);
 }

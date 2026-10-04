@@ -37,18 +37,25 @@ export class ActivityScene extends Phaser.Scene {
   private activity?: import("shared/types.js").ActivityJSON;
   private voiceover?: RuntimeVoiceoverConfig;
   private promptLoadFailed = false;
+  private activityDataReady = false;
+  private boardAssetsReady = false;
+  private promptAudioReady = false;
+  private promptPlaybackStarted = false;
+  private promptPlaybackFinished = false;
+  private startWhenAssetsReady = false;
   private boardBuilt = false;
   private boardObjects: Array<Phaser.GameObjects.GameObject & { setVisible(visible: boolean): unknown }> = [];
   private instructionObjects: Phaser.GameObjects.GameObject[] = [];
   private promptSound?: Phaser.Sound.BaseSound;
   private instructionCaption = "";
   private selectionScrollY = 0;
+  private themeId = "";
 
   constructor() {
     super({ key: "ActivityScene" });
   }
 
-  init(data: { activityId: string; review?: boolean; voiceover?: RuntimeVoiceoverConfig; selectionScrollY?: number }) {
+  init(data: { activityId: string; themeId?: string; review?: boolean; voiceover?: RuntimeVoiceoverConfig; selectionScrollY?: number }) {
     this.activityId  = data.activityId ?? "act_dev_001";
     this.sessionId   = crypto.randomUUID();
     this.startedAt   = new Date().toISOString();
@@ -58,8 +65,15 @@ export class ActivityScene extends Phaser.Scene {
     this.review = Boolean(data.review) && import.meta.env.DEV;
     this.voiceover = data.voiceover;
     this.selectionScrollY = data.selectionScrollY ?? 0;
+    this.themeId = data.themeId ?? "";
     this.activity = undefined;
     this.promptLoadFailed = false;
+    this.activityDataReady = false;
+    this.boardAssetsReady = false;
+    this.promptAudioReady = false;
+    this.promptPlaybackStarted = false;
+    this.promptPlaybackFinished = false;
+    this.startWhenAssetsReady = false;
     this.boardBuilt = false;
     this.boardObjects = [];
     this.instructionObjects = [];
@@ -67,26 +81,81 @@ export class ActivityScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.json(
-      activityJsonCacheKey(this.activityId),
-      this.review ? `/staged/${this.activityId}.json` : `/activities/${this.activityId}.json`
-    );
-    if (!this.review && this.voiceover?.promptScripts[this.activityId]) {
-      this.load.audio(this.promptSoundKey(), promptAudioUrl(this.voiceover.activePackId, this.activityId));
-      this.load.on("loaderror", this.onPromptLoadError, this);
-    }
-    queueApprovedSpriteLoads(
-      (key) => this.textures.exists(key),
-      (key, url) => this.load.image(key, url)
-    );
+    // Review scenes keep the traditional eager loader. The child flow loads
+    // after create() so its instruction view can render during the load.
+    if (!this.review) return;
+    this.load.json(activityJsonCacheKey(this.activityId), `/staged/${this.activityId}.json`);
+    queueApprovedSpriteLoads((key) => this.textures.exists(key), (key, url) => this.load.image(key, url));
   }
 
   create() {
-    const raw = this.cache.json.get(activityJsonCacheKey(this.activityId)) as unknown;
+    if (!this.review) {
+      let colors: PresentationColors;
+      try {
+        if (!this.themeId) throw new Error("Activity is missing a valid theme ID");
+        colors = resolvePresentationColors(resolveTheme(this.themeId).presentation);
+      } catch (error) {
+        this.showError(error instanceof Error ? error.message : "Could not load activity theme");
+        return;
+      }
+      this.presentationColors = colors;
+      this.instructionCaption = this.voiceover?.promptScripts[this.activityId] ?? "Let's get ready!";
+      this.showInstructionScreen(colors, false, false);
+      this.load.json(activityJsonCacheKey(this.activityId), `/activities/${this.activityId}.json`);
+      if (this.voiceover?.promptScripts[this.activityId]) {
+        this.load.audio(this.promptSoundKey(), promptAudioUrl(this.voiceover.activePackId, this.activityId));
+      } else {
+        this.promptLoadFailed = true;
+      }
+      this.load.on("loaderror", (file: { key?: string }) => this.onPromptLoadError(file));
+      this.load.once(`filecomplete-json-${activityJsonCacheKey(this.activityId)}`, () => this.onActivityDataLoaded());
+      if (this.voiceover?.promptScripts[this.activityId]) {
+        this.load.once(`filecomplete-audio-${this.promptSoundKey()}`, () => {
+          this.promptAudioReady = true;
+          this.maybeStartPrompt();
+        });
+      }
+      this.load.once("complete", () => this.onActivityAssetsLoaded());
+      queueApprovedSpriteLoads((key) => this.textures.exists(key), (key, url) => this.load.image(key, url));
+      this.load.start();
+      return;
+    }
+    this.onActivityDataLoaded();
+  }
 
+  private onActivityAssetsLoaded() {
+    this.boardAssetsReady = true;
+    this.promptAudioReady = this.promptAudioReady || this.cache.audio.exists(this.promptSoundKey());
+    if (!this.activityDataReady) this.onActivityDataLoaded();
+    if (!this.activity) return;
+    try {
+      requireActivitySpriteTextures(this.activity, (key) => this.textures.exists(key));
+    } catch (error) {
+      this.clearInstructionScreen();
+      this.showError(error instanceof Error ? error.message : "Could not load activity sprites");
+      return;
+    }
+    if (this.review) {
+      this.buildBoard(this.activity, this.presentationColors!);
+      return;
+    }
+    if (this.startWhenAssetsReady || this.promptPlaybackFinished) {
+      this.startActivity();
+      return;
+    }
+    if (this.promptLoadFailed || !this.voiceover?.promptScripts[this.activityId]) {
+      this.showInstructionScreen(this.presentationColors!, false, true);
+      return;
+    }
+    this.maybeStartPrompt();
+  }
+
+  private onActivityDataLoaded() {
+    const raw = this.cache.json.get(activityJsonCacheKey(this.activityId)) as unknown;
     const parsedActivity = ActivityJSONSchema.safeParse(raw);
     if (!parsedActivity.success) {
       const themeIssue = parsedActivity.error.issues.some((issue) => issue.path[0] === "themeId");
+      this.clearInstructionScreen();
       this.showError(themeIssue ? "Activity is missing a valid theme ID" : undefined);
       return;
     }
@@ -96,30 +165,45 @@ export class ActivityScene extends Phaser.Scene {
     try {
       colors = resolvePresentationColors(resolveTheme(activity.themeId).presentation);
     } catch (error) {
+      this.clearInstructionScreen();
       this.showError(error instanceof Error ? error.message : "Could not load activity theme");
       return;
     }
     this.presentationColors = colors;
     this.activity = activity;
-
-    try {
-      requireActivitySpriteTextures(activity, (key) => this.textures.exists(key));
-    } catch (error) {
-      this.showError(error instanceof Error ? error.message : "Could not load activity sprites");
-      return;
+    this.activityDataReady = true;
+    const authoredCaption = this.voiceover?.promptScripts[this.activityId] ?? activity.prompt.text;
+    const captionChanged = this.instructionCaption !== authoredCaption;
+    this.instructionCaption = authoredCaption;
+    if ((this.themeId !== activity.themeId || captionChanged) && !this.review) {
+      this.themeId = activity.themeId;
+      this.showInstructionScreen(colors, false, false);
     }
 
     if (this.review) {
-      this.buildBoard(activity, colors);
+      try {
+        requireActivitySpriteTextures(activity, (key) => this.textures.exists(key));
+        this.boardAssetsReady = true;
+        this.buildBoard(activity, colors);
+      } catch (error) {
+        this.clearInstructionScreen();
+        this.showError(error instanceof Error ? error.message : "Could not load activity sprites");
+      }
       return;
     }
-    this.instructionCaption = this.voiceover?.promptScripts[this.activityId] ?? activity.prompt.text;
-    if (this.promptLoadFailed || !this.voiceover || !this.voiceover.promptScripts[this.activityId]) {
-      this.showInstructionScreen(colors, false, true);
-      return;
-    }
-    this.showInstructionScreen(colors, false, false);
-    this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
+    if (this.promptLoadFailed || !this.voiceover?.promptScripts[this.activityId]) this.showInstructionScreen(colors, false, true);
+    else this.maybeStartPrompt();
+  }
+
+  private maybeStartPrompt() {
+    if (!this.activityDataReady || !this.promptAudioReady || this.promptPlaybackStarted || this.promptLoadFailed || !this.presentationColors) return;
+    this.promptPlaybackStarted = true;
+    this.showInstructionScreen(this.presentationColors, false, false, false, true);
+    this.playPrompt(() => {
+      this.promptPlaybackFinished = true;
+      if (this.boardAssetsReady) this.startActivity();
+      else this.showInstructionScreen(this.presentationColors!, false, false, true);
+    }, () => this.showInstructionScreen(this.presentationColors!, false, true));
   }
 
   private buildBoard(activity: import("shared/types.js").ActivityJSON, colors: PresentationColors) {
@@ -276,7 +360,11 @@ export class ActivityScene extends Phaser.Scene {
   private promptSoundKey() { return `voiceover-prompt-${this.activityId}`; }
 
   private onPromptLoadError(file: { key?: string }) {
-    if (file?.key === this.promptSoundKey()) this.promptLoadFailed = true;
+    if (file?.key !== this.promptSoundKey()) return;
+    this.promptLoadFailed = true;
+    if (this.activityDataReady && this.presentationColors) {
+      this.showInstructionScreen(this.presentationColors, false, true);
+    }
   }
 
   private playPrompt(onComplete: () => void, onFailure: () => void) {
@@ -314,14 +402,14 @@ export class ActivityScene extends Phaser.Scene {
     this.instructionObjects = [];
   }
 
-  private showInstructionScreen(colors: PresentationColors, replay: boolean, failed: boolean) {
+  private showInstructionScreen(colors: PresentationColors, replay: boolean, failed: boolean, loading = true, speaking = false) {
     this.clearInstructionScreen();
     const { width, height } = this.scale;
     const depth = 1000;
     this.trackInstructionObject(this.add.rectangle(width / 2, height / 2, width, height, colors.backgroundFill).setDepth(depth));
     this.trackInstructionObject(this.add.text(width / 2, height * 0.32, this.instructionCaption, {
-      fontFamily: "system-ui, sans-serif", fontSize: "34px", color: colors.foregroundText,
-      fontStyle: "bold", align: "center", wordWrap: { width: width * 0.82 },
+      fontFamily: "system-ui, sans-serif", fontSize: "32px", color: colors.foregroundText,
+      fontStyle: "bold", align: "center", wordWrap: { width: width * 0.8 },
     }).setOrigin(0.5).setDepth(depth + 1));
 
     if (failed) {
@@ -336,14 +424,16 @@ export class ActivityScene extends Phaser.Scene {
       const speaker = this.trackInstructionObject(this.add.text(width / 2, height * 0.57, "🔊", {
         fontFamily: "system-ui, sans-serif", fontSize: "96px", color: colors.foregroundText,
       }).setOrigin(0.5).setDepth(depth + 1));
-      this.tweens.add({ targets: speaker, scaleX: 1.06, scaleY: 1.06, duration: 750, yoyo: true, repeat: -1 });
-      this.trackInstructionObject(this.add.text(width / 2, height * 0.73, replay ? "Listening again…" : "Getting ready…", {
+      if (speaking) this.tweens.add({ targets: speaker, scaleX: 1.06, scaleY: 1.06, duration: 750, yoyo: true, repeat: -1 });
+      this.trackInstructionObject(this.add.text(width / 2, height * 0.73, loading ? "Getting ready…" : replay ? "Listening again…" : "Listening…", {
         fontFamily: "system-ui, sans-serif", fontSize: "24px", color: colors.foregroundText,
       }).setOrigin(0.5).setDepth(depth + 1));
-      const spinner = this.trackInstructionObject(this.add.text(width / 2, height * 0.82, "⟳", {
-        fontFamily: "system-ui, sans-serif", fontSize: "28px", color: colors.foregroundText,
-      }).setOrigin(0.5).setDepth(depth + 1));
-      this.tweens.add({ targets: spinner, angle: 360, duration: 900, repeat: -1 });
+      if (loading) {
+        const spinner = this.trackInstructionObject(this.add.text(width / 2, height * 0.82, "⟳", {
+          fontFamily: "system-ui, sans-serif", fontSize: "28px", color: colors.foregroundText,
+        }).setOrigin(0.5).setDepth(depth + 1));
+        this.tweens.add({ targets: spinner, angle: 360, duration: 900, repeat: -1 });
+      }
       if (replay) {
         this.trackInstructionObject(this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0)
           .setInteractive().setDepth(depth - 1));
@@ -362,6 +452,11 @@ export class ActivityScene extends Phaser.Scene {
 
   private startActivity() {
     if (!this.activity || !this.presentationColors) return;
+    if (!this.boardAssetsReady && !this.review) {
+      this.startWhenAssetsReady = true;
+      this.showInstructionScreen(this.presentationColors, false, false, true);
+      return;
+    }
     this.clearInstructionScreen();
     this.buildBoard(this.activity, this.presentationColors);
   }
@@ -371,13 +466,15 @@ export class ActivityScene extends Phaser.Scene {
       this.showInstructionScreen(colors, false, true);
       return;
     }
-    this.showInstructionScreen(colors, false, false);
     if (this.cache.audio.exists(this.promptSoundKey())) {
+      this.showInstructionScreen(colors, false, false, false, true);
       this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
       return;
     }
+    this.showInstructionScreen(colors, false, false, true);
     this.load.audio(this.promptSoundKey(), promptAudioUrl(this.voiceover.activePackId, this.activityId));
     this.load.once(`filecomplete-audio-${this.promptSoundKey()}`, () => {
+      this.showInstructionScreen(colors, false, false, false, true);
       this.playPrompt(() => this.startActivity(), () => this.showInstructionScreen(colors, false, true));
     });
     this.load.once("loaderror", (file: { key?: string }) => {
@@ -395,7 +492,7 @@ export class ActivityScene extends Phaser.Scene {
     button.on("pointerup", () => {
       if (!this.voiceover || !this.activity) return;
       this.boardObjects.forEach((object) => object.setVisible(false));
-      this.showInstructionScreen(colors, true, false);
+      this.showInstructionScreen(colors, true, false, false, true);
       this.playPrompt(() => this.finishReplay(), () => this.finishReplay());
     });
   }
