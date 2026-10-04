@@ -30,7 +30,7 @@ export class SelectionScene extends Phaser.Scene {
     this.load.json("voiceover-config", "/voiceover.json");
   }
 
-  create() {
+  create(data: { scrollY?: number } = {}) {
     const { width, height } = this.scale;
 
     let entries: Array<{ id: string; prompt: string; difficulty: string }> = [];
@@ -73,6 +73,8 @@ export class SelectionScene extends Phaser.Scene {
     if (this.worldH > height) {
       this.buildScrollBar(width, height);
     }
+    this.cameras.main.scrollY = Phaser.Math.Clamp(data.scrollY ?? 0, 0, Math.max(0, this.worldH - height));
+    this.updateScrollBar(height);
   }
 
   // Set to true while a drag scroll is in progress so card taps don't fire.
@@ -190,7 +192,11 @@ export class SelectionScene extends Phaser.Scene {
       (this.sound as unknown as { unlock?: () => void }).unlock?.();
       playTap();
       const voiceover = this.cache.json.get("voiceover-config") as RuntimeVoiceoverConfig | undefined;
-      this.scene.start("ActivityScene", { activityId: entry.id, voiceover });
+      this.scene.start("ActivityScene", {
+        activityId: entry.id,
+        voiceover,
+        selectionScrollY: this.cameras.main.scrollY,
+      });
     });
   }
 

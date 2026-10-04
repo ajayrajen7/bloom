@@ -42,12 +42,13 @@ export class ActivityScene extends Phaser.Scene {
   private instructionObjects: Phaser.GameObjects.GameObject[] = [];
   private promptSound?: Phaser.Sound.BaseSound;
   private instructionCaption = "";
+  private selectionScrollY = 0;
 
   constructor() {
     super({ key: "ActivityScene" });
   }
 
-  init(data: { activityId: string; review?: boolean; voiceover?: RuntimeVoiceoverConfig }) {
+  init(data: { activityId: string; review?: boolean; voiceover?: RuntimeVoiceoverConfig; selectionScrollY?: number }) {
     this.activityId  = data.activityId ?? "act_dev_001";
     this.sessionId   = crypto.randomUUID();
     this.startedAt   = new Date().toISOString();
@@ -56,6 +57,7 @@ export class ActivityScene extends Phaser.Scene {
     this.presentationColors = undefined;
     this.review = Boolean(data.review) && import.meta.env.DEV;
     this.voiceover = data.voiceover;
+    this.selectionScrollY = data.selectionScrollY ?? 0;
     this.activity = undefined;
     this.promptLoadFailed = false;
     this.boardBuilt = false;
@@ -212,6 +214,8 @@ export class ActivityScene extends Phaser.Scene {
               activityId: this.activityId,
               startedAt:  this.startedAt,
               themeId:    activity.themeId,
+              voiceover: this.voiceover,
+              selectionScrollY: this.selectionScrollY,
             });
           });
         },
@@ -255,6 +259,8 @@ export class ActivityScene extends Phaser.Scene {
               activityId: this.activityId,
               startedAt:  this.startedAt,
               themeId:    activity.themeId,
+              voiceover: this.voiceover,
+              selectionScrollY: this.selectionScrollY,
             });
           });
         },

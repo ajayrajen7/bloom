@@ -14,7 +14,10 @@ const mechanics = vi.hoisted(() => ({
   tap: vi.fn().mockImplementation(() => ({ destroy: vi.fn() })),
 }));
 
-vi.mock("phaser", () => ({ default: { Scene: class {}, Math: { Clamp: (n: number, min: number, max: number) => Math.max(min, Math.min(max, n)) } } }));
+vi.mock("phaser", () => ({ default: { Scene: class {}, Math: {
+  Clamp: (n: number, min: number, max: number) => Math.max(min, Math.min(max, n)),
+  Between: (min: number) => min,
+} } }));
 vi.mock("../../runtime/src/mechanics/drag-to-target.js", () => ({ DragToTargetMechanic: mechanics.drag }));
 vi.mock("../../runtime/src/mechanics/tap-to-select.js", () => ({ TapToSelectMechanic: mechanics.tap }));
 vi.mock("../../runtime/src/assets/sprite-registry.js", () => ({
@@ -24,6 +27,8 @@ vi.mock("../../runtime/src/assets/sprite-registry.js", () => ({
 
 import { activityJsonCacheKey } from "../../runtime/src/scenes/activity-cache-key.js";
 import { ActivityScene } from "../../runtime/src/scenes/activity.js";
+import { CompletionScene } from "../../runtime/src/scenes/completion.js";
+import { SelectionScene } from "../../runtime/src/scenes/selection.js";
 
 const config: RuntimeVoiceoverConfig = {
   activePackId: "pilot-v1",
@@ -209,5 +214,119 @@ describe("activity instruction and replay states", () => {
     harness.soundEvents.get("playerror")?.();
     expect(boardObjects.every((item) => item.visible === true)).toBe(true);
     expect(mechanics.drag).toHaveBeenCalledOnce();
+  });
+});
+
+function createCompletionScene(audioExists = true) {
+  const labels: string[] = [];
+  const timers: Array<{ delay: number; callback: () => void }> = [];
+  const soundEvents = new Map<string, (...args: any[]) => void>();
+  const startScene = vi.fn();
+  const rendered: string[] = [];
+  const sound = {
+    once: (event: string, callback: (...args: any[]) => void) => soundEvents.set(event, callback),
+    play: vi.fn(() => true), destroy: vi.fn(),
+  };
+  const soundManager = { add: vi.fn(() => { rendered.push("sound:add"); return sound; }) };
+  const visual = {
+    setOrigin: () => visual, setScale: () => visual, setAlpha: () => visual,
+    setDepth: () => visual, setInteractive: () => visual, setStrokeStyle: () => visual,
+    on: () => visual,
+  };
+  const scene = new CompletionScene();
+  Object.assign(scene, {
+    scale: { width: 1024, height: 768 },
+    add: {
+      rectangle: () => visual,
+      text: (_x: number, _y: number, value: string) => { labels.push(value); rendered.push(`text:${value}`); return visual; },
+      star: () => visual,
+    },
+    load: { json: vi.fn(), audio: vi.fn(), on: vi.fn() },
+    cache: { audio: { exists: () => audioExists } },
+    sound: soundManager,
+    tweens: { add: vi.fn() },
+    time: { delayedCall: (delay: number, callback: () => void) => { timers.push({ delay, callback }); } },
+    scene: { start: startScene },
+  });
+  vi.stubGlobal("localStorage", { getItem: () => null, setItem: vi.fn() });
+  const voiceover: RuntimeVoiceoverConfig = {
+    activePackId: "pilot-v1", promptScripts: {},
+    promptPathPattern: configPathPattern, completionPathPattern,
+  };
+  scene.init({ sessionId: "session_1", activityId: "act_1", startedAt: "2026-10-04T00:00:00.000Z", themeId: "kitchen-v1", voiceover, selectionScrollY: 420 } as any);
+  scene.preload();
+  scene.create();
+  vi.unstubAllGlobals();
+  return { scene, labels, timers, startScene, soundEvents, sound: soundManager, rendered, load: (scene as any).load };
+}
+
+describe("completion narration timing", () => {
+  it("waits for both the two-second minimum and short narration to end", () => {
+    const result = createCompletionScene();
+    expect(result.labels).toContain("Well done! 🎉");
+    expect(result.rendered.indexOf("text:Well done! 🎉")).toBeLessThan(result.rendered.indexOf("sound:add"));
+    expect(result.load.audio).toHaveBeenCalledWith("voiceover-completion", "/assets/audio/voice-packs/pilot-v1/well-done.m4a");
+    result.soundEvents.get("complete")?.();
+    expect(result.startScene).not.toHaveBeenCalled();
+    result.timers.find(({ delay }) => delay === 2000)?.callback();
+    expect(result.startScene).toHaveBeenCalledWith("SelectionScene", { scrollY: 420 });
+  });
+
+  it("waits for long narration after the minimum time has elapsed", () => {
+    const result = createCompletionScene();
+    result.timers.find(({ delay }) => delay === 2000)?.callback();
+    expect(result.startScene).not.toHaveBeenCalled();
+    result.soundEvents.get("complete")?.();
+    expect(result.startScene).toHaveBeenCalledOnce();
+  });
+
+  it("returns after the minimum time when loading or playback fails and narrates only once", () => {
+    const missing = createCompletionScene(false);
+    missing.scene.create();
+    expect(missing.sound.add).not.toHaveBeenCalled();
+    missing.timers.find(({ delay }) => delay === 2000)?.callback();
+    expect(missing.startScene).toHaveBeenCalledOnce();
+
+    const rejected = createCompletionScene();
+    rejected.scene.create();
+    expect(rejected.sound.add).toHaveBeenCalledOnce();
+    rejected.soundEvents.get("playerror")?.();
+    rejected.timers.find(({ delay }) => delay === 2000)?.callback();
+    expect(rejected.startScene).toHaveBeenCalledOnce();
+  });
+});
+
+describe("selection scroll restoration", () => {
+  it("restores the saved list position and carries it into the next activity", () => {
+    const entries = JSON.parse(readFileSync(join(root, "library/activities/index.json"), "utf8"));
+    const pointerUpHandlers: Array<() => void> = [];
+    const startScene = vi.fn();
+    const camera = { scrollY: 0, setBounds: vi.fn() };
+    const visual: any = {
+      setOrigin() { return this; }, setScrollFactor() { return this; }, setDepth() { return this; },
+      setStrokeStyle() { return this; }, setInteractive() { return this; }, setFillStyle() { return this; }, setY() { return this; },
+      on(event: string, callback: () => void) { if (event === "pointerup") pointerUpHandlers.push(callback); return this; },
+    };
+    const scene = new SelectionScene();
+    const voiceover = { activePackId: "pilot-v1", promptScripts: {}, promptPathPattern: configPathPattern, completionPathPattern };
+    const unlock = vi.fn();
+    Object.assign(scene, {
+      scale: { width: 1024, height: 768 },
+      cameras: { main: camera },
+      cache: { json: { get: (key: string) => key === "activity-index" ? entries : voiceover } },
+      add: { rectangle: () => visual, text: () => visual },
+      input: { on: vi.fn() },
+      sound: { unlock },
+      scene: { start: startScene },
+    });
+    scene.create({ scrollY: 420 });
+    expect(camera.scrollY).toBe(420);
+    pointerUpHandlers[0]?.();
+    expect(unlock).toHaveBeenCalledOnce();
+    expect(startScene).toHaveBeenCalledWith("ActivityScene", expect.objectContaining({
+      activityId: entries.activities[0].id,
+      selectionScrollY: 420,
+      voiceover,
+    }));
   });
 });

@@ -1,16 +1,25 @@
 import Phaser from "phaser";
 import { buildSessionRecord, appendSession } from "../telemetry.js";
 import { resolveTheme, resolvePresentationColors, type PresentationColors } from "../themes/theme-resolver.js";
+import { completionAudioUrl, type RuntimeVoiceoverConfig } from "../voiceover.js";
 
 interface CompletionData {
   sessionId: string;
   activityId: string;
   startedAt: string;
   themeId: string;
+  voiceover?: RuntimeVoiceoverConfig;
+  selectionScrollY?: number;
 }
 
 export class CompletionScene extends Phaser.Scene {
   private completionData: CompletionData = { sessionId: "", activityId: "", startedAt: "", themeId: "" };
+  private audioLoadFailed = false;
+  private audioSettled = true;
+  private minimumTimeElapsed = false;
+  private returnedToSelection = false;
+  private completionStarted = false;
+  private completionSound?: Phaser.Sound.BaseSound;
 
   constructor() {
     super({ key: "CompletionScene" });
@@ -18,9 +27,28 @@ export class CompletionScene extends Phaser.Scene {
 
   init(data: CompletionData) {
     this.completionData = data;
+    this.audioLoadFailed = false;
+    this.audioSettled = true;
+    this.minimumTimeElapsed = false;
+    this.returnedToSelection = false;
+    this.completionStarted = false;
+    this.completionSound = undefined;
+  }
+
+  preload() {
+    this.load.json("completion-voiceover-config", "/voiceover.json");
+    if (!this.completionData.voiceover) return;
+    const key = this.completionSoundKey();
+    this.audioSettled = false;
+    this.load.audio(key, completionAudioUrl(this.completionData.voiceover.activePackId));
+    this.load.on("loaderror", (file: { key?: string }) => {
+      if (file?.key === key) this.audioLoadFailed = true;
+    });
   }
 
   create() {
+    if (this.completionStarted) return;
+    this.completionStarted = true;
     const { width, height } = this.scale;
     let colors: PresentationColors;
     try {
@@ -51,7 +79,45 @@ export class CompletionScene extends Phaser.Scene {
 
     this.tweens.add({ targets: msg, scaleX: 1, scaleY: 1, duration: 400, ease: "Back.Out" });
 
-    this.time.delayedCall(2000, () => this.scene.start("SelectionScene"));
+    if (!this.completionData.voiceover || this.audioLoadFailed || !this.cache?.audio?.exists(this.completionSoundKey())) {
+      this.audioSettled = true;
+    } else {
+      this.playCompletionNarration();
+    }
+    this.time.delayedCall(2000, () => {
+      this.minimumTimeElapsed = true;
+      this.returnIfReady();
+    });
+  }
+
+  private completionSoundKey() { return "voiceover-completion"; }
+
+  private playCompletionNarration() {
+    try {
+      const sound = this.sound.add(this.completionSoundKey());
+      this.completionSound = sound;
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        this.audioSettled = true;
+        sound.destroy();
+        if (this.completionSound === sound) this.completionSound = undefined;
+        this.returnIfReady();
+      };
+      sound.once("complete", finish);
+      sound.once("playerror", finish);
+      sound.once("error", finish);
+      if (!sound.play()) finish();
+    } catch {
+      this.audioSettled = true;
+    }
+  }
+
+  private returnIfReady() {
+    if (!this.minimumTimeElapsed || !this.audioSettled || this.returnedToSelection) return;
+    this.returnedToSelection = true;
+    this.scene.start("SelectionScene", { scrollY: this.completionData.selectionScrollY ?? 0 });
   }
 
   private spawnStars(width: number, height: number, presentation: PresentationColors) {

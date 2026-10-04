@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { playSuccess, playError, playCelebration } from "../audio.js";
+import { playSuccess, playError } from "../audio.js";
 import { requireLoadedSpriteTexture } from "../assets/sprite-registry.js";
 import type { MechanicVisualConfig } from "./visual-config.js";
 import {
@@ -223,7 +223,6 @@ export class DragToTargetMechanic {
 
         if (this.placedItems.size === this.items.length) {
           this.scene.time.delayedCall(400, () => {
-            playCelebration();
             this.callbacks.onComplete();
           });
         }
