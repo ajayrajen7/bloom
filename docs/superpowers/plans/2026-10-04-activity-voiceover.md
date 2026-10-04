@@ -140,4 +140,6 @@
 - [x] **Step 4: Run the complete automated verification** with `pnpm test && pnpm typecheck && pnpm build && git diff --check`.
 - [x] **Step 5: Verify production output contains only all 17 active-pack prompts and its completion clip**, with no inactive packs, authoring scripts, or review manifests.
 - [ ] **Step 6: On the pilot iPad, verify an instruction-before-board transition, replay for one tap and one drag activity, audio-failure controls, “Well done!” completion timing, and return to the activity list.** Record unperformed checks as pending; do not describe them as verified.
-- [ ] **Step 7: Prepare and raise a PR from a feature branch based on the latest default branch**, attaching the PR to this task and noting any iPad verification still pending.
+- [x] **Step 7: Prepare and raise a PR from a feature branch based on the latest default branch**, attaching the PR to this task and noting any iPad verification still pending.
+
+**PR:** [#5 — Add pre-generated activity voice-over](https://github.com/ajayrajen7/bloom/pull/5). The human clip review and physical iPad checks in Steps 5 and 6 remain pending.
