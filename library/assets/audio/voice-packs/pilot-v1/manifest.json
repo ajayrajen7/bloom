@@ -1,0 +1,122 @@
+{
+  "packId": "pilot-v1",
+  "sourceVoice": {
+    "name": "Tara",
+    "locale": "en_IN",
+    "rate": "macOS say default"
+  },
+  "generatedAt": "2026-10-04T02:23:04.085Z",
+  "generationTool": {
+    "speech": "macOS say --data-format=alac",
+    "container": "M4A/ALAC"
+  },
+  "clips": [
+    {
+      "kind": "prompt",
+      "activityId": "act_pilot_kitchen_drag_v1",
+      "text": "Match three fruits to their pictures: apple, banana, and orange.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_pilot_kitchen_drag_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_pilot_kitchen_tap_v1",
+      "text": "Find one apple. Tap the apple.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_pilot_kitchen_tap_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_apple_twins_v1",
+      "text": "Find two apples: one red and one green. Tap both apples.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_apple_twins_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_fruit_or_vegetable_sort_v1",
+      "text": "Sort six foods. Put the fruits together and the vegetables together.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_fruit_or_vegetable_sort_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_fruit_stand_match_v1",
+      "text": "Match five fruits to their pictures: red apple, green apple, banana, orange, and grapes.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_fruit_stand_match_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_garden_basket_v1",
+      "text": "Find three vegetables: carrot, broccoli, and cucumber. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_garden_basket_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_garden_harvest_match_v1",
+      "text": "Match six foods to their pictures: green apple, tomato, broccoli, carrot, banana, and orange.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_garden_harvest_match_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_green_team_v1",
+      "text": "Find three green foods: green apple, cucumber, and broccoli. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_green_team_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_long_shape_hunt_v1",
+      "text": "Find three long foods: banana, carrot, and cucumber. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_long_shape_hunt_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_market_match_v1",
+      "text": "Match six foods to their pictures: red apple, banana, orange, grapes, carrot, and cucumber.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_market_match_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_mixed_tray_scramble_v1",
+      "text": "Match six foods to their pictures: red apple, green apple, banana, grapes, tomato, and broccoli.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_mixed_tray_scramble_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_orange_team_v1",
+      "text": "Find two orange foods: an orange and a carrot. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_orange_team_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_picnic_pack_v1",
+      "text": "Find three foods: red apple, banana, and orange. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_picnic_pack_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_red_kitchen_hunt_v1",
+      "text": "Find two red foods: a red apple and a tomato. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_red_kitchen_hunt_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_round_food_hunt_v1",
+      "text": "Find three round foods: red apple, orange, and tomato. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_round_food_hunt_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_smoothie_mix_v1",
+      "text": "Find three foods: red apple, banana, and grapes. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_smoothie_mix_v1.m4a"
+    },
+    {
+      "kind": "prompt",
+      "activityId": "act_kitchen_soup_chef_v1",
+      "text": "Find three vegetables: carrot, tomato, and broccoli. Tap each one.",
+      "path": "audio/voice-packs/pilot-v1/prompts/act_kitchen_soup_chef_v1.m4a"
+    },
+    {
+      "kind": "completion",
+      "text": "Well done!",
+      "path": "audio/voice-packs/pilot-v1/well-done.m4a"
+    }
+  ]
+}
