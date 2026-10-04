@@ -102,6 +102,7 @@ describe("active activity publication handshake", () => {
         continue;
       }
       if (!indexedIds.has(raw.id)) continue;
+      expect(index.activities.find((entry) => entry.id === raw.id)?.themeId).toBe(raw.themeId);
       expect(raw.metadata.humanApprovedAt).toBeTruthy();
       expect(raw.metadata.humanApprover).toBeTruthy();
       expect(raw.metadata.humanApprover).not.toBe("pipeline-auto");

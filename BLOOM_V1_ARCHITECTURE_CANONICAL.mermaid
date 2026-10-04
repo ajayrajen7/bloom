@@ -4,10 +4,10 @@ flowchart TB
         A2["A2 Concept Layer<br/>V1.1: in prompts"]:::stub
         A3["A3 Mechanics Registry<br/>V1.1: tap-to-select + drag-to-target"]:::built
         A4["A4 Story/Theme Engine<br/>V1.1: one explicit shared theme; no arcs"]:::thin
-        A5["A5 Asset Registry<br/>ChatGPT ImageGen + style reference + normalization<br/>V1.1: fruit/vegetable pilot"]:::built
+        A5["A5 Asset Registry<br/>ChatGPT ImageGen + style reference + normalization<br/>V1.1: fruit/vegetable pilot + pre-generated narration"]:::built
         A6["A6 Generation / Activity Composition<br/>V1.1: bind concept, mechanic, theme, assets"]:::built
         G1{{"QA gates<br/>asset curation + evals + rendered review<br/>human review of both activities"}}:::gate
-        A8[("A8 Content Library<br/>approved shared assets + playable activity specs<br/>no child-specific slots")]:::built
+        A8[("A8 Content Library<br/>approved visual/audio assets + playable activity specs + selected voice pack<br/>no child-specific slots")]:::built
 
         A1 --> A2
         A2 -- constrains --> A3
@@ -26,12 +26,12 @@ flowchart TB
     subgraph RUNTIME["PLANE C — RUNTIME (child-facing, zero AI)"]
         C1[("C1 Child Context<br/>PRIVACY CORE<br/>V1.1: absent; no profile data")]:::stub
         C2["C2 Selection Engine<br/>V1.1: parent picks"]:::stub
-        C3["C3 Child Runtime<br/>Phaser PWA, tablet-first<br/>V1.1: render and test both mechanics"]:::built
+        C3["C3 Child Runtime<br/>Phaser PWA, tablet-first<br/>V1.1: instruction-first narration, replay, completion speech + both mechanics"]:::built
         C4["C4 Assessment & Profile<br/>THE MOAT<br/>V1.1: session record + parent notes"]:::thin
         C5["C5 Parent Surface<br/>V1.1: absent"]:::stub
     end
 
-    A8 --> C3
+    A8 -->|approved activities + pre-generated visual/audio assets| C3
     A8 -. end-state: selected specs .-> B1
     C1 -. resolved only at future pack build .-> B1
     B1 --> G2 -- future per-child pack --> C3

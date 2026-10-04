@@ -42,17 +42,27 @@ type PresentedTapItem = {
 
 function createRuntimeHarness(activity: unknown): ActivityScene {
   const scene = Object.create(ActivityScene.prototype) as ActivityScene;
+  const gameObject = () => ({
+    setOrigin() { return this; },
+    setDepth() { return this; },
+    setStrokeStyle() { return this; },
+    setInteractive() { return this; },
+    setVisible() { return this; },
+    setFillStyle() { return this; },
+    on() { return this; },
+    once() { return this; },
+  });
   Object.assign(scene, {
     cache: { json: { get: () => activity } },
     textures: { exists: () => true },
     scale: { width: 1024, height: 768 },
     add: {
-      rectangle: () => undefined,
-      text: () => ({ setOrigin: () => undefined }),
+      rectangle: gameObject,
+      text: gameObject,
       graphics: () => ({ lineStyle: () => undefined, lineBetween: () => undefined }),
-      circle: () => ({ setFillStyle: () => undefined }),
+      circle: gameObject,
     },
-    children: { getFirst: () => null },
+    children: { getFirst: () => null, list: [] },
   });
   return scene;
 }
@@ -85,7 +95,7 @@ describe("randomized activity presentation", () => {
 
       captured.tapConfigs.length = 0;
       const scene = createRuntimeHarness(activity);
-      scene.init({ activityId: activity.id });
+      scene.init({ activityId: activity.id, themeId: activity.themeId, review: true });
       scene.create();
 
       expect(captured.tapConfigs, activity.id).toHaveLength(1);
@@ -139,7 +149,7 @@ describe("randomized activity presentation", () => {
       const expectedItemPositions = computeZonePositions(getZone(layout, "item_zone"), rawItems.length, playArea);
       captured.dragConfigs.length = 0;
       const scene = createRuntimeHarness(activity);
-      scene.init({ activityId: activity.id });
+      scene.init({ activityId: activity.id, themeId: activity.themeId, review: true });
       scene.create();
 
       expect(captured.dragConfigs, activity.id).toHaveLength(1);
@@ -189,7 +199,7 @@ describe("randomized activity presentation", () => {
 
       captured.dragConfigs.length = 0;
       const scene = createRuntimeHarness(activity);
-      scene.init({ activityId: activity.id });
+      scene.init({ activityId: activity.id, themeId: activity.themeId, review: true });
       scene.create();
       expect(captured.dragConfigs, activity.id).toHaveLength(1);
       const { items } = captured.dragConfigs[0] as {
@@ -323,7 +333,7 @@ function presentWithSeed(activity: ActivityJSON, seed: ReturnType<Crypto["random
   captured.dragConfigs.length = 0;
   try {
     const scene = createRuntimeHarness(activity);
-    scene.init({ activityId: activity.id });
+    scene.init({ activityId: activity.id, themeId: activity.themeId, review: true });
     scene.create();
     if (activity.mechanicId === "tap-to-select") {
       return structuredClone({ tap: captured.tapConfigs.at(-1) as PresentedTapItem[] });

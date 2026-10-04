@@ -585,6 +585,7 @@ describe("active index", () => {
     const index = buildApprovedIndex([validActivity, automatic, unknownTheme, unknownConcept, human],
       (id) => id === testConcept.id ? testConcept : undefined);
     expect(index.activities.map((entry) => entry.id)).toEqual([validActivity.id]);
+    expect(index.activities[0].themeId).toBe(validActivity.themeId);
   });
 
   it("regenerates an index without legacy, staged, or automatic candidates", () => {

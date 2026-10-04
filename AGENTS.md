@@ -1,9 +1,9 @@
 # Bloom — restart checkpoint
 
-**Last updated:** 2026-09-30
-**Active project checkout:** `/private/tmp/bloom-doc-review-source`
-**Branch:** `codex/fix-activity-switch-feedback`
-**GitHub:** PR #2 is merged. PR #3 (`codex/fix-activity-switch-feedback`) is open for the activity-switch and completion-flow follow-up. Ajay authorized the PR/push workflow; GitHub CLI is authenticated.
+**Last updated:** 2026-10-04
+**Active project checkout:** `/Users/ajayrajendran/Documents/ChatGPT/Bloom`
+**Current feature checkout:** `/Users/ajayrajendran/.codex/worktrees/activity-voiceover/Bloom` on `codex/activity-voiceover`, based on `origin/main` at `6671240`.
+**GitHub:** PRs #2, #3, and #4 are merged. PR #4 (`codex/randomized-activity-presentation`) still has its physical iPad gate outstanding. Voice-over PR [#5](https://github.com/ajayrajen7/bloom/pull/5) is open from `codex/activity-voiceover`.
 
 ## Project objective and current direction
 
@@ -30,6 +30,7 @@ The asset-library design spec is `docs/superpowers/specs/2026-09-27-fruit-vegeta
 - See `library/assets/manifest.json`, `library/assets/reviews/chatgpt-pilot-001.json`, `library/assets/reviews/chatgpt-pilot-002.json`, `library/assets/reviews/chatgpt-pilot-summary.md`, and `library/assets/reviews/contact-sheet.html` for provenance, decisions, results, and previews.
 - Current branch verification on 2026-09-30: `pnpm test` passed 277/277; root and runtime TypeScript checks passed; `pnpm build` succeeded and emitted 17 activities (two pilots plus 15 approved activities); `git diff --check` passed. The production build excludes staged sources, review previews, and the authoring asset manifest. Vite reports a >500 kB JavaScript chunk warning.
 - The 15 additional Kitchen produce activities have been individually tested in the runtime and approved by Ajay on 2026-09-30 for the one-child iPad pilot. They are stored directly under `library/activities/` and indexed alongside the two initial pilots. Child enjoyment and learning efficacy remain untested until observations are recorded.
+- Added pre-generated Tara M4A/ALAC instructions for all 17 indexed activities and one shared “Well done!” clip. The selected pack is configuration data and only its clips are published. Runtime instructions play before the board, support retry/adult-led start on failure and preserve the board during replay. Completion speaks once, waits for speech end or failure plus the two-second minimum, and restores activity-list scroll. Browser speech and in-game progress guidance remain deferred. Physical iPad verification is still pending.
 - For the pilot, do not ask for in-app parent feedback after completion. Show the existing brief celebration, record completion without a parent rating, and return automatically to the activity list. Parent observations stay outside the app.
 
 ## Agreed architecture direction for the next phase
@@ -49,11 +50,26 @@ Keep the mechanic focused on interaction. The approved contract is explicit: Act
 
 The versioned PNG sprite registry is wired into Phaser and the Kitchen theme resolves in the runtime. The 15 additional approved activities are in `library/activities/` and in the active production index for Ajay's iPad test.
 
-The detailed continuation is in the implementation plan under **Phase 2: Runtime asset handshake and two-mechanic pilot**. Ajay confirmed the existing `tap-to-select` and `drag-to-target` pair on 2026-09-27. Do not ask him to confirm again. Ajay selected a shared Kitchen theme with theme colors only, no backdrop, and approved its palette. He selected red apple, banana, orange, and carrot for the pilot; tap to find the red apple among those four, and drag red apple, banana, and orange to matching picture targets. Do not claim child enjoyment until the activities are manually tried and observations are recorded.
+
+## Current pilot gate — randomized activity presentation
+
+**Status:** Runtime implementation and automated verification were merged in PR #4 on 2026-10-01. The implementation is in managed worktree `/Users/ajayrajendran/.codex/worktrees/randomized-activity/Bloom`, branch `codex/randomized-activity-presentation`, based on `origin/main` at `67ac251` (which includes merged PR #3). Commits: `7b7cbc4`, `714f509`, `82b08f6`, and `2a3ca4b`.
+
+**Plan:** `docs/superpowers/plans/2026-09-30-randomized-activity-presentation.md`.
+
+The runtime now seeds each attempt's find-choice and drag-row presentation with `ActivityScene.sessionId`. Choice correctness, matching `targetId` mappings, and category-sort membership remain on their original activity records. The library-wide seed sweep, 290/290 tests, root and runtime TypeScript checks, production build, and `git diff --check` passed. The build retains the existing >500 kB JavaScript chunk warning.
+
+**Outstanding gate:** Physical iPad verification has not been performed; do not claim the pilot presentation is fully verified until the iPad checks in the plan are completed.
+
+## Current voice-over pilot gate
+
+**Plan:** `docs/superpowers/plans/2026-10-04-activity-voiceover.md`. **Approved spec:** `docs/superpowers/specs/2026-10-02-activity-voiceover-design.md`.
+
+Voice-over PR [#5](https://github.com/ajayrajen7/bloom/pull/5) is open from `codex/activity-voiceover`. It includes authored pre-generated narration, active-pack publication, instruction-before-board, replay, failure controls, spoken completion, and scroll restoration. Final checks passed: 296/296 tests, root and runtime TypeScript, production build, and `git diff --check`. The build publishes exactly 17 selected prompts and one completion clip; authoring scripts/manifests and inactive packs are excluded. Vite reports the existing >500 kB JavaScript chunk warning. Physical iPad checks and a human listen-through have not been performed and must be recorded as pending until tested. Verify actual voice/pronunciation, M4A playback, initial user-gesture unlock, and screen sizing on the target device.
 
 ## Resume instructions
 
-1. Open this checkout and branch, not the separate desktop checkout at `/Users/ajayrajendran/Documents/ChatGPT/Bloom` (that checkout did not contain this feature-branch work when checked).
-2. Read this checkpoint, `BLOOM_VISION.md`, `bloom-v1.1-mvp-spec.md`, both canonical architecture files, and the current activity-set spec and plan.
-3. Current follow-up: PR #3 uses activity-specific Phaser cache keys and removes in-app parent ratings. Completion celebrates briefly, records completion without a rating, then returns to the activity list. Have Ajay test its Vercel preview on iPad before merging to production.
+1. Continue from `/Users/ajayrajendran/.codex/worktrees/activity-voiceover/Bloom` on `codex/activity-voiceover` and read the voice-over plan/ledger.
+2. Review PR #5 and preserve all unperformed listening/iPad checks as pending.
+3. On the pilot iPad, verify the voice-over plan's instruction, retry/start fallback, replay for both mechanics, completion timing, and scroll restoration. Also complete PR #4's randomized-presentation checks if they are still outstanding.
 4. Preserve existing unusable legacy activity files without migrating or repairing them.

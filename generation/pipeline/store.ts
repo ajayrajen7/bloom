@@ -107,6 +107,7 @@ export function buildApprovedIndex(
       id: activity.id,
       conceptId: activity.conceptId,
       mechanicId: activity.mechanicId,
+      themeId: activity.themeId,
       prompt: activity.prompt.text,
       difficulty: activity.metadata.difficulty,
     });

@@ -253,6 +253,7 @@ export const ActivityIndexEntrySchema = z.object({
   id: z.string(),
   conceptId: z.string(),
   mechanicId: z.string(),
+  themeId: z.string(),
   prompt: z.string(),
   difficulty: z.enum(["low", "medium", "high"]),
 });

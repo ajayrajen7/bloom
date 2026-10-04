@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { ActivityIndexSchema } from "shared/types.js";
 import { playTap } from "../audio.js";
+import { parseRuntimeVoiceoverConfig, type RuntimeVoiceoverConfig } from "../voiceover.js";
 
 const CARD_W = 760;
 const CARD_H = 130;
@@ -26,12 +27,13 @@ export class SelectionScene extends Phaser.Scene {
 
   preload() {
     this.load.json("activity-index", "/activities/index.json");
+    this.load.json("voiceover-config", "/voiceover.json");
   }
 
-  create() {
+  create(data: { scrollY?: number } = {}) {
     const { width, height } = this.scale;
 
-    let entries: Array<{ id: string; prompt: string; difficulty: string }> = [];
+    let entries: Array<{ id: string; prompt: string; difficulty: string; themeId: string }> = [];
     try {
       const raw = this.cache.json.get("activity-index") as unknown;
       entries = ActivityIndexSchema.parse(raw).activities;
@@ -71,6 +73,8 @@ export class SelectionScene extends Phaser.Scene {
     if (this.worldH > height) {
       this.buildScrollBar(width, height);
     }
+    this.cameras.main.scrollY = Phaser.Math.Clamp(data.scrollY ?? 0, 0, Math.max(0, this.worldH - height));
+    this.updateScrollBar(height);
   }
 
   // Set to true while a drag scroll is in progress so card taps don't fire.
@@ -144,7 +148,7 @@ export class SelectionScene extends Phaser.Scene {
   private buildCard(
     cx: number,
     cy: number,
-    entry: { id: string; prompt: string; difficulty: string }
+    entry: { id: string; prompt: string; difficulty: string; themeId: string }
   ) {
     const bg = this.add
       .rectangle(cx, cy, CARD_W, CARD_H, 0x1e2a3a, 1)
@@ -185,8 +189,17 @@ export class SelectionScene extends Phaser.Scene {
     bg.on("pointerdown", () => bg.setFillStyle(0x162030));
     bg.on("pointerup",   () => {
       if (this.scrolling) return;
+      (this.sound as unknown as { unlock?: () => void }).unlock?.();
       playTap();
-      this.scene.start("ActivityScene", { activityId: entry.id });
+      let voiceover: RuntimeVoiceoverConfig | undefined;
+      try { voiceover = parseRuntimeVoiceoverConfig(this.cache.json.get("voiceover-config")); }
+      catch { voiceover = undefined; }
+      this.scene.start("ActivityScene", {
+        activityId: entry.id,
+        themeId: entry.themeId,
+        voiceover,
+        selectionScrollY: this.cameras.main.scrollY,
+      });
     });
   }
 

@@ -4,6 +4,7 @@
       "id": "act_pilot_kitchen_drag_v1",
       "conceptId": "concept_pilot_kitchen_drag_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Put each fruit on its picture.",
       "difficulty": "low"
     },
@@ -11,6 +12,7 @@
       "id": "act_pilot_kitchen_tap_v1",
       "conceptId": "concept_pilot_kitchen_tap_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the apple.",
       "difficulty": "low"
     },
@@ -18,6 +20,7 @@
       "id": "act_kitchen_apple_twins_v1",
       "conceptId": "concept_kitchen_apple_twins_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find both apples.",
       "difficulty": "medium"
     },
@@ -25,6 +28,7 @@
       "id": "act_kitchen_fruit_or_vegetable_sort_v1",
       "conceptId": "concept_kitchen_fruit_or_vegetable_sort_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Put fruit with fruit and vegetables with vegetables.",
       "difficulty": "medium"
     },
@@ -32,6 +36,7 @@
       "id": "act_kitchen_fruit_stand_match_v1",
       "conceptId": "concept_kitchen_fruit_stand_match_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Put each fruit on its matching picture.",
       "difficulty": "medium"
     },
@@ -39,6 +44,7 @@
       "id": "act_kitchen_garden_basket_v1",
       "conceptId": "concept_kitchen_garden_basket_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the carrot, broccoli, and cucumber.",
       "difficulty": "high"
     },
@@ -46,6 +52,7 @@
       "id": "act_kitchen_garden_harvest_match_v1",
       "conceptId": "concept_kitchen_garden_harvest_match_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Match each harvest to its picture.",
       "difficulty": "medium"
     },
@@ -53,6 +60,7 @@
       "id": "act_kitchen_green_team_v1",
       "conceptId": "concept_kitchen_green_team_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the green apple, cucumber, and broccoli.",
       "difficulty": "high"
     },
@@ -60,6 +68,7 @@
       "id": "act_kitchen_long_shape_hunt_v1",
       "conceptId": "concept_kitchen_long_shape_hunt_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the banana, carrot, and cucumber.",
       "difficulty": "high"
     },
@@ -67,6 +76,7 @@
       "id": "act_kitchen_market_match_v1",
       "conceptId": "concept_kitchen_market_match_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Put each food on its matching picture.",
       "difficulty": "medium"
     },
@@ -74,6 +84,7 @@
       "id": "act_kitchen_mixed_tray_scramble_v1",
       "conceptId": "concept_kitchen_mixed_tray_scramble_v1",
       "mechanicId": "drag-to-target",
+      "themeId": "kitchen-v1",
       "prompt": "Match each food to its picture.",
       "difficulty": "medium"
     },
@@ -81,6 +92,7 @@
       "id": "act_kitchen_orange_team_v1",
       "conceptId": "concept_kitchen_orange_team_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the orange and carrot.",
       "difficulty": "medium"
     },
@@ -88,6 +100,7 @@
       "id": "act_kitchen_picnic_pack_v1",
       "conceptId": "concept_kitchen_picnic_pack_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the red apple, banana, and orange.",
       "difficulty": "high"
     },
@@ -95,6 +108,7 @@
       "id": "act_kitchen_red_kitchen_hunt_v1",
       "conceptId": "concept_kitchen_red_kitchen_hunt_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the red apple and tomato.",
       "difficulty": "medium"
     },
@@ -102,6 +116,7 @@
       "id": "act_kitchen_round_food_hunt_v1",
       "conceptId": "concept_kitchen_round_food_hunt_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the red apple, orange, and tomato.",
       "difficulty": "high"
     },
@@ -109,6 +124,7 @@
       "id": "act_kitchen_smoothie_mix_v1",
       "conceptId": "concept_kitchen_smoothie_mix_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the red apple, banana, and grapes.",
       "difficulty": "high"
     },
@@ -116,6 +132,7 @@
       "id": "act_kitchen_soup_chef_v1",
       "conceptId": "concept_kitchen_soup_chef_v1",
       "mechanicId": "tap-to-select",
+      "themeId": "kitchen-v1",
       "prompt": "Find the carrot, tomato, and broccoli.",
       "difficulty": "high"
     }

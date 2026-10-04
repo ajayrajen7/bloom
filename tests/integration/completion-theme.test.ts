@@ -76,7 +76,7 @@ describe("CompletionScene theme presentation", () => {
     const returnTimer = result.timers.find(({ delay }) => delay === 2000);
     expect(returnTimer).toBeDefined();
     returnTimer?.callback();
-    expect(result.startScene).toHaveBeenCalledWith("SelectionScene");
+    expect(result.startScene).toHaveBeenCalledWith("SelectionScene", { scrollY: 0 });
   });
 
   it("shows an error for an unknown theme instead of rendering completion content", () => {
